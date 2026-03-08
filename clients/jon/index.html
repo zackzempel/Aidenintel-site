@@ -552,6 +552,9 @@ footer a { color: var(--accent2); text-decoration: none; }
 
   // Submit request to Supabase
   async function submitRequest() {
+    // Stop mic if still recording
+    if (isListening && recognition) { recognition.stop(); }
+
     const message = document.getElementById('reqMessage').value.trim();
     const type = document.getElementById('reqType').value;
     if (!message) { document.getElementById('reqMessage').focus(); return; }
