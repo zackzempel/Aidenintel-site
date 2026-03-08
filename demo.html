@@ -368,6 +368,10 @@ html, body {
   padding: 12px;
   display: inline-block;
 }
+#qr-canvas img, #qr-canvas canvas {
+  display: block;
+  border-radius: 6px;
+}
 .share-btn {
   display: flex;
   align-items: center;
@@ -480,7 +484,7 @@ html, body {
     <div class="qr-card">
       <div class="qr-title">Share this demo</div>
       <div class="qr-sub">Scan to open on your phone — or hand it to someone</div>
-      <canvas id="qr-canvas" width="180" height="180"></canvas>
+      <div id="qr-canvas"></div>
       <button class="share-btn" id="shareBtn" onclick="shareLink()">
         <span>📋</span> <span id="shareBtnText">Copy link to share</span>
       </button>
