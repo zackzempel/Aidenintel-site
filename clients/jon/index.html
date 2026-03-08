@@ -452,6 +452,49 @@ footer a { color: var(--accent2); text-decoration: none; }
       </div>
     </div>
 
+    <!-- REQUEST FORM -->
+    <div style="margin-top: 40px;">
+      <div class="section-title">Submit a Request</div>
+      <div class="project-card">
+        <p style="font-size:0.9rem; color:var(--text2); margin-bottom:24px; line-height:1.7;">Have a change, question, or new idea? Type it below or use your microphone to speak your request. Aiden will pick it up and get to work — Zack will review and you'll get a notification when it's ready.</p>
+
+        <div class="form-group" style="margin-bottom:16px;">
+          <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Request Type</label>
+          <select id="reqType" style="width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none;">
+            <option>Website change or update</option>
+            <option>New listing to feature</option>
+            <option>Marketing content request</option>
+            <option>SEO update</option>
+            <option>General question</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px; position:relative;">
+          <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Your Request</label>
+          <textarea id="reqMessage" placeholder="Describe what you need..." style="width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:120px; transition:border-color 0.2s;"></textarea>
+        </div>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+          <button id="micBtn" onclick="toggleMic()" style="display:flex; align-items:center; gap:8px; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.25); color:var(--accent2); padding:10px 20px; border-radius:10px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
+            🎤 Use Microphone
+          </button>
+          <span id="micStatus" style="font-size:0.8rem; color:var(--text3);"></span>
+        </div>
+
+        <button onclick="submitRequest()" id="submitBtn" style="background:var(--accent); color:white; border:none; padding:13px 28px; border-radius:10px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
+          Send Request →
+        </button>
+
+        <div id="reqSuccess" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
+          ✅ Request submitted! Aiden is on it. You'll hear back soon.
+        </div>
+        <div id="reqError" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:10px; color:#ef4444; font-size:0.875rem;">
+          Something went wrong. Please try again or email hello@aidenintel.com
+        </div>
+      </div>
+    </div>
+
     <!-- UPDATES -->
     <div style="margin-top: 40px;">
       <div class="section-title">Recent Updates</div>
@@ -480,15 +523,18 @@ footer a { color: var(--accent2); text-decoration: none; }
   </footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // Simple password protection
-  // Password: JON2026
-  const HASH = '4a4f4e32303236'; // hex of JON2026
+  // Supabase
+  const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  // Password protection — JON2026
+  const HASH = '4a4f4e32303236';
   function strToHex(str) {
     return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
   }
-
   function unlock() {
     const input = document.getElementById('passInput').value.toUpperCase();
     if (strToHex(input) === HASH) {
@@ -499,6 +545,81 @@ footer a { color: var(--accent2); text-decoration: none; }
       document.getElementById('passInput').value = '';
       document.getElementById('passInput').focus();
     }
+  }
+
+  // Submit request to Supabase
+  async function submitRequest() {
+    const message = document.getElementById('reqMessage').value.trim();
+    const type = document.getElementById('reqType').value;
+    if (!message) { document.getElementById('reqMessage').focus(); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    const { error } = await supabase.from('client_requests').insert({
+      client_name: 'Jon Severson',
+      client_id: 'jon',
+      request_type: type,
+      message: message,
+      status: 'new'
+    });
+
+    if (error) {
+      document.getElementById('reqError').style.display = 'block';
+      btn.textContent = 'Send Request →';
+      btn.disabled = false;
+    } else {
+      document.getElementById('reqSuccess').style.display = 'block';
+      document.getElementById('reqMessage').value = '';
+      btn.textContent = 'Send Request →';
+      btn.disabled = false;
+    }
+  }
+
+  // Voice input
+  let recognition = null;
+  let isListening = false;
+
+  function toggleMic() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      document.getElementById('micStatus').textContent = 'Microphone not supported in this browser. Try Chrome or Safari.';
+      return;
+    }
+    if (isListening) {
+      recognition.stop();
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      isListening = true;
+      document.getElementById('micBtn').textContent = '🔴 Stop Recording';
+      document.getElementById('micBtn').style.background = 'rgba(239,68,68,0.1)';
+      document.getElementById('micBtn').style.borderColor = 'rgba(239,68,68,0.3)';
+      document.getElementById('micBtn').style.color = '#ef4444';
+      document.getElementById('micStatus').textContent = 'Listening...';
+    };
+    recognition.onresult = (e) => {
+      let transcript = '';
+      for (let i = 0; i < e.results.length; i++) {
+        transcript += e.results[i][0].transcript;
+      }
+      document.getElementById('reqMessage').value = transcript;
+    };
+    recognition.onend = () => {
+      isListening = false;
+      document.getElementById('micBtn').textContent = '🎤 Use Microphone';
+      document.getElementById('micBtn').style.background = 'rgba(99,102,241,0.1)';
+      document.getElementById('micBtn').style.borderColor = 'rgba(99,102,241,0.25)';
+      document.getElementById('micBtn').style.color = 'var(--accent2)';
+      document.getElementById('micStatus').textContent = 'Done — review your message above.';
+    };
+    recognition.start();
   }
 </script>
 </body>
