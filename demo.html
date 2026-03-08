@@ -223,7 +223,7 @@ html, body {
 .content-inner {
   max-width: 500px;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: calc(48px + env(safe-area-inset-top)) 24px 48px;
   position: relative;
   z-index: 1;
 }
@@ -236,8 +236,9 @@ html, body {
   font-size: 1.4rem;
   font-weight: 800;
   letter-spacing: -0.02em;
+  color: #f1f5f9;
 }
-.brand-name span { color: var(--accent2); }
+.brand-name span { color: #818cf8; }
 .brand-tag {
   font-size: 0.72rem;
   color: var(--text2);
@@ -297,6 +298,7 @@ html, body {
   font-size: 1.2rem;
   font-weight: 700;
   margin-bottom: 4px;
+  color: #f1f5f9;
 }
 .client-sub {
   font-size: 0.82rem;
