@@ -1,0 +1,34 @@
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
+
+  try {
+    const payload = req.body;
+    const record = payload?.record;
+    if (!record) return res.status(400).json({ error: 'No record' });
+
+    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+    const msg = `🔔 *New Client Request*\n\n` +
+      `👤 *Client:* ${record.client_name}\n` +
+      `📋 *Type:* ${record.request_type}\n` +
+      `💬 *Message:* ${record.message}\n` +
+      `🕐 *Submitted:* ${new Date(record.created_at).toLocaleString('en-US', {timeZone: 'America/Chicago'})}\n\n` +
+      `👉 Review at: aidenintel.com/clients/jon`;
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: msg,
+        parse_mode: 'Markdown'
+      })
+    });
+
+    res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+}
