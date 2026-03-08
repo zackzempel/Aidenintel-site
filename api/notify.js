@@ -9,12 +9,12 @@ export default async function handler(req, res) {
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     const CHAT_IDS = (process.env.TELEGRAM_CHAT_IDS || process.env.TELEGRAM_CHAT_ID).split(',');
 
-    const msg = `🔔 *New Client Request*\n\n` +
-      `👤 *Client:* ${record.client_name}\n` +
+    const msg = `🤖 *AIDEN AUTO-TASK*\n\n` +
+      `New request from *${record.client_name}* (Request #${record.id})\n\n` +
       `📋 *Type:* ${record.request_type}\n` +
-      `💬 *Message:* ${record.message}\n` +
-      `🕐 *Submitted:* ${new Date(record.created_at).toLocaleString('en-US', {timeZone: 'America/Chicago'})}\n\n` +
-      `👉 Review at: aidenintel.com/clients/jon`;
+      `💬 *Request:* ${record.message}\n` +
+      `🕐 *Time:* ${new Date(record.created_at).toLocaleString('en-US', {timeZone: 'America/Chicago'})}\n\n` +
+      `Aiden — handle this request now, deploy the change, mark it done in Supabase, and reply here when complete.`;
 
     await Promise.all(CHAT_IDS.map(chat_id =>
       fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
