@@ -3,497 +3,796 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aiden Intel — Intelligent Agentic Solutions</title>
-<meta name="description" content="Aiden Intel builds intelligent agentic frameworks for businesses. Powered by AI, driven by results.">
+<title>Aiden Intel — AI Agent Networks for Real Business</title>
+<meta name="description" content="We build custom AI agent networks that work for your business around the clock. White glove setup, real results.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #05070f;
+  --surface: #0a0d1a;
+  --surface2: #0f1222;
+  --border: #1a2035;
+  --border2: #252d45;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --accent3: #a78bfa;
+  --green: #10b981;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #475569;
+}
 
-  :root {
-    --bg: #060912;
-    --surface: #0d1117;
-    --border: #1a2332;
-    --accent: #6366f1;
-    --accent2: #8b5cf6;
-    --text: #f1f5f9;
-    --muted: #64748b;
-    --subtle: #1e293b;
-  }
+html { scroll-behavior: smooth; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', system-ui, sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
 
-  /* NOISE TEXTURE */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ─── GRID BACKGROUND ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
 
-  /* NAV */
-  nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    padding: 20px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(6,9,18,0.8);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 64px;
+  background: rgba(5,7,15,0.7);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
 
-  .logo {
-    font-size: 1.2rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: var(--text);
-  }
-  .logo span { color: var(--accent); }
+.logo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  text-decoration: none;
+}
+.logo em { color: var(--accent); font-style: normal; }
 
-  .nav-links {
-    display: flex;
-    gap: 32px;
-    list-style: none;
-  }
-  .nav-links a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-  .nav-links a:hover { color: var(--text); }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+.nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.nav-cta {
+  background: var(--accent) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 8px 18px !important;
+}
+.nav-cta:hover { background: #4f46e5 !important; }
 
-  .nav-cta {
-    background: var(--accent);
-    color: white !important;
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-weight: 600 !important;
-    transition: background 0.2s !important;
-  }
-  .nav-cta:hover { background: #4f46e5 !important; color: white !important; }
+/* ─── HERO ─── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  overflow: hidden;
+}
 
-  /* HERO */
-  .hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 120px 24px 80px;
-    overflow: hidden;
-  }
+/* Glow */
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(160px);
+  pointer-events: none;
+}
+.glow-1 { width: 800px; height: 800px; background: rgba(99,102,241,0.12); top: -300px; left: 50%; transform: translateX(-50%); }
+.glow-2 { width: 400px; height: 400px; background: rgba(139,92,246,0.08); bottom: 0; right: -100px; }
 
-  /* Glow orbs */
-  .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.15;
-    pointer-events: none;
-  }
-  .orb-1 { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -100px; }
-  .orb-2 { width: 500px; height: 500px; background: var(--accent2); bottom: -100px; right: -100px; }
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.2);
+  color: var(--accent2);
+  padding: 6px 16px 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-bottom: 36px;
+}
+.eyebrow-dot {
+  width: 20px; height: 20px;
+  background: rgba(99,102,241,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.eyebrow-dot::after {
+  content: '';
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
 
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(99,102,241,0.1);
-    border: 1px solid rgba(99,102,241,0.25);
-    color: #a5b4fc;
-    padding: 6px 16px;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-bottom: 32px;
-  }
-  .badge-dot { width: 6px; height: 6px; background: #6366f1; border-radius: 50%; animation: pulse 2s infinite; }
+.hero h1 {
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -3px;
+  margin-bottom: 28px;
+  max-width: 960px;
+}
+.hero h1 .line2 {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 60%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.3); }
-  }
+.hero-sub {
+  font-size: 1.2rem;
+  color: var(--text2);
+  max-width: 580px;
+  line-height: 1.75;
+  margin-bottom: 44px;
+  font-weight: 400;
+}
 
-  .hero h1 {
-    font-size: clamp(2.8rem, 7vw, 5.5rem);
-    font-weight: 900;
-    line-height: 1.05;
-    letter-spacing: -2px;
-    margin-bottom: 24px;
-    max-width: 900px;
-  }
-  .hero h1 .gradient {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 80px;
+}
 
-  .hero p {
-    font-size: 1.2rem;
-    color: var(--muted);
-    max-width: 560px;
-    line-height: 1.7;
-    margin-bottom: 40px;
-  }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.5), 0 8px 32px rgba(99,102,241,0.25);
+}
+.btn-primary:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.6), 0 12px 40px rgba(99,102,241,0.35);
+}
+.btn-ghost {
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  border: 1px solid var(--border2);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: var(--border2); }
 
-  .hero-actions {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+/* Social proof bar */
+.proof-bar {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 20px 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.proof-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.proof-icon { font-size: 1.3rem; }
+.proof-text { font-size: 0.85rem; color: var(--text2); font-weight: 500; }
+.proof-text strong { color: var(--text); }
+.proof-divider { width: 1px; height: 32px; background: var(--border2); }
 
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-    padding: 14px 32px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.2s;
-    box-shadow: 0 0 40px rgba(99,102,241,0.3);
-  }
-  .btn-primary:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 0 60px rgba(99,102,241,0.4); }
+/* ─── SECTION BASE ─── */
+.section {
+  padding: 120px 24px;
+  max-width: 1140px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+.section-sub {
+  font-size: 1.1rem;
+  color: var(--text2);
+  line-height: 1.75;
+  max-width: 560px;
+  margin-bottom: 64px;
+}
 
-  .btn-secondary {
-    background: transparent;
-    color: var(--text);
-    padding: 14px 32px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    text-decoration: none;
-    border: 1px solid var(--border);
-    transition: all 0.2s;
-  }
-  .btn-secondary:hover { border-color: var(--accent); color: #a5b4fc; }
+/* ─── WHAT WE BUILD ─── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.service-card {
+  background: var(--surface);
+  padding: 36px 32px;
+  transition: background 0.2s;
+  position: relative;
+}
+.service-card:hover { background: var(--surface2); }
+.service-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99,102,241,0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.service-card:hover::after { opacity: 1; }
+.service-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  font-family: monospace;
+}
+.service-icon-wrap {
+  width: 48px; height: 48px;
+  background: rgba(99,102,241,0.1);
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+.service-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.service-card p {
+  font-size: 0.875rem;
+  color: var(--text2);
+  line-height: 1.65;
+}
 
-  /* STATS */
-  .stats {
-    display: flex;
-    gap: 48px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 72px;
-    padding-top: 48px;
-    border-top: 1px solid var(--border);
-    width: 100%;
-    max-width: 700px;
-  }
-  .stat-item { text-align: center; }
-  .stat-num { font-size: 2rem; font-weight: 800; color: var(--text); letter-spacing: -1px; }
-  .stat-num span { color: var(--accent); }
-  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+/* ─── HOW IT WORKS ─── */
+.how-section {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.how-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 120px 24px;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+  margin-top: 64px;
+}
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: calc(12.5%);
+  right: calc(12.5%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2) 20%, var(--border2) 80%, transparent);
+}
+.step {
+  padding: 0 20px;
+  position: relative;
+}
+.step-circle {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent2);
+  margin: 0 auto 24px;
+  position: relative;
+  z-index: 1;
+  font-family: monospace;
+}
+.step h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.step p {
+  font-size: 0.85rem;
+  color: var(--text2);
+  line-height: 1.65;
+  text-align: center;
+}
 
-  /* SECTION */
-  section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; position: relative; }
+/* ─── WHO IT'S FOR ─── */
+.industries {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 64px;
+}
+.industry-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  transition: all 0.2s;
+}
+.industry-card:hover { border-color: rgba(99,102,241,0.3); background: var(--surface2); }
+.industry-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  width: 56px; height: 56px;
+  background: rgba(99,102,241,0.08);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.industry-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.industry-card p { font-size: 0.875rem; color: var(--text2); line-height: 1.6; }
+.industry-tag {
+  display: inline-block;
+  margin-top: 12px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.2);
+  color: var(--green);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
 
-  .section-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: var(--accent);
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
-  .section-title {
-    font-size: clamp(1.8rem, 4vw, 3rem);
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1.15;
-    margin-bottom: 16px;
-  }
-  .section-sub {
-    font-size: 1.1rem;
-    color: var(--muted);
-    max-width: 560px;
-    line-height: 1.7;
-    margin-bottom: 56px;
-  }
+/* ─── WHY AIDEN INTEL ─── */
+.why-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 64px;
+}
+.why-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  transition: all 0.2s;
+}
+.why-card:hover { border-color: var(--border2); }
+.why-card.featured {
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08));
+  border-color: rgba(99,102,241,0.3);
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+.why-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+.why-card p { font-size: 0.9rem; color: var(--text2); line-height: 1.65; }
+.why-number {
+  font-size: 5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -4px;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
 
-  /* SERVICES GRID */
-  .services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-  }
+/* ─── CTA ─── */
+.cta-wrap {
+  padding: 120px 24px;
+  position: relative;
+  z-index: 1;
+}
+.cta-box {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  padding: 80px 64px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-box::before {
+  content: '';
+  position: absolute;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(99,102,241,0.12), transparent 65%);
+  pointer-events: none;
+}
+.cta-box h2 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin-bottom: 20px;
+}
+.cta-box p {
+  font-size: 1.1rem;
+  color: var(--text2);
+  max-width: 500px;
+  margin: 0 auto 40px;
+  line-height: 1.75;
+}
+.cta-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
 
-  .service-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-  .service-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(99,102,241,0.05), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .service-card:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-2px); }
-  .service-card:hover::before { opacity: 1; }
+/* ─── FOOTER ─── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+.footer-left { display: flex; flex-direction: column; gap: 6px; }
+.footer-tagline { font-size: 0.8rem; color: var(--text3); }
+footer nav { display: flex; gap: 24px; }
+footer nav a { font-size: 0.85rem; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+footer nav a:hover { color: var(--text2); }
+.footer-copy { font-size: 0.8rem; color: var(--text3); }
 
-  .service-icon {
-    font-size: 2rem;
-    margin-bottom: 16px;
-    display: block;
-  }
-  .service-card h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: var(--text);
-  }
-  .service-card p {
-    font-size: 0.9rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links li:not(:last-child) { display: none; }
+  .services-grid { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .steps::before { display: none; }
+  .industries { grid-template-columns: 1fr; }
+  .why-grid { grid-template-columns: 1fr; }
+  .why-card.featured { grid-column: span 1; grid-template-columns: 1fr; }
+  .cta-box { padding: 48px 24px; }
+  footer { flex-direction: column; text-align: center; }
+  footer nav { justify-content: center; }
+}
 
-  /* HOW IT WORKS */
-  .how-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 0;
-    position: relative;
-  }
-  .how-grid::before {
-    content: '';
-    position: absolute;
-    top: 28px;
-    left: 10%;
-    right: 10%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border), var(--border), transparent);
-  }
-  .how-step { text-align: center; padding: 0 24px; }
-  .step-num {
-    width: 56px;
-    height: 56px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--accent);
-    margin: 0 auto 20px;
-    position: relative;
-    z-index: 1;
-  }
-  .how-step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
-  .how-step p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
-
-  /* CTA SECTION */
-  .cta-section {
-    text-align: center;
-    padding: 100px 24px;
-    position: relative;
-    overflow: hidden;
-  }
-  .cta-inner {
-    max-width: 700px;
-    margin: 0 auto;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 64px 48px;
-    position: relative;
-    overflow: hidden;
-  }
-  .cta-inner::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%);
-    pointer-events: none;
-  }
-  .cta-inner h2 { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
-  .cta-inner p { color: var(--muted); font-size: 1.05rem; margin-bottom: 32px; line-height: 1.7; }
-
-  /* FOOTER */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 40px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  footer .logo { font-size: 1rem; }
-  footer p { color: var(--muted); font-size: 0.85rem; }
-
-  @media (max-width: 768px) {
-    nav { padding: 16px 20px; }
-    .nav-links { display: none; }
-    .how-grid::before { display: none; }
-    footer { flex-direction: column; text-align: center; }
-  }
+@media (max-width: 600px) {
+  .steps { grid-template-columns: 1fr; }
+  .proof-bar { gap: 20px; }
+  .proof-divider { display: none; }
+}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ── NAV ── -->
 <nav>
-  <div class="logo">Aiden<span>Intel</span></div>
+  <a href="/" class="logo">Aiden<em>Intel</em></a>
   <ul class="nav-links">
     <li><a href="#services">Services</a></li>
     <li><a href="#how">How It Works</a></li>
-    <li><a href="#contact" class="nav-cta">Get Started</a></li>
+    <li><a href="#who">Industries</a></li>
+    <li><a href="#contact" class="btn nav-cta">Get Started →</a></li>
   </ul>
 </nav>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
 
-  <div class="hero-badge">
-    <span class="badge-dot"></span>
-    Intelligent Agentic Solutions
+  <div class="hero-eyebrow">
+    <span class="eyebrow-dot"></span>
+    AI Agent Networks · Built for Real Business
   </div>
 
-  <h1>Your business,<br><span class="gradient">powered by Aiden.</span></h1>
+  <h1>
+    Your business runs itself.<br>
+    <span class="line2">Powered by Aiden.</span>
+  </h1>
 
-  <p>We build custom AI agent networks that work for your business around the clock — handling the tasks that slow you down so you can focus on what matters.</p>
+  <p class="hero-sub">
+    We design and deploy custom AI agent networks — intelligent systems that handle your operations, marketing, and client work around the clock so you can focus on growth.
+  </p>
 
   <div class="hero-actions">
-    <a href="#contact" class="btn-primary">Start the Conversation</a>
-    <a href="#services" class="btn-secondary">See What We Build</a>
+    <a href="#contact" class="btn btn-primary">Start the Conversation →</a>
+    <a href="#services" class="btn btn-ghost">See What We Build</a>
   </div>
 
-  <div class="stats">
-    <div class="stat-item">
-      <div class="stat-num">24<span>/7</span></div>
-      <div class="stat-label">Always On</div>
+  <div class="proof-bar">
+    <div class="proof-item">
+      <span class="proof-icon">🤖</span>
+      <span class="proof-text"><strong>Custom</strong> agent networks</span>
     </div>
-    <div class="stat-item">
-      <div class="stat-num"><span>∞</span></div>
-      <div class="stat-label">Scalable</div>
+    <div class="proof-divider"></div>
+    <div class="proof-item">
+      <span class="proof-icon">⚡</span>
+      <span class="proof-text"><strong>24/7</strong> autonomous operation</span>
     </div>
-    <div class="stat-item">
-      <div class="stat-num">1<span>st</span></div>
-      <div class="stat-label">White Glove Setup</div>
+    <div class="proof-divider"></div>
+    <div class="proof-item">
+      <span class="proof-icon">🎯</span>
+      <span class="proof-text"><strong>White glove</strong> setup & support</span>
+    </div>
+    <div class="proof-divider"></div>
+    <div class="proof-item">
+      <span class="proof-icon">🔒</span>
+      <span class="proof-text"><strong>Enterprise</strong> grade security</span>
     </div>
   </div>
-</div>
+</section>
 
-<!-- SERVICES -->
-<section id="services">
-  <div class="section-label">What We Do</div>
-  <div class="section-title">Every business needs<br>an intelligent backbone.</div>
-  <div class="section-sub">We design, build, and deploy agentic networks tailored to your operation — not off-the-shelf, not generic.</div>
+<!-- ── SERVICES ── -->
+<section class="section" id="services">
+  <div class="section-label">What We Build</div>
+  <div class="section-title">One network.<br>Every function covered.</div>
+  <div class="section-sub">We don't sell software. We build intelligent systems architected around your specific business — then we stay with you.</div>
 
   <div class="services-grid">
     <div class="service-card">
-      <span class="service-icon">🤖</span>
+      <div class="service-num">01</div>
+      <div class="service-icon-wrap">🤖</div>
       <h3>Agentic Framework Design</h3>
-      <p>Custom AI agent networks architected around your workflow. From lead management to content creation — automated, intelligent, always on.</p>
+      <p>Custom AI agent networks built around your workflow. Orchestrated, intelligent, always on — from lead management to operations.</p>
     </div>
     <div class="service-card">
-      <span class="service-icon">🌐</span>
+      <div class="service-num">02</div>
+      <div class="service-icon-wrap">🌐</div>
       <h3>Website & Brand</h3>
-      <p>Clean, high-performance websites that represent your brand at its best. Built to convert, optimized for search, designed to impress.</p>
+      <p>High-performance, conversion-focused websites that represent your brand at its absolute best. Built to impress, optimized to convert.</p>
     </div>
     <div class="service-card">
-      <span class="service-icon">📣</span>
+      <div class="service-num">03</div>
+      <div class="service-icon-wrap">📣</div>
       <h3>Marketing Automation</h3>
-      <p>Social media, email campaigns, listing content — AI agents that generate, schedule, and publish your marketing on autopilot.</p>
+      <p>AI agents that generate, schedule, and publish your content across every channel — social media, email, listings — on autopilot.</p>
     </div>
     <div class="service-card">
-      <span class="service-icon">📊</span>
+      <div class="service-num">04</div>
+      <div class="service-icon-wrap">📊</div>
       <h3>CRM & Lead Intelligence</h3>
-      <p>Connect your lead sources, automate follow-ups, and surface the right opportunities at the right time — without lifting a finger.</p>
+      <p>Connect your lead sources, automate follow-ups, and surface the right opportunities at the right time. Never drop a lead again.</p>
     </div>
     <div class="service-card">
-      <span class="service-icon">🔒</span>
-      <h3>Security & Reliability</h3>
-      <p>Enterprise-grade safety built into every system we deploy. Your data, your clients, your reputation — protected.</p>
-    </div>
-    <div class="service-card">
-      <span class="service-icon">📈</span>
+      <div class="service-num">05</div>
+      <div class="service-icon-wrap">📈</div>
       <h3>Growth Dashboards</h3>
-      <p>Real-time visibility into everything that matters. Know how your agents are performing and where to push harder.</p>
+      <p>Real-time visibility into everything that matters. See how your agents are performing and know exactly where to push harder.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">06</div>
+      <div class="service-icon-wrap">🔒</div>
+      <h3>Security & Reliability</h3>
+      <p>Enterprise-grade protection built into every system. Your data, your clients, and your reputation are always protected.</p>
     </div>
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
-<section id="how" style="background: var(--surface); border-radius: 24px; border: 1px solid var(--border); padding: 64px 48px; max-width: 1100px; margin: 0 auto;">
-  <div style="text-align:center; margin-bottom: 56px;">
-    <div class="section-label">The Process</div>
-    <div class="section-title">Simple. Fast. Done right.</div>
-  </div>
-  <div class="how-grid">
-    <div class="how-step">
-      <div class="step-num">1</div>
-      <h3>Discovery</h3>
-      <p>We learn your business, your pain points, and your goals. No templates — just your operation.</p>
+<!-- ── HOW IT WORKS ── -->
+<div class="how-section" id="how">
+  <div class="how-inner">
+    <div style="text-align:center; max-width: 600px; margin: 0 auto;">
+      <div class="section-label" style="justify-content:center; display:flex;">The Process</div>
+      <div class="section-title">From idea to running<br>system in days.</div>
+      <p style="color:var(--text2); font-size:1.05rem; line-height:1.75;">No long contracts, no bloated timelines. We move fast, build right, and iterate until it's perfect.</p>
     </div>
-    <div class="how-step">
-      <div class="step-num">2</div>
-      <h3>Architecture</h3>
-      <p>We design the agent network, map the workflows, and plan the integrations before writing a single line.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-circle">01</div>
+        <h3>Discovery</h3>
+        <p>We learn your business deeply — the pain points, the goals, the workflows. No templates. Just your operation.</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">02</div>
+        <h3>Architecture</h3>
+        <p>We design your agent network, map every workflow, and plan all integrations before writing a single line of code.</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">03</div>
+        <h3>Build & Test</h3>
+        <p>We build in tight iterations, test thoroughly at every stage, and refine before anything touches your real business.</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">04</div>
+        <h3>Launch & Grow</h3>
+        <p>White glove deployment and ongoing support. Your agents learn, improve, and grow with your business over time.</p>
+      </div>
     </div>
-    <div class="how-step">
-      <div class="step-num">3</div>
-      <h3>Build & Test</h3>
-      <p>We build in iterations, test thoroughly, and refine before anything touches production.</p>
-    </div>
-    <div class="how-step">
-      <div class="step-num">4</div>
-      <h3>Launch & Support</h3>
-      <p>White glove deployment and ongoing support. We don't disappear after launch.</p>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<div class="cta-section" id="contact">
-  <div class="cta-inner">
-    <h2>Ready to build something?</h2>
-    <p>Tell us about your business and we'll show you what an intelligent agentic framework can do for you.</p>
-    <a href="mailto:hello@aidenintel.com" class="btn-primary">hello@aidenintel.com</a>
   </div>
 </div>
 
-<!-- FOOTER -->
+<!-- ── WHO IT'S FOR ── -->
+<section class="section" id="who">
+  <div class="section-label">Industries</div>
+  <div class="section-title">Built for businesses<br>that mean business.</div>
+  <div class="section-sub">We work best with operators who are serious about growth and ready to let AI do the heavy lifting.</div>
+
+  <div class="industries">
+    <div class="industry-card">
+      <div class="industry-icon">🏡</div>
+      <div>
+        <h3>Real Estate</h3>
+        <p>AI-powered listing management, lead nurturing, CRM automation, virtual staging, and marketing content — all on autopilot.</p>
+        <span class="industry-tag">ACTIVE CLIENT</span>
+      </div>
+    </div>
+    <div class="industry-card">
+      <div class="industry-icon">🏢</div>
+      <div>
+        <h3>Professional Services</h3>
+        <p>Automate client intake, follow-ups, scheduling, proposals, and reporting so your team focuses on billable work.</p>
+        <span class="industry-tag" style="background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.2); color:var(--accent2);">AVAILABLE</span>
+      </div>
+    </div>
+    <div class="industry-card">
+      <div class="industry-icon">🛒</div>
+      <div>
+        <h3>E-Commerce & Retail</h3>
+        <p>Product descriptions, ad copy, customer service, inventory alerts, and personalized marketing — all automated.</p>
+        <span class="industry-tag" style="background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.2); color:var(--accent2);">AVAILABLE</span>
+      </div>
+    </div>
+    <div class="industry-card">
+      <div class="industry-icon">🚀</div>
+      <div>
+        <h3>Startups & Founders</h3>
+        <p>Move at startup speed with an AI team that never sleeps. Research, content, outreach, ops — covered from day one.</p>
+        <span class="industry-tag" style="background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.2); color:var(--accent2);">AVAILABLE</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY AIDEN INTEL ── -->
+<section class="section">
+  <div class="section-label">Why Us</div>
+  <div class="section-title">We don't just consult.<br>We build and stay.</div>
+
+  <div class="why-grid">
+    <div class="why-card featured">
+      <div>
+        <div class="why-number">Aiden</div>
+        <h3>You get an AI partner, not a vendor.</h3>
+        <p>Aiden is the intelligence at the center of every network we build. An orchestrator that learns your business, manages your agents, and grows smarter over time. This isn't a product — it's a partnership.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.15); border-radius:12px; padding:20px;">
+          <div style="font-size:0.75rem; color:var(--text3); font-weight:700; letter-spacing:2px; margin-bottom:8px;">ALWAYS ON</div>
+          <p style="font-size:0.9rem; color:var(--text2); line-height:1.6;">Your agent network runs 24/7/365. No days off, no sick days, no context switching.</p>
+        </div>
+        <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.15); border-radius:12px; padding:20px;">
+          <div style="font-size:0.75rem; color:var(--green); font-weight:700; letter-spacing:2px; margin-bottom:8px;">GETS SMARTER</div>
+          <p style="font-size:0.9rem; color:var(--text2); line-height:1.6;">Every interaction improves the system. Your agents learn your business and continuously improve.</p>
+        </div>
+      </div>
+    </div>
+    <div class="why-card">
+      <h3>Quality over everything.</h3>
+      <p style="margin-bottom:16px;">We don't cut corners to save a buck. Every system we build is architected with precision, designed with excellence, and deployed with care. Your brand is on the line — we treat it that way.</p>
+    </div>
+    <div class="why-card">
+      <h3>White glove from day one.</h3>
+      <p>Most agencies disappear after launch. We don't. Onboarding, training, iteration, support — we're with you the whole way. Your success is our reputation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<div class="cta-wrap" id="contact">
+  <div class="cta-box">
+    <h2>Ready to build<br>something real?</h2>
+    <p>Tell us about your business. We'll show you exactly what an Aiden Intel agent network can do for you — no fluff, no generic demos.</p>
+    <div class="cta-actions">
+      <a href="mailto:hello@aidenintel.com" class="btn btn-primary">hello@aidenintel.com →</a>
+      <a href="#services" class="btn btn-ghost">Explore Services</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
 <footer>
-  <div class="logo">Aiden<span>Intel</span></div>
-  <p>© 2026 Aiden Intel. Built by Aiden & Zack.</p>
-  <p style="color: #334155; font-size: 0.8rem;">aidenintel.com</p>
+  <div class="footer-left">
+    <a href="/" class="logo">Aiden<em>Intel</em></a>
+    <span class="footer-tagline">Intelligent Agentic Solutions</span>
+  </div>
+  <nav>
+    <a href="#services">Services</a>
+    <a href="#how">Process</a>
+    <a href="#who">Industries</a>
+    <a href="mailto:hello@aidenintel.com">Contact</a>
+  </nav>
+  <span class="footer-copy">© 2026 Aiden Intel. Built by Aiden & Zack.</span>
 </footer>
 
 </body>
