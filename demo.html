@@ -181,13 +181,14 @@ html, body {
   text-align: center;
   margin-top: 20px;
   font-size: 0.75rem;
-  color: rgba(148,163,184,0.5);
-  letter-spacing: 0.08em;
-  animation: blink 2s ease-in-out 2s infinite;
+  color: rgba(148,163,184,0.6);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  animation: blink 1.8s ease-in-out 1.5s infinite;
 }
 @keyframes blink {
-  0%, 100% { opacity: 0.5; }
-  50%       { opacity: 1; }
+  0%, 100% { opacity: 0.3; transform: translateY(0px); }
+  50%       { opacity: 1;   transform: translateY(-3px); }
 }
 
 /* ─── MAIN CONTENT ─── */
@@ -550,8 +551,7 @@ function revealContent() {
   }, 300);
 }
 
-// Auto-reveal after 4 seconds if they don't tap
-setTimeout(revealContent, 4200);
+// No auto-reveal — waits for tap
 
 // ─── SHARE ───
 function shareLink() {
