@@ -525,10 +525,13 @@ footer a { color: var(--accent2); text-decoration: none; }
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // Supabase
+  // Supabase — init after page loads
   const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let supabaseClient = null;
+  window.addEventListener('load', () => {
+    try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.warn('Supabase init failed', e); }
+  });
 
   // Password protection — JON2026
   const HASH = '4a4f4e32303236';
@@ -557,7 +560,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     btn.textContent = 'Sending...';
     btn.disabled = true;
 
-    const { error } = await supabase.from('client_requests').insert({
+    const { error } = await supabaseClient.from('client_requests').insert({
       client_name: 'Jon Severson',
       client_id: 'jon',
       request_type: type,
