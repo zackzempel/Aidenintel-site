@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal — Jon Severson | Aiden Intel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #05070f;
+  --surface: #0a0d1a;
+  --surface2: #0f1222;
+  --border: #1a2035;
+  --border2: #252d45;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #475569;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* LOCK SCREEN */
+#lockscreen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.lock-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+.lock-logo { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.lock-logo em { color: var(--accent); font-style: normal; }
+.lock-subtitle { font-size: 0.85rem; color: var(--text3); margin-bottom: 32px; }
+.lock-icon { font-size: 2.5rem; margin-bottom: 20px; }
+.lock-card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+.lock-card p { font-size: 0.875rem; color: var(--text2); margin-bottom: 28px; }
+.lock-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 13px 16px;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  text-align: center;
+  letter-spacing: 4px;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+.lock-input:focus { border-color: var(--accent); }
+.lock-btn {
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.lock-btn:hover { background: #4f46e5; }
+.lock-error { color: #ef4444; font-size: 0.8rem; margin-top: 10px; display: none; }
+
+/* PORTAL */
+#portal { display: none; position: relative; z-index: 1; }
+
+nav {
+  position: sticky;
+  top: 0;
+  background: rgba(5,7,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 0 40px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+}
+.nav-logo { font-size: 1rem; font-weight: 800; color: var(--text); }
+.nav-logo em { color: var(--accent); font-style: normal; }
+.nav-client { font-size: 0.8rem; color: var(--text3); }
+.nav-client strong { color: var(--text2); }
+
+.portal-wrap { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
+
+/* HEADER */
+.portal-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 40px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.client-info h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+.client-info p { font-size: 0.875rem; color: var(--text2); }
+.overall-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.2);
+  padding: 10px 20px;
+  border-radius: 999px;
+}
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+.status-text { font-size: 0.875rem; font-weight: 600; color: var(--green); }
+
+/* STATS ROW */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 24px;
+  text-align: center;
+}
+.stat-card .num { font-size: 2rem; font-weight: 900; letter-spacing: -1px; color: var(--accent2); }
+.stat-card .lbl { font-size: 0.75rem; color: var(--text3); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* PROJECTS */
+.section-title { font-size: 1rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
+
+.project-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+.project-card:hover { border-color: var(--border2); }
+.project-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.project-title { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.project-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.badge-green { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: var(--green); }
+.badge-yellow { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(--yellow); }
+.badge-blue { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25); color: var(--accent2); }
+.badge-gray { background: rgba(71,85,105,0.2); border: 1px solid rgba(71,85,105,0.3); color: var(--text3); }
+
+/* PROGRESS BAR */
+.progress-wrap { margin-bottom: 16px; }
+.progress-label { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.progress-label span { font-size: 0.78rem; color: var(--text3); }
+.progress-label strong { font-size: 0.78rem; color: var(--text2); }
+.progress-bar { height: 6px; background: var(--border2); border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1s ease; }
+
+/* DELIVERABLES */
+.deliverables { display: flex; flex-direction: column; gap: 8px; }
+.deliverable {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-radius: 10px;
+  font-size: 0.875rem;
+}
+.deliverable .d-icon { font-size: 1rem; }
+.deliverable .d-name { flex: 1; color: var(--text); }
+.deliverable .d-link {
+  font-size: 0.78rem;
+  color: var(--accent2);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: rgba(99,102,241,0.1);
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.deliverable .d-link:hover { background: rgba(99,102,241,0.2); }
+
+/* TIMELINE */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item { display: flex; gap: 16px; padding-bottom: 24px; position: relative; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item:last-child .tl-line { display: none; }
+.tl-dot-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.tl-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.tl-dot.done { background: var(--green); }
+.tl-dot.active { background: var(--accent); animation: pulse 2s infinite; }
+.tl-dot.pending { background: var(--border2); }
+.tl-line { flex: 1; width: 1px; background: var(--border); margin-top: 4px; }
+.tl-content { padding-bottom: 0; }
+.tl-title { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.tl-date { font-size: 0.78rem; color: var(--text3); }
+
+/* UPDATES */
+.update-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.update-item:last-child { border-bottom: none; }
+.update-date { font-size: 0.75rem; color: var(--text3); flex-shrink: 0; width: 80px; margin-top: 2px; }
+.update-text { font-size: 0.875rem; color: var(--text2); line-height: 1.6; }
+.update-text strong { color: var(--text); }
+
+footer {
+  text-align: center;
+  padding: 32px;
+  color: var(--text3);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+footer a { color: var(--accent2); text-decoration: none; }
+
+@media (max-width: 640px) {
+  nav { padding: 0 16px; }
+  .portal-wrap { padding: 24px 16px; }
+  .portal-header { padding: 24px 20px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .project-card { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lockscreen">
+  <div class="lock-card">
+    <div class="lock-logo">Aiden<em>Intel</em></div>
+    <div class="lock-subtitle">Client Portal</div>
+    <div class="lock-icon">🔒</div>
+    <h2>Welcome, Jon</h2>
+    <p>Enter your access code to view your project dashboard.</p>
+    <input class="lock-input" type="password" id="passInput" placeholder="••••••" maxlength="10" onkeydown="if(event.key==='Enter')unlock()">
+    <button class="lock-btn" onclick="unlock()">Access Portal →</button>
+    <div class="lock-error" id="lockError">Incorrect code. Try again.</div>
+  </div>
+</div>
+
+<!-- PORTAL -->
+<div id="portal">
+  <nav>
+    <div class="nav-logo">Aiden<em>Intel</em> · Client Portal</div>
+    <div class="nav-client">Logged in as <strong>Jon Severson</strong></div>
+  </nav>
+
+  <div class="portal-wrap">
+
+    <!-- HEADER -->
+    <div class="portal-header">
+      <div class="client-info">
+        <h1>👋 Hey Jon!</h1>
+        <p>Here's everything we're working on for you. Last updated: March 7, 2026</p>
+      </div>
+      <div class="overall-status">
+        <div class="status-dot"></div>
+        <div class="status-text">Active — In Progress</div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="num">3</div>
+        <div class="lbl">Active Projects</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">2</div>
+        <div class="lbl">Delivered</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">1</div>
+        <div class="lbl">Awaiting You</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">5</div>
+        <div class="lbl">Total Tasks</div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="section-title">Active Projects</div>
+
+    <!-- Project 1: Website -->
+    <div class="project-card">
+      <div class="project-header">
+        <div class="project-title">🌐 Website Redesign — seversonre.com</div>
+        <span class="badge badge-yellow">⏳ Awaiting Your Approval</span>
+      </div>
+      <div class="project-desc">Full redesign of your Lofty website. New professional layout with expertise sections, builder network highlight, lead capture form, video placeholder, and MLS listing integration.</div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Progress</span><strong>60%</strong></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+      </div>
+      <div class="deliverables">
+        <div class="deliverable">
+          <span class="d-icon">🎨</span>
+          <span class="d-name">Website Mockup — Ready for Review</span>
+          <a class="d-link" href="https://jon-severson-mockup.vercel.app" target="_blank">View Mockup →</a>
+        </div>
+        <div class="deliverable">
+          <span class="d-icon">⚙️</span>
+          <span class="d-name">Lofty Implementation — Pending Your Approval</span>
+          <span class="badge badge-gray">Not Started</span>
+        </div>
+        <div class="deliverable">
+          <span class="d-icon">📹</span>
+          <span class="d-name">Intro Video — Need Recording from Jon</span>
+          <span class="badge badge-yellow">Pending Jon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project 2: Listing Demo -->
+    <div class="project-card">
+      <div class="project-header">
+        <div class="project-title">🏡 Listing Showcase — 6798 153rd Ln NW</div>
+        <span class="badge badge-green">✓ Delivered</span>
+      </div>
+      <div class="project-desc">AI-powered listing presentation page built from your Aryeo media. Includes 30+ photos with lightbox, luxury video reel, all 4 floor plans, and property overview.</div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Progress</span><strong>100%</strong></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%; background: linear-gradient(90deg, var(--green), #34d399);"></div></div>
+      </div>
+      <div class="deliverables">
+        <div class="deliverable">
+          <span class="d-icon">🖼️</span>
+          <span class="d-name">Listing Page — Live</span>
+          <a class="d-link" href="/clients/listing" target="_blank">View Page →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project 3: SEO -->
+    <div class="project-card">
+      <div class="project-header">
+        <div class="project-title">🔍 SEO Strategy — seversonre.com</div>
+        <span class="badge badge-blue">🔄 In Progress</span>
+      </div>
+      <div class="project-desc">Keyword research and SEO optimization targeting "realtor Anoka County MN", "new construction Minnesota realtor", "Ramsey MN homes for sale" and related terms.</div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Progress</span><strong>25%</strong></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+      </div>
+      <div class="deliverables">
+        <div class="deliverable">
+          <span class="d-icon">📊</span>
+          <span class="d-name">Keyword Research Report</span>
+          <span class="badge badge-blue">Coming Soon</span>
+        </div>
+        <div class="deliverable">
+          <span class="d-icon">✍️</span>
+          <span class="d-name">AI-Generated SEO Page Copy</span>
+          <span class="badge badge-blue">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div style="margin-top: 40px;">
+      <div class="section-title">Project Timeline</div>
+      <div class="project-card">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-dot-wrap"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-title">✅ Discovery call — tech stack & goals</div><div class="tl-date">March 6, 2026</div></div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot-wrap"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-title">✅ Listing showcase page built & delivered</div><div class="tl-date">March 6, 2026</div></div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot-wrap"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-title">✅ Website mockup designed</div><div class="tl-date">March 7, 2026</div></div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot-wrap"><div class="tl-dot active"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-title">⏳ Jon reviews & approves mockup</div><div class="tl-date">In progress</div></div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-title">Implement design in Lofty</div><div class="tl-date">Up next</div></div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-title">SEO copy & optimization</div><div class="tl-date">Upcoming</div></div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot-wrap"><div class="tl-dot pending"></div></div>
+            <div class="tl-content"><div class="tl-title">Launch & go live</div><div class="tl-date">Upcoming</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPDATES -->
+    <div style="margin-top: 40px;">
+      <div class="section-title">Recent Updates</div>
+      <div class="project-card">
+        <div class="timeline" style="gap:0;">
+          <div class="update-item">
+            <div class="update-date">Mar 7</div>
+            <div class="update-text"><strong>Website mockup ready for review.</strong> Full redesign built — navy/gold theme, expertise sections, new construction highlight, lead form, video placeholder. Check it out above!</div>
+          </div>
+          <div class="update-item">
+            <div class="update-date">Mar 6</div>
+            <div class="update-text"><strong>Listing showcase page delivered.</strong> Built from your Aryeo media — 30+ photos, luxury video, all 4 floor plans live.</div>
+          </div>
+          <div class="update-item">
+            <div class="update-date">Mar 6</div>
+            <div class="update-text"><strong>Discovery complete.</strong> Confirmed Lofty + Northstar MLS setup. Agreed on mockup-first approach before Lofty implementation.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>Aiden Intel Client Portal · <a href="https://aidenintel.com">aidenintel.com</a> · Built for Jon Severson</p>
+  </footer>
+</div>
+
+<script>
+  // Simple password protection
+  // Password: JON2026
+  const HASH = '4a4f4e32303236'; // hex of JON2026
+
+  function strToHex(str) {
+    return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
+  }
+
+  function unlock() {
+    const input = document.getElementById('passInput').value.toUpperCase();
+    if (strToHex(input) === HASH) {
+      document.getElementById('lockscreen').style.display = 'none';
+      document.getElementById('portal').style.display = 'block';
+    } else {
+      document.getElementById('lockError').style.display = 'block';
+      document.getElementById('passInput').value = '';
+      document.getElementById('passInput').focus();
+    }
+  }
+</script>
+</body>
+</html>
