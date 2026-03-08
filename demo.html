@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aiden Intel — Live Demo</title>
+<meta property="og:title" content="Aiden Intel — See What We Build">
+<meta property="og:description" content="AI agent networks for real businesses. See a live client demo.">
+<meta property="og:image" content="https://aidenintel.com/og-demo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #05070f;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --gold: #f5c842;
+  --green: #10b981;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── PARTICLES ─── */
+#particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation: drift linear infinite;
+}
+@keyframes drift {
+  0%   { opacity: 0; transform: translateY(100vh) scale(0); }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-10vh) scale(1.2); }
+}
+
+/* ─── CARD INTRO SCENE ─── */
+#intro {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  perspective: 1200px;
+  transition: opacity 0.8s ease;
+}
+#intro.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card-wrap {
+  animation: floatIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             waver 4s ease-in-out 1.2s infinite;
+  opacity: 0;
+}
+@keyframes floatIn {
+  0%   { opacity: 0; transform: rotateY(-30deg) rotateX(15deg) translateY(60px) scale(0.85); }
+  100% { opacity: 1; transform: rotateY(0deg) rotateX(0deg) translateY(0px) scale(1); }
+}
+@keyframes waver {
+  0%   { transform: rotateY(0deg)   rotateX(0deg)   translateY(0px); }
+  25%  { transform: rotateY(4deg)   rotateX(-2deg)  translateY(-8px); }
+  50%  { transform: rotateY(-3deg)  rotateX(2deg)   translateY(-4px); }
+  75%  { transform: rotateY(2deg)   rotateX(-1deg)  translateY(-10px); }
+  100% { transform: rotateY(0deg)   rotateX(0deg)   translateY(0px); }
+}
+
+.business-card {
+  width: 340px;
+  height: 200px;
+  background: linear-gradient(135deg, #0f1222 0%, #1a1f3a 50%, #0a0d1a 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(99,102,241,0.4);
+  box-shadow:
+    0 0 0 1px rgba(99,102,241,0.1),
+    0 25px 60px rgba(0,0,0,0.7),
+    0 0 80px rgba(99,102,241,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Sheen effect */
+.business-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 60%;
+  height: 200%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
+  animation: sheen 3s ease-in-out 1.5s infinite;
+}
+@keyframes sheen {
+  0%   { left: -60%; }
+  100% { left: 120%; }
+}
+
+/* Glow orb */
+.business-card::after {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.card-top { position: relative; z-index: 1; }
+.card-logo {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.card-logo span { color: var(--accent2); }
+.card-tagline {
+  font-size: 0.68rem;
+  color: var(--text2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.card-bottom { position: relative; z-index: 1; }
+.card-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.card-title {
+  font-size: 0.75rem;
+  color: var(--accent2);
+  margin-top: 2px;
+}
+.card-contact {
+  font-size: 0.7rem;
+  color: var(--text2);
+  margin-top: 6px;
+}
+
+.card-dot {
+  position: absolute;
+  bottom: 28px; right: 32px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 6px var(--green); }
+  50%       { box-shadow: 0 0 18px var(--green), 0 0 30px rgba(16,185,129,0.4); }
+}
+
+.tap-hint {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.75rem;
+  color: rgba(148,163,184,0.5);
+  letter-spacing: 0.08em;
+  animation: blink 2s ease-in-out 2s infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
+/* ─── MAIN CONTENT ─── */
+#content {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease 0.2s;
+  padding: 0 0 60px;
+}
+#content.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Grid bg */
+#content::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content-inner {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 48px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.brand-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.brand-name span { color: var(--accent2); }
+.brand-tag {
+  font-size: 0.72rem;
+  color: var(--text2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.section-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text2);
+  margin-bottom: 16px;
+}
+
+/* Client card */
+.client-card {
+  background: linear-gradient(135deg, #0f1222 0%, #1a1f3a 100%);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.client-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle at top right, rgba(99,102,241,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+.client-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--green);
+  margin-bottom: 16px;
+}
+.client-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+.client-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.client-sub {
+  font-size: 0.82rem;
+  color: var(--text2);
+  margin-bottom: 20px;
+}
+.client-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.client-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--text2);
+}
+.client-feature::before {
+  content: '✓';
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.btn-portal {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-portal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(99,102,241,0.5);
+}
+
+/* QR section */
+.qr-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 28px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.qr-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.qr-sub {
+  font-size: 0.78rem;
+  color: var(--text2);
+  margin-bottom: 20px;
+}
+#qr-canvas {
+  border-radius: 12px;
+  background: white;
+  padding: 12px;
+  display: inline-block;
+}
+.share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px auto 0;
+  padding: 12px 24px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+.share-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--accent2);
+}
+.share-btn.copied {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* Main site link */
+.site-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.2s;
+  margin-bottom: 20px;
+}
+.site-link:hover {
+  border-color: rgba(99,102,241,0.4);
+  background: rgba(99,102,241,0.05);
+}
+.site-link-left { display: flex; flex-direction: column; gap: 2px; }
+.site-link-label { font-size: 0.82rem; font-weight: 600; }
+.site-link-url { font-size: 0.72rem; color: var(--accent2); }
+.site-link-arrow { font-size: 1.1rem; color: var(--text2); }
+
+.footer {
+  text-align: center;
+  font-size: 0.72rem;
+  color: rgba(148,163,184,0.4);
+  margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div id="particles"></div>
+
+<!-- INTRO: Business card reveal -->
+<div id="intro">
+  <div>
+    <div class="card-wrap" id="cardWrap">
+      <div class="business-card" id="businessCard" onclick="revealContent()">
+        <div class="card-top">
+          <div class="card-logo">Aiden <span>Intel</span></div>
+          <div class="card-tagline">Intelligent Agentic Solutions</div>
+        </div>
+        <div class="card-bottom">
+          <div class="card-name">Zack Zempel</div>
+          <div class="card-title">Founder · AI Agent Architect</div>
+          <div class="card-contact">aidenintel.com · hello@aidenintel.com</div>
+        </div>
+        <div class="card-dot"></div>
+      </div>
+    </div>
+    <div class="tap-hint">TAP TO SEE WHAT WE BUILD</div>
+  </div>
+</div>
+
+<!-- CONTENT: Portfolio + QR -->
+<div id="content">
+  <div class="content-inner">
+
+    <div class="brand">
+      <div class="brand-name">Aiden <span>Intel</span></div>
+      <div class="brand-tag">Intelligent Agentic Solutions</div>
+    </div>
+
+    <div class="section-label">Live Client · Case Study 001</div>
+
+    <div class="client-card">
+      <div class="client-badge">Live & Active</div>
+      <div class="client-name">Jon Severson Real Estate</div>
+      <div class="client-sub">Real Broker LLC · Twin Cities, MN</div>
+      <div class="client-features">
+        <div class="client-feature">AI agent handles client requests autonomously</div>
+        <div class="client-feature">Custom branded portal with live pipeline</div>
+        <div class="client-feature">Social content generation on demand</div>
+        <div class="client-feature">Website deployed and live</div>
+      </div>
+      <a href="https://aidenintel.com/clients/jon" target="_blank" class="btn-portal">
+        View Live Client Portal →
+      </a>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-title">Share this demo</div>
+      <div class="qr-sub">Scan to open on your phone — or hand it to someone</div>
+      <canvas id="qr-canvas" width="180" height="180"></canvas>
+      <button class="share-btn" id="shareBtn" onclick="shareLink()">
+        <span>📋</span> <span id="shareBtnText">Copy link to share</span>
+      </button>
+    </div>
+
+    <a href="https://aidenintel.com" target="_blank" class="site-link">
+      <div class="site-link-left">
+        <div class="site-link-label">Aiden Intel</div>
+        <div class="site-link-url">aidenintel.com</div>
+      </div>
+      <div class="site-link-arrow">↗</div>
+    </a>
+
+    <div class="footer">Built by Aiden Intel · AI Agent Networks for Real Business</div>
+
+  </div>
+</div>
+
+<!-- QR code lib (self-contained, no external CDN needed for the QR) -->
+<script>
+// Minimal QR code generator (qrcode-generator style — inline)
+// We'll use a CDN for the actual QR library since it's a static site
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+// ─── PARTICLES ───
+const particleContainer = document.getElementById('particles');
+const colors = ['#6366f1', '#818cf8', '#a78bfa', '#10b981', '#f5c842'];
+
+for (let i = 0; i < 35; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = Math.random() * 4 + 1;
+  p.style.cssText = `
+    width: ${size}px;
+    height: ${size}px;
+    left: ${Math.random() * 100}%;
+    background: ${colors[Math.floor(Math.random() * colors.length)]};
+    animation-duration: ${Math.random() * 12 + 8}s;
+    animation-delay: ${Math.random() * 8}s;
+    filter: blur(${Math.random() > 0.7 ? 1 : 0}px);
+  `;
+  particleContainer.appendChild(p);
+}
+
+// ─── CARD REVEAL ───
+function revealContent() {
+  document.getElementById('intro').classList.add('fade-out');
+  document.getElementById('content').classList.add('visible');
+  document.body.style.overflow = 'auto';
+
+  // Generate QR
+  setTimeout(() => {
+    new QRCode(document.getElementById('qr-canvas'), {
+      text: 'https://aidenintel.com/demo',
+      width: 180,
+      height: 180,
+      colorDark: '#1a1f3a',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  }, 300);
+}
+
+// Auto-reveal after 4 seconds if they don't tap
+setTimeout(revealContent, 4200);
+
+// ─── SHARE ───
+function shareLink() {
+  const url = 'https://aidenintel.com/demo';
+  const btn = document.getElementById('shareBtn');
+  const btnText = document.getElementById('shareBtnText');
+
+  if (navigator.share) {
+    navigator.share({
+      title: 'Aiden Intel — AI Agent Networks',
+      text: 'Check out what Aiden Intel built for a real estate client. This is the future of business automation.',
+      url
+    });
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      btn.classList.add('copied');
+      btnText.textContent = '✓ Link copied!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btnText.textContent = 'Copy link to share';
+      }, 2500);
+    });
+  }
+}
+</script>
+</body>
+</html>
