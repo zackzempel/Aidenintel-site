@@ -644,20 +644,27 @@ footer a { color: var(--accent2); text-decoration: none; }
 
   // Password protection — JON2026
   const HASH = '4a4f4e32303236';
+  const SESSION_KEY = 'jon_portal_auth';
   function strToHex(str) {
     return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
+  }
+  function showPortal() {
+    document.getElementById('lockscreen').style.display = 'none';
+    document.getElementById('portal').style.display = 'block';
   }
   function unlock() {
     const input = document.getElementById('passInput').value.toUpperCase();
     if (strToHex(input) === HASH) {
-      document.getElementById('lockscreen').style.display = 'none';
-      document.getElementById('portal').style.display = 'block';
+      localStorage.setItem(SESSION_KEY, '1');
+      showPortal();
     } else {
       document.getElementById('lockError').style.display = 'block';
       document.getElementById('passInput').value = '';
       document.getElementById('passInput').focus();
     }
   }
+  // Auto-unlock if already authenticated
+  if (localStorage.getItem(SESSION_KEY) === '1') showPortal();
 
   // Submit request to Supabase
   async function submitRequest() {
