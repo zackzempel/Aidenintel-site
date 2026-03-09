@@ -925,18 +925,19 @@ footer a { color: var(--accent2); text-decoration: none; }
       const minGap = Math.max(1, (1 / s.duration) * 100);
 
       if (dragging === 'start') {
-        const maxStart = maxSec ? s.platforms[p].end - (maxSec / s.duration * 100) : 0;
-        pct = Math.max(maxSec ? maxStart : 0, Math.min(pct, s.platforms[p].end - minGap));
+        // Allow start to move freely; slide end forward if it would exceed maxSec
+        pct = Math.max(0, Math.min(pct, s.platforms[p].end - minGap));
         s.platforms[p].start = (pct / 100) * s.duration;
-      } else {
-        const minEnd = maxSec ? s.platforms[p].start + (maxSec / s.duration * 100) : 100;
-        pct = Math.min(maxSec ? Math.min(100, minEnd) : 100, Math.max(pct, s.platforms[p].start / s.duration * 100 + minGap));
-        // Enforce max length from start
-        if (maxSec) {
-          const maxEndSec = s.platforms[p].start + maxSec;
-          pct = Math.min(pct, (Math.min(maxEndSec, s.duration) / s.duration) * 100);
+        if (maxSec && (s.platforms[p].end - s.platforms[p].start) > maxSec) {
+          s.platforms[p].end = Math.min(s.duration, s.platforms[p].start + maxSec);
         }
+      } else {
+        // End can move freely; can't make clip longer than maxSec
+        pct = Math.min(100, Math.max(pct, s.platforms[p].start / s.duration * 100 + minGap));
         s.platforms[p].end = (pct / 100) * s.duration;
+        if (maxSec && (s.platforms[p].end - s.platforms[p].start) > maxSec) {
+          s.platforms[p].end = s.platforms[p].start + maxSec;
+        }
       }
       const sp = (s.platforms[p].start / s.duration) * 100;
       const ep = (s.platforms[p].end   / s.duration) * 100;
