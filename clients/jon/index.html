@@ -1052,15 +1052,12 @@ footer a { color: var(--accent2); text-decoration: none; }
     });
   }
 
-  // ── IN-BROWSER TRIM VIA MEDIARECORDER ─────────────────────────
-  const activeRecorders = {};
-
+  // ── SERVER-SIDE TRIM VIA /api/trim ────────────────────────────
   async function trimAndDownload(id) {
     const s = trimState[id];
     if (!s) return;
     const p = s.activePlatform;
     const { start, end } = s.platforms[p];
-    const duration = end - start;
     const vid    = document.getElementById(`vid-${id}`);
     const btn    = document.getElementById(`dl-btn-${id}`);
     const status = document.getElementById(`dl-status-${id}`);
@@ -1068,110 +1065,41 @@ footer a { color: var(--accent2); text-decoration: none; }
 
     const labels = { instagram: 'Instagram', tiktok: 'TikTok', facebook: 'Facebook', youtube: 'YouTube' };
     const platformLabel = labels[p] || p;
+    const srcEl  = vid.querySelector('source');
+    const videoUrl = (srcEl ? srcEl.src : vid.src) || '';
 
-    // Cancel any in-progress recording for this id
-    if (activeRecorders[id]) {
-      activeRecorders[id].stop();
-      delete activeRecorders[id];
-      btn.textContent = '⬇ Download Trimmed Clip';
-      btn.disabled = false;
-      status.style.display = 'none';
-      return;
-    }
-
-    btn.disabled = false;
-    btn.textContent = '⏹ Cancel';
+    btn.disabled = true;
     status.style.display = 'block';
     status.style.color = 'var(--text2)';
-
     const setStatus = (msg, color) => { status.style.color = color || 'var(--text2)'; status.innerHTML = msg; };
 
     try {
-      // Safari fallback — captureStream not supported
-      if (!vid.captureStream && !vid.mozCaptureStream) {
-        const srcEl = vid.querySelector('source');
-        const videoUrl = srcEl ? srcEl.src : vid.src;
-        setStatus(`📱 <b>Safari detected:</b> Downloading full video — trim to <b>${fmtTime(start)} → ${fmtTime(end)}</b> in iMovie or the Captions app before posting.`, 'var(--yellow)');
-        btn.textContent = '⬇ Download Trimmed Clip';
-        btn.disabled = false;
-        // Trigger download of full video
-        const a = document.createElement('a');
-        a.href = videoUrl;
-        a.download = `listing-${p}-full.mp4`;
-        a.target = '_blank';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(() => { status.style.display = 'none'; }, 8000);
-        return;
+      setStatus(`✂️ Trimming ${platformLabel} clip (${fmtTime(start)} → ${fmtTime(end)})…`);
+
+      const apiUrl = `/api/trim?url=${encodeURIComponent(videoUrl)}&start=${start.toFixed(3)}&end=${end.toFixed(3)}`;
+      const resp = await fetch(apiUrl);
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({ error: `HTTP ${resp.status}` }));
+        throw new Error(err.error || `HTTP ${resp.status}`);
       }
 
-      // Seek to start point first
-      vid.pause();
-      vid.currentTime = start;
-      await new Promise(res => { vid.onseeked = res; setTimeout(res, 1500); });
+      setStatus(`📥 Downloading clip…`);
+      const blob = await resp.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url;
+      a.download = `listing-${p}-${Math.round(end - start)}s.mp4`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
 
-      const stream = (vid.captureStream || vid.mozCaptureStream).call(vid);
-
-      // Pick best supported mime type
-      const mimeType = ['video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm'].find(t => MediaRecorder.isTypeSupported(t)) || 'video/webm';
-      const ext = mimeType.startsWith('video/mp4') ? 'mp4' : 'webm';
-      const filename = `listing-${p}-${Math.round(duration)}s.${ext}`;
-
-      const chunks = [];
-      const recorder = new MediaRecorder(stream, { mimeType });
-      activeRecorders[id] = recorder;
-
-      recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
-
-      recorder.onstop = () => {
-        delete activeRecorders[id];
-        const blob = new Blob(chunks, { type: mimeType });
-        const url  = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = filename;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
-        setStatus(`✅ "${filename}" saved! Open ${platformLabel} and upload it.`, 'var(--green)');
-        setTimeout(() => { status.style.display = 'none'; }, 5000);
-        btn.textContent = '⬇ Download Trimmed Clip';
-        btn.disabled = false;
-        vid.pause();
-      };
-
-      // Start recording + playback
-      recorder.start(200);
-      vid.play().catch(() => {});
-
-      // Countdown progress bar
-      const totalMs = duration * 1000;
-      const pollMs  = 200;
-      let elapsed   = 0;
-      const tick = setInterval(() => {
-        elapsed += pollMs;
-        const pct = Math.min(100, (elapsed / totalMs) * 100);
-        const rem = Math.max(0, duration - elapsed / 1000);
-        setStatus(`🔴 Recording ${platformLabel} clip — ${rem.toFixed(0)}s left&nbsp;&nbsp;<span style="display:inline-block;width:120px;height:8px;background:var(--border2);border-radius:4px;vertical-align:middle;overflow:hidden;"><span style="display:block;height:100%;width:${pct}%;background:var(--accent);border-radius:4px;transition:width 0.2s;"></span></span>`);
-        if (elapsed >= totalMs + 300) {
-          clearInterval(tick);
-          if (recorder.state === 'recording') recorder.stop();
-          vid.pause();
-        }
-      }, pollMs);
-
-      // Also watch currentTime as a fallback stop trigger
-      const watchTime = setInterval(() => {
-        if (vid.currentTime >= end) {
-          clearInterval(watchTime);
-          clearInterval(tick);
-          if (recorder.state === 'recording') recorder.stop();
-          vid.pause();
-        }
-      }, 100);
+      setStatus(`✅ Clip saved! Open ${platformLabel} and upload it.`, 'var(--green)');
+      setTimeout(() => { status.style.display = 'none'; }, 5000);
 
     } catch(err) {
       setStatus(`❌ ${err.message}`, 'var(--red)');
-      btn.textContent = '⬇ Download Trimmed Clip';
-      btn.disabled = false;
     }
+
+    btn.disabled = false;
   }
   // ───────────────────────────────────────────────────────────────
 
