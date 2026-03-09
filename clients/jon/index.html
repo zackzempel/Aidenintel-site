@@ -507,6 +507,41 @@ footer a { color: var(--accent2); text-decoration: none; }
       </div>
     </div>
 
+    <!-- WHAT WE NEED FROM YOU -->
+    <div style="margin-top: 40px;">
+      <div class="section-title">⚡ Action Needed From You</div>
+      <div class="project-card">
+        <p style="font-size:0.9rem; color:var(--text2); margin-bottom:24px; line-height:1.7;">A few things we need to keep your projects moving. Upload files below or submit a request with details.</p>
+        <div class="deliverables">
+          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
+            <span class="d-icon">📸</span>
+            <span class="d-name">Professional headshot — for your website bio section</span>
+            <label style="background:var(--accent); color:white; padding:6px 14px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; white-space:nowrap;">
+              Upload <input type="file" accept="image/*" onchange="uploadAsset(this, 'headshot')" style="display:none;">
+            </label>
+          </div>
+          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
+            <span class="d-icon">🏆</span>
+            <span class="d-name">Your stats — years experience, homes sold, builder partnerships</span>
+            <a class="d-link" href="#submit-request" onclick="document.getElementById('reqMessage').value='Here are my stats: '">Add →</a>
+          </div>
+          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
+            <span class="d-icon">✅</span>
+            <span class="d-name">Website mockup approval — ready to implement in Lofty</span>
+            <a class="d-link" href="https://jon-severson-mockup.vercel.app" target="_blank">Review →</a>
+          </div>
+          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
+            <span class="d-icon">🎥</span>
+            <span class="d-name">Intro video recording — quick 30-60 sec "meet Jon" clip</span>
+            <label style="background:var(--accent); color:white; padding:6px 14px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; white-space:nowrap;">
+              Upload <input type="file" accept="video/*" onchange="uploadAsset(this, 'intro-video')" style="display:none;">
+            </label>
+          </div>
+        </div>
+        <div id="uploadStatus" style="margin-top:16px; font-size:0.85rem; color:var(--green); display:none;"></div>
+      </div>
+    </div>
+
     <!-- YOUR ASSETS -->
     <div style="margin-top: 40px;">
       <div class="section-title">Your Assets</div>
@@ -665,6 +700,40 @@ footer a { color: var(--accent2); text-decoration: none; }
   }
   // Auto-unlock if already authenticated
   if (localStorage.getItem(SESSION_KEY) === '1') showPortal();
+
+  // Upload asset to Supabase Storage
+  async function uploadAsset(input, assetType) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const statusEl = document.getElementById('uploadStatus');
+    statusEl.style.display = 'block';
+    statusEl.style.color = 'var(--text2)';
+    statusEl.textContent = `Uploading ${assetType}...`;
+
+    const ext = file.name.split('.').pop();
+    const filename = `jon-severson/${assetType}-${Date.now()}.${ext}`;
+
+    const { data, error } = await supabaseClient.storage
+      .from('client-assets')
+      .upload(filename, file, { upsert: true });
+
+    if (error) {
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = `Upload failed: ${error.message}`;
+    } else {
+      statusEl.style.color = 'var(--green)';
+      statusEl.textContent = `✅ ${assetType} uploaded successfully! Aiden and Zack have been notified.`;
+      // Also log as a client request so Aiden gets notified
+      await supabaseClient.from('client_requests').insert({
+        client_name: 'Jon Severson',
+        client_id: 'jon',
+        request_type: 'Asset upload',
+        message: `Jon uploaded a new asset: ${assetType} (${filename})`,
+        status: 'new'
+      });
+    }
+  }
 
   // Submit request to Supabase
   async function submitRequest() {
