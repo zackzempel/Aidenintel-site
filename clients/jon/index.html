@@ -854,9 +854,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     recognition.start();
   }
 
-  // ── VIDEO TRIMMER (per-platform) ───────────────────────────────
-  // trimState[id] = { duration, activePlatform, previewTimer,
-  //   platforms: { instagram:{start,end}, tiktok:{start,end}, ... } }
+  // ── VIDEO TRIMMER (per-platform, pointer-drag) ─────────────────
   const trimState = {};
   const PLATFORMS = {
     instagram: { label: '📸 Instagram trim', maxSec: 30 },
@@ -869,8 +867,8 @@ footer a { color: var(--accent2); text-decoration: none; }
     const vid = document.getElementById(`vid-${id}`);
     if (!vid) return;
     vid.addEventListener('error', () => {
-      const errEl = document.getElementById(`vid-err-${id}`);
-      if (errEl) errEl.style.display = 'block';
+      const e = document.getElementById(`vid-err-${id}`);
+      if (e) e.style.display = 'block';
     });
     const onMeta = () => {
       const dur = vid.duration;
@@ -885,63 +883,97 @@ footer a { color: var(--accent2); text-decoration: none; }
         }
       };
       renderTrimmer(id);
+      bindDrag(id);
     };
-    if (vid.readyState >= 1) { onMeta(); } else { vid.addEventListener('loadedmetadata', onMeta); }
+    if (vid.readyState >= 1) onMeta();
+    else vid.addEventListener('loadedmetadata', onMeta);
     vid.load();
     vid.addEventListener('timeupdate', () => {
       if (!trimState[id]) return;
-      const dur = trimState[id].duration;
       const prog = document.getElementById(`progress-${id}`);
-      if (prog) { prog.style.display = 'block'; prog.style.left = ((vid.currentTime / dur) * 100) + '%'; }
+      if (prog) { prog.style.display = 'block'; prog.style.left = ((vid.currentTime / trimState[id].duration) * 100) + '%'; }
       const p = trimState[id].activePlatform;
       if (trimState[id].previewTimer && vid.currentTime >= trimState[id].platforms[p].end) {
-        vid.pause();
-        clearInterval(trimState[id].previewTimer);
-        trimState[id].previewTimer = null;
+        vid.pause(); clearInterval(trimState[id].previewTimer); trimState[id].previewTimer = null;
         const btn = document.getElementById(`preview-btn-${id}`);
         if (btn) btn.textContent = '▶ Preview Trim';
       }
     });
   }
 
+  function bindDrag(id) {
+    const timeline = document.getElementById(`timeline-${id}`);
+    const thumbS   = document.getElementById(`thumb-start-${id}`);
+    const thumbE   = document.getElementById(`thumb-end-${id}`);
+    if (!timeline || !thumbS || !thumbE) return;
+
+    let dragging = null; // 'start' | 'end'
+
+    function getPct(e) {
+      const rect = timeline.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      return Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+    }
+
+    function onMove(e) {
+      if (!dragging || !trimState[id]) return;
+      e.preventDefault();
+      const s = trimState[id];
+      const p = s.activePlatform;
+      const maxSec = PLATFORMS[p].maxSec;
+      let pct = getPct(e);
+      const minGap = Math.max(1, (1 / s.duration) * 100);
+
+      if (dragging === 'start') {
+        const maxStart = maxSec ? s.platforms[p].end - (maxSec / s.duration * 100) : 0;
+        pct = Math.max(maxSec ? maxStart : 0, Math.min(pct, s.platforms[p].end - minGap));
+        s.platforms[p].start = (pct / 100) * s.duration;
+      } else {
+        const minEnd = maxSec ? s.platforms[p].start + (maxSec / s.duration * 100) : 100;
+        pct = Math.min(maxSec ? Math.min(100, minEnd) : 100, Math.max(pct, s.platforms[p].start / s.duration * 100 + minGap));
+        // Enforce max length from start
+        if (maxSec) {
+          const maxEndSec = s.platforms[p].start + maxSec;
+          pct = Math.min(pct, (Math.min(maxEndSec, s.duration) / s.duration) * 100);
+        }
+        s.platforms[p].end = (pct / 100) * s.duration;
+      }
+      const sp = (s.platforms[p].start / s.duration) * 100;
+      const ep = (s.platforms[p].end   / s.duration) * 100;
+      updateTrimmerVisuals(id, sp, ep);
+    }
+
+    function onUp() {
+      dragging = null;
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
+    }
+
+    function startDrag(which) {
+      return (e) => {
+        e.preventDefault(); e.stopPropagation();
+        dragging = which;
+        document.addEventListener('pointermove', onMove, { passive: false });
+        document.addEventListener('pointerup', onUp);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onUp);
+      };
+    }
+
+    thumbS.addEventListener('pointerdown', startDrag('start'));
+    thumbS.addEventListener('touchstart',  startDrag('start'), { passive: false });
+    thumbE.addEventListener('pointerdown', startDrag('end'));
+    thumbE.addEventListener('touchstart',  startDrag('end'),   { passive: false });
+  }
+
   function renderTrimmer(id) {
     const s = trimState[id];
     if (!s) return;
     const p = s.activePlatform;
-    const { start, end } = s.platforms[p];
-    const startPct = (start / s.duration) * 100;
-    const endPct   = (end   / s.duration) * 100;
-    document.getElementById(`trim-start-${id}`).value = startPct;
-    document.getElementById(`trim-end-${id}`).value   = endPct;
-    updateTrimmerVisuals(id, startPct, endPct);
-  }
-
-  function updateTrimmer(id) {
-    const s = trimState[id];
-    if (!s) return;
-    const startEl = document.getElementById(`trim-start-${id}`);
-    const endEl   = document.getElementById(`trim-end-${id}`);
-    let sp = parseFloat(startEl.value);
-    let ep = parseFloat(endEl.value);
-    const minGap = Math.max(0.5, (1 / s.duration) * 100);
-    if (sp >= ep - minGap) {
-      if (document.activeElement === startEl) sp = ep - minGap;
-      else ep = sp + minGap;
-      startEl.value = sp; endEl.value = ep;
-    }
-    // Enforce platform max length
-    const p = s.activePlatform;
-    const maxSec = PLATFORMS[p].maxSec;
-    if (maxSec) {
-      const lenSec = ((ep - sp) / 100) * s.duration;
-      if (lenSec > maxSec) {
-        if (document.activeElement === startEl) ep = sp + (maxSec / s.duration * 100);
-        else sp = ep - (maxSec / s.duration * 100);
-        startEl.value = sp; endEl.value = ep;
-      }
-    }
-    s.platforms[p].start = (sp / 100) * s.duration;
-    s.platforms[p].end   = (ep / 100) * s.duration;
+    const sp = (s.platforms[p].start / s.duration) * 100;
+    const ep = (s.platforms[p].end   / s.duration) * 100;
     updateTrimmerVisuals(id, sp, ep);
   }
 
@@ -955,21 +987,18 @@ footer a { color: var(--accent2); text-decoration: none; }
     if (tE) tE.style.left = ep + '%';
     const start = s ? (sp / 100) * s.duration : 0;
     const end   = s ? (ep / 100) * s.duration : 0;
-    const len   = end - start;
     document.getElementById(`label-start-${id}`).textContent = `Start: ${fmtTime(start)}`;
     document.getElementById(`label-end-${id}`).textContent   = `End: ${fmtTime(end)}`;
-    document.getElementById(`label-len-${id}`).textContent   = `Length: ${fmtTime(len)}`;
+    document.getElementById(`label-len-${id}`).textContent   = `Length: ${fmtTime(end - start)}`;
   }
 
-  function switchPlatform(id, platform, maxSec) {
+  function switchPlatform(id, platform) {
     if (!trimState[id]) return;
     trimState[id].activePlatform = platform;
-    // Update tab styles
     Object.keys(PLATFORMS).forEach(p => {
       const btn = document.getElementById(`tab-${p}-${id}`);
       if (btn) btn.classList.toggle('active', p === platform);
     });
-    // Update label
     const lbl = document.getElementById(`active-platform-label-${id}`);
     if (lbl) lbl.textContent = PLATFORMS[platform].label;
     renderTrimmer(id);
@@ -981,29 +1010,23 @@ footer a { color: var(--accent2); text-decoration: none; }
     if (!vid || !trimState[id]) return;
     const p = trimState[id].activePlatform;
     if (trimState[id].previewTimer) {
-      vid.pause();
-      clearInterval(trimState[id].previewTimer);
-      trimState[id].previewTimer = null;
-      btn.textContent = '▶ Preview Trim';
-      return;
+      vid.pause(); clearInterval(trimState[id].previewTimer);
+      trimState[id].previewTimer = null; btn.textContent = '▶ Preview Trim'; return;
     }
     vid.currentTime = trimState[id].platforms[p].start;
     vid.play().catch(() => {});
     btn.textContent = '⏹ Stop Preview';
     trimState[id].previewTimer = setInterval(() => {
       if (vid.currentTime >= trimState[id].platforms[p].end) {
-        vid.pause();
-        clearInterval(trimState[id].previewTimer);
-        trimState[id].previewTimer = null;
-        btn.textContent = '▶ Preview Trim';
+        vid.pause(); clearInterval(trimState[id].previewTimer);
+        trimState[id].previewTimer = null; btn.textContent = '▶ Preview Trim';
       }
     }, 100);
   }
 
   function fmtTime(sec) {
     if (!sec || isNaN(sec)) return '0:00';
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
+    const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
     return `${m}:${s.toString().padStart(2,'0')}`;
   }
 
@@ -1075,13 +1098,11 @@ footer a { color: var(--accent2); text-decoration: none; }
             </video>
             <div id="vid-err-${c.id}" style="display:none;padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;font-size:0.8rem;color:var(--red);margin-top:6px;">⚠️ Video preview unavailable. <a href="${c.video_url}" target="_blank" style="color:var(--accent2);">Open directly →</a></div>
             <div style="margin-top:12px;padding:0 6px;">
-              <div style="position:relative;height:40px;background:rgba(255,255,255,0.06);border-radius:8px;margin-bottom:8px;">
+              <div id="timeline-${c.id}" style="position:relative;height:44px;background:rgba(255,255,255,0.06);border-radius:8px;margin-bottom:8px;cursor:default;user-select:none;touch-action:none;">
                 <div id="range-bar-${c.id}" style="position:absolute;top:0;bottom:0;left:0;right:0;background:rgba(99,102,241,0.3);border-radius:8px;pointer-events:none;"></div>
                 <div id="progress-${c.id}" style="position:absolute;top:4px;bottom:4px;width:3px;background:var(--accent2);border-radius:2px;pointer-events:none;display:none;left:0;"></div>
-                <input type="range" id="trim-start-${c.id}" min="0" max="100" value="0" step="0.1" oninput="updateTrimmer('${c.id}')" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:2;margin:0;">
-                <input type="range" id="trim-end-${c.id}" min="0" max="100" value="100" step="0.1" oninput="updateTrimmer('${c.id}')" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:3;margin:0;">
-                <div id="thumb-start-${c.id}" style="position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:30px;background:white;border-radius:4px;pointer-events:none;left:0;box-shadow:0 2px 8px rgba(0,0,0,0.6);"></div>
-                <div id="thumb-end-${c.id}" style="position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:30px;background:white;border-radius:4px;pointer-events:none;left:100%;box-shadow:0 2px 8px rgba(0,0,0,0.6);"></div>
+                <div id="thumb-start-${c.id}" style="position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:34px;background:white;border-radius:5px;cursor:ew-resize;left:0%;box-shadow:0 2px 8px rgba(0,0,0,0.7);z-index:4;"></div>
+                <div id="thumb-end-${c.id}" style="position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:34px;background:white;border-radius:5px;cursor:ew-resize;left:100%;box-shadow:0 2px 8px rgba(0,0,0,0.7);z-index:4;"></div>
               </div>
               <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text3);">
                 <span id="label-start-${c.id}">Start: 0:00</span>
