@@ -1087,7 +1087,22 @@ footer a { color: var(--accent2); text-decoration: none; }
     const setStatus = (msg, color) => { status.style.color = color || 'var(--text2)'; status.innerHTML = msg; };
 
     try {
-      if (!vid.captureStream && !vid.mozCaptureStream) throw new Error('captureStream not supported — try Chrome or Edge.');
+      // Safari fallback — captureStream not supported
+      if (!vid.captureStream && !vid.mozCaptureStream) {
+        const srcEl = vid.querySelector('source');
+        const videoUrl = srcEl ? srcEl.src : vid.src;
+        setStatus(`📱 <b>Safari detected:</b> Downloading full video — trim to <b>${fmtTime(start)} → ${fmtTime(end)}</b> in iMovie or the Captions app before posting.`, 'var(--yellow)');
+        btn.textContent = '⬇ Download Trimmed Clip';
+        btn.disabled = false;
+        // Trigger download of full video
+        const a = document.createElement('a');
+        a.href = videoUrl;
+        a.download = `listing-${p}-full.mp4`;
+        a.target = '_blank';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => { status.style.display = 'none'; }, 8000);
+        return;
+      }
 
       // Seek to start point first
       vid.pause();
