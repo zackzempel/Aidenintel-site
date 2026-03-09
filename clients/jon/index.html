@@ -8,6 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.preset-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border2); color: var(--text2); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; }
+.preset-btn:hover, .preset-btn.active { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.4); color: var(--accent2); }
+.trimmer-wrap { margin-bottom: 20px; }
 :root {
   --bg: #05070f;
   --surface: #0a0d1a;
@@ -851,6 +854,120 @@ footer a { color: var(--accent2); text-decoration: none; }
     recognition.start();
   }
 
+  // ── VIDEO TRIMMER ──────────────────────────────────────────────
+  const trimState = {}; // { id: { start, end, duration, previewTimer } }
+
+  function initTrimmer(id) {
+    const vid = document.getElementById(`vid-${id}`);
+    if (!vid) return;
+    vid.addEventListener('loadedmetadata', () => {
+      trimState[id] = { start: 0, end: vid.duration, duration: vid.duration, previewTimer: null };
+      updateTrimmer(id);
+    });
+    vid.addEventListener('timeupdate', () => {
+      if (!trimState[id]) return;
+      const pct = (vid.currentTime / trimState[id].duration) * 100;
+      const prog = document.getElementById(`progress-${id}`);
+      if (prog) { prog.style.display = 'block'; prog.style.left = pct + '%'; }
+      // Stop at trim end
+      if (trimState[id].previewTimer && vid.currentTime >= trimState[id].end) {
+        vid.pause();
+        clearInterval(trimState[id].previewTimer);
+        trimState[id].previewTimer = null;
+        const btn = document.getElementById(`preview-btn-${id}`);
+        if (btn) btn.textContent = '▶ Preview Trim';
+      }
+    });
+  }
+
+  function updateTrimmer(id) {
+    const vid = document.getElementById(`vid-${id}`);
+    const startEl = document.getElementById(`trim-start-${id}`);
+    const endEl = document.getElementById(`trim-end-${id}`);
+    if (!vid || !startEl || !endEl || !trimState[id]) return;
+
+    let startPct = parseFloat(startEl.value);
+    let endPct = parseFloat(endEl.value);
+
+    // Keep start < end with min 1s gap
+    const minGap = (1 / trimState[id].duration) * 100;
+    if (startPct >= endPct - minGap) {
+      if (document.activeElement === startEl) startPct = endPct - minGap;
+      else endPct = startPct + minGap;
+      startEl.value = startPct;
+      endEl.value = endPct;
+    }
+
+    trimState[id].start = (startPct / 100) * trimState[id].duration;
+    trimState[id].end = (endPct / 100) * trimState[id].duration;
+
+    // Update visual range bar
+    const bar = document.getElementById(`range-bar-${id}`);
+    if (bar) { bar.style.left = startPct + '%'; bar.style.width = (endPct - startPct) + '%'; }
+
+    // Update thumbs
+    const thumbS = document.getElementById(`thumb-start-${id}`);
+    const thumbE = document.getElementById(`thumb-end-${id}`);
+    if (thumbS) thumbS.style.left = `calc(${startPct}% - 7px)`;
+    if (thumbE) thumbE.style.left = `calc(${endPct}% - 7px)`;
+
+    // Update labels
+    const len = trimState[id].end - trimState[id].start;
+    document.getElementById(`label-start-${id}`).textContent = `Start: ${fmtTime(trimState[id].start)}`;
+    document.getElementById(`label-end-${id}`).textContent = `End: ${fmtTime(trimState[id].end)}`;
+    document.getElementById(`label-len-${id}`).textContent = `Length: ${fmtTime(len)}`;
+  }
+
+  function setTrimPreset(id, maxSec) {
+    if (!trimState[id]) return;
+    const dur = trimState[id].duration;
+    const endSec = maxSec ? Math.min(maxSec, dur) : dur;
+    const startEl = document.getElementById(`trim-start-${id}`);
+    const endEl = document.getElementById(`trim-end-${id}`);
+    startEl.value = 0;
+    endEl.value = (endSec / dur) * 100;
+    updateTrimmer(id);
+    // Highlight active preset
+    document.querySelectorAll(`#trimmer-${id} .preset-btn`).forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  function previewTrim(id) {
+    const vid = document.getElementById(`vid-${id}`);
+    const btn = document.getElementById(`preview-btn-${id}`);
+    if (!vid || !trimState[id]) return;
+    if (trimState[id].previewTimer) {
+      vid.pause();
+      clearInterval(trimState[id].previewTimer);
+      trimState[id].previewTimer = null;
+      btn.textContent = '▶ Preview Trim';
+      return;
+    }
+    vid.currentTime = trimState[id].start;
+    vid.play();
+    btn.textContent = '⏹ Stop Preview';
+    trimState[id].previewTimer = setInterval(() => {
+      if (vid.currentTime >= trimState[id].end) {
+        vid.pause();
+        clearInterval(trimState[id].previewTimer);
+        trimState[id].previewTimer = null;
+        btn.textContent = '▶ Preview Trim';
+      }
+    }, 100);
+  }
+
+  function fmtTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2,'0')}`;
+  }
+
+  // Init all trimmers after captions load
+  function initAllTrimmers(captions) {
+    captions.forEach(c => { if (c.video_url) setTimeout(() => initTrimmer(c.id), 100); });
+  }
+  // ───────────────────────────────────────────────────────────────
+
   // Submit social caption request
   async function submitSocialRequest() {
     const address = document.getElementById('listingAddress').value.trim();
@@ -895,23 +1012,67 @@ footer a { color: var(--accent2); text-decoration: none; }
       }
 
       listEl.innerHTML = captions.map(c => `
-        <div style="border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:24px;">
+        <div style="border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:24px;" data-caption-id="${c.id}">
           <div style="font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:2px;">${c.listing_address || 'Listing'}</div>
           <div style="font-size:0.75rem;color:var(--text3);margin-bottom:16px;">${new Date(c.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
 
           ${c.video_url ? `
-          <!-- Video Preview -->
-          <div style="margin-bottom:20px;">
-            <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🎬 Video Preview</div>
-            <video controls style="width:100%;border-radius:10px;background:#000;max-height:320px;" preload="metadata">
+          <!-- Video Trimmer -->
+          <div class="trimmer-wrap" id="trimmer-${c.id}">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🎬 Video Editor</div>
+
+            <!-- Platform presets -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+              <button class="preset-btn" onclick="setTrimPreset('${c.id}', 30)" title="Max 30s">📸 Instagram</button>
+              <button class="preset-btn" onclick="setTrimPreset('${c.id}', 60)" title="Max 60s">🎵 TikTok</button>
+              <button class="preset-btn" onclick="setTrimPreset('${c.id}', 90)" title="Max 90s">👥 Facebook</button>
+              <button class="preset-btn" onclick="setTrimPreset('${c.id}', null)" title="Full video">▶️ YouTube (Full)</button>
+            </div>
+
+            <!-- Video player -->
+            <video id="vid-${c.id}" style="width:100%;border-radius:10px;background:#000;max-height:300px;" preload="metadata">
               <source src="${c.video_url}" type="video/mp4">
             </video>
-            <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
-              <a href="${c.video_url}" download style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);color:var(--accent2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;text-decoration:none;">
-                ⬇️ Download Video
+
+            <!-- Timeline scrubber -->
+            <div style="margin-top:12px;position:relative;padding:0 4px;">
+              <div style="position:relative;height:36px;background:rgba(255,255,255,0.05);border-radius:8px;overflow:visible;margin-bottom:6px;">
+                <!-- Selected range highlight -->
+                <div id="range-bar-${c.id}" style="position:absolute;top:0;bottom:0;background:rgba(99,102,241,0.35);border-radius:8px;pointer-events:none;"></div>
+                <!-- Progress indicator -->
+                <div id="progress-${c.id}" style="position:absolute;top:0;bottom:0;width:2px;background:var(--accent2);pointer-events:none;display:none;"></div>
+                <!-- Start handle -->
+                <input type="range" id="trim-start-${c.id}" min="0" max="100" value="0" step="0.1"
+                  oninput="updateTrimmer('${c.id}')"
+                  style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:2;">
+                <!-- End handle -->
+                <input type="range" id="trim-end-${c.id}" min="0" max="100" value="100" step="0.1"
+                  oninput="updateTrimmer('${c.id}')"
+                  style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:3;">
+                <!-- Start thumb -->
+                <div id="thumb-start-${c.id}" style="position:absolute;top:50%;transform:translateY(-50%);width:14px;height:28px;background:white;border-radius:4px;pointer-events:none;left:0;box-shadow:0 2px 6px rgba(0,0,0,0.5);"></div>
+                <!-- End thumb -->
+                <div id="thumb-end-${c.id}" style="position:absolute;top:50%;transform:translateY(-50%);width:14px;height:28px;background:white;border-radius:4px;pointer-events:none;right:0;box-shadow:0 2px 6px rgba(0,0,0,0.5);"></div>
+              </div>
+
+              <!-- Time labels -->
+              <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text3);">
+                <span id="label-start-${c.id}">Start: 0:00</span>
+                <span id="label-len-${c.id}" style="color:var(--accent2);font-weight:700;">Length: —</span>
+                <span id="label-end-${c.id}">End: 0:00</span>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+              <button onclick="previewTrim('${c.id}')" id="preview-btn-${c.id}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);color:var(--accent2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">
+                ▶ Preview Trim
+              </button>
+              <a href="${c.video_url}" download style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);color:var(--text2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;text-decoration:none;">
+                ⬇️ Download Original
               </a>
-              <button onclick="alert('Auto-posting coming soon! For now, download the video and captions below, then post manually.')" style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#10b981;padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">
-                🚀 Auto-Post <span style="font-size:0.7rem;opacity:0.7;">(coming soon)</span>
+              <button onclick="alert('Auto-posting coming soon! Download and use captions below for now.')" style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">
+                🚀 Auto-Post <span style="font-size:0.7rem;opacity:0.6;">(soon)</span>
               </button>
             </div>
           </div>` : ''}
@@ -924,6 +1085,8 @@ footer a { color: var(--accent2); text-decoration: none; }
           ${captionBlock('▶️ YouTube', c.youtube_description)}
         </div>
       `).join('');
+      // Init trimmers after DOM renders
+      setTimeout(() => initAllTrimmers(captions), 150);
     } catch(e) {
       listEl.innerHTML = '<div style="color:var(--text2);font-size:0.875rem;">Could not load captions.</div>';
     }
@@ -949,11 +1112,18 @@ footer a { color: var(--accent2); text-decoration: none; }
     });
   }
 
+  // Init trimmers after DOM renders
+  const _origLoad = loadCaptions;
+  async function loadCaptionsAndTrim() {
+    await _origLoad();
+    // trimmers init via initAllTrimmers called inside loadCaptions
+  }
+
   // Load captions on portal unlock
   const origShowPortal = window.showPortal;
   window.showPortal = function() {
     if (origShowPortal) origShowPortal();
-    loadCaptions();
+    loadCaptions().then && loadCaptions();
   };
   if (localStorage.getItem(SESSION_KEY) === '1') loadCaptions();
 </script>
