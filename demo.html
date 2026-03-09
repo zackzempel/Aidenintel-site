@@ -537,20 +537,9 @@ for (let i = 0; i < 35; i++) {
 // ─── CARD REVEAL ───
 function revealContent() {
   document.getElementById('intro').classList.add('fade-out');
-  document.getElementById('content').classList.add('visible');
-  document.body.style.overflow = 'auto';
-
-  // Generate QR
   setTimeout(() => {
-    new QRCode(document.getElementById('qr-canvas'), {
-      text: 'https://aidenintel.com/demo',
-      width: 180,
-      height: 180,
-      colorDark: '#1a1f3a',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
-  }, 300);
+    window.location.href = 'https://aidenintel.com';
+  }, 600);
 }
 
 // No auto-reveal — waits for tap
