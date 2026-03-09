@@ -857,7 +857,7 @@ footer a { color: var(--accent2); text-decoration: none; }
   // ── VIDEO TRIMMER (per-platform, pointer-drag) ─────────────────
   const trimState = {};
   const PLATFORMS = {
-    instagram: { label: '📸 Instagram trim', maxSec: 30 },
+    instagram: { label: '📸 Instagram trim', maxSec: 60 },
     tiktok:    { label: '🎵 TikTok trim',    maxSec: 60 },
     facebook:  { label: '👥 Facebook trim',  maxSec: 90 },
     youtube:   { label: '▶️ YouTube trim',   maxSec: null }
@@ -876,7 +876,7 @@ footer a { color: var(--accent2); text-decoration: none; }
       trimState[id] = {
         duration: dur, activePlatform: 'instagram', previewTimer: null,
         platforms: {
-          instagram: { start: 0, end: Math.min(30, dur) },
+          instagram: { start: 0, end: Math.min(60, dur) },
           tiktok:    { start: 0, end: Math.min(60, dur) },
           facebook:  { start: 0, end: Math.min(90, dur) },
           youtube:   { start: 0, end: dur }
@@ -1161,7 +1161,7 @@ footer a { color: var(--accent2); text-decoration: none; }
           <div class="trimmer-wrap" id="trimmer-${c.id}">
             <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🎬 Video Editor — pick a platform to set its trim</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
-              <button class="preset-btn active" id="tab-instagram-${c.id}" onclick="switchPlatform('${c.id}','instagram',30)">📸 Instagram <span style="font-size:0.7rem;opacity:0.7;">≤30s</span></button>
+              <button class="preset-btn active" id="tab-instagram-${c.id}" onclick="switchPlatform('${c.id}','instagram',60)">📸 Instagram <span style="font-size:0.7rem;opacity:0.7;">≤60s</span></button>
               <button class="preset-btn" id="tab-tiktok-${c.id}" onclick="switchPlatform('${c.id}','tiktok',60)">🎵 TikTok <span style="font-size:0.7rem;opacity:0.7;">≤60s</span></button>
               <button class="preset-btn" id="tab-facebook-${c.id}" onclick="switchPlatform('${c.id}','facebook',90)">👥 Facebook <span style="font-size:0.7rem;opacity:0.7;">≤90s</span></button>
               <button class="preset-btn" id="tab-youtube-${c.id}" onclick="switchPlatform('${c.id}','youtube',null)">▶️ YouTube</button>
