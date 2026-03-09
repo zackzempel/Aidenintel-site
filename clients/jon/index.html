@@ -1234,10 +1234,10 @@ footer a { color: var(--accent2); text-decoration: none; }
 
           <!-- Captions -->
           <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Ready-to-Post Captions</div>
-          ${captionBlock('📸 Instagram', c.instagram_caption)}
-          ${captionBlock('🎵 TikTok', c.tiktok_caption)}
-          ${captionBlock('👥 Facebook', c.facebook_caption)}
-          ${captionBlock('▶️ YouTube', c.youtube_description)}
+          ${captionBlock('📸 Instagram', c.instagram_caption,   c.id, 'instagram_caption')}
+          ${captionBlock('🎵 TikTok',    c.tiktok_caption,     c.id, 'tiktok_caption')}
+          ${captionBlock('👥 Facebook',  c.facebook_caption,   c.id, 'facebook_caption')}
+          ${captionBlock('▶️ YouTube',   c.youtube_description, c.id, 'youtube_description')}
         </div>
       `).join('');
       // Init trimmers after DOM renders
@@ -1247,23 +1247,88 @@ footer a { color: var(--accent2); text-decoration: none; }
     }
   }
 
-  function captionBlock(platform, text) {
+  function captionBlock(platform, text, recordId, columnName) {
     if (!text) return '';
-    const id = `cap-${Math.random().toString(36).substr(2,6)}`;
+    const cid = `cap-${Math.random().toString(36).substr(2,8)}`;
     return `
-      <div style="margin-bottom:14px;">
-        <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">${platform}</div>
-        <div id="${id}" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px;font-size:0.85rem;line-height:1.6;color:var(--text);white-space:pre-wrap;">${text}</div>
-        <button onclick="copyCaption('${id}')" style="margin-top:6px;background:transparent;border:1px solid var(--border2);color:var(--text2);padding:5px 14px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy →</button>
+      <div style="margin-bottom:16px;" id="wrap-${cid}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;">${platform}</div>
+          <button id="edit-btn-${cid}" onclick="editCaption('${cid}','${recordId}','${columnName}')" style="background:transparent;border:1px solid var(--border2);color:var(--text3);padding:3px 10px;border-radius:6px;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;">✏️ Edit</button>
+        </div>
+        <div id="${cid}-view" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px;font-size:0.85rem;line-height:1.6;color:var(--text);white-space:pre-wrap;">${text}</div>
+        <textarea id="${cid}-edit" style="display:none;width:100%;background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:12px;font-size:0.85rem;line-height:1.6;color:var(--text);font-family:'Inter',sans-serif;resize:vertical;min-height:120px;outline:none;"></textarea>
+        <div id="${cid}-footer" style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button onclick="copyCaption('${cid}')" id="copy-btn-${cid}" style="background:transparent;border:1px solid var(--border2);color:var(--text2);padding:5px 14px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-family:'Inter',sans-serif;">Copy →</button>
+        </div>
+        <div id="${cid}-save-row" style="display:none;margin-top:6px;gap:8px;flex-wrap:wrap;">
+          <button onclick="saveCaption('${cid}','${recordId}','${columnName}')" id="save-btn-${cid}" style="background:var(--accent);color:white;border:none;padding:6px 18px;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Save</button>
+          <button onclick="cancelEditCaption('${cid}')" style="background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 14px;border-radius:6px;font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;">Cancel</button>
+        </div>
       </div>`;
   }
 
-  function copyCaption(id) {
-    const text = document.getElementById(id).textContent;
+  function editCaption(cid, recordId, columnName) {
+    const viewEl  = document.getElementById(`${cid}-view`);
+    const editEl  = document.getElementById(`${cid}-edit`);
+    const footer  = document.getElementById(`${cid}-footer`);
+    const saveRow = document.getElementById(`${cid}-save-row`);
+    const editBtn = document.getElementById(`edit-btn-${cid}`);
+    editEl.value = viewEl.textContent;
+    viewEl.style.display  = 'none';
+    editEl.style.display  = 'block';
+    footer.style.display  = 'none';
+    saveRow.style.display = 'flex';
+    editBtn.style.display = 'none';
+    editEl.focus();
+  }
+
+  function cancelEditCaption(cid) {
+    document.getElementById(`${cid}-view`).style.display  = 'block';
+    document.getElementById(`${cid}-edit`).style.display  = 'none';
+    document.getElementById(`${cid}-footer`).style.display = 'flex';
+    document.getElementById(`${cid}-save-row`).style.display = 'none';
+    document.getElementById(`edit-btn-${cid}`).style.display = '';
+  }
+
+  async function saveCaption(cid, recordId, columnName) {
+    const newText = document.getElementById(`${cid}-edit`).value;
+    const saveBtn = document.getElementById(`save-btn-${cid}`);
+    saveBtn.textContent = 'Saving...';
+    saveBtn.disabled = true;
+    try {
+      const resp = await fetch(`${SUPABASE_URL}/rest/v1/social_captions?id=eq.${recordId}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ [columnName]: newText })
+      });
+      if (!resp.ok) throw new Error(`Save failed (${resp.status})`);
+      // Update view + captionData
+      document.getElementById(`${cid}-view`).textContent = newText;
+      if (captionData[recordId]) captionData[recordId][columnName] = newText;
+      cancelEditCaption(cid);
+      // Green flash to confirm
+      const viewEl = document.getElementById(`${cid}-view`);
+      viewEl.style.borderColor = 'rgba(16,185,129,0.6)';
+      setTimeout(() => { viewEl.style.borderColor = ''; }, 2500);
+    } catch(err) {
+      saveBtn.textContent = 'Save';
+      saveBtn.disabled = false;
+      alert(`Couldn't save: ${err.message}`);
+    }
+  }
+
+  function copyCaption(cid) {
+    const viewEl = document.getElementById(`${cid}-view`);
+    const text = viewEl ? viewEl.textContent : '';
     navigator.clipboard.writeText(text).then(() => {
-      const btn = document.querySelector(`button[onclick="copyCaption('${id}')"]`);
-      btn.textContent = 'Copied ✓';
-      setTimeout(() => btn.textContent = 'Copy →', 2000);
+      const btn = document.getElementById(`copy-btn-${cid}`);
+      if (btn) { btn.textContent = 'Copied ✓'; setTimeout(() => btn.textContent = 'Copy →', 2000); }
     });
   }
 
