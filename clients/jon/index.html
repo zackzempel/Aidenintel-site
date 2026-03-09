@@ -918,34 +918,33 @@ footer a { color: var(--accent2); text-decoration: none; }
     function onMove(e) {
       if (!dragging || !trimState[id]) return;
       e.preventDefault();
-      const s = trimState[id];
-      const p = s.activePlatform;
-      const maxSec = PLATFORMS[p].maxSec;
-      let pct = getPct(e);
-      const minGap = Math.max(1, (1 / s.duration) * 100);
+      const s   = trimState[id];
+      const p   = s.activePlatform;
+      const dur = s.duration;
+      const max = PLATFORMS[p].maxSec;
+      const MIN_CLIP = 1; // seconds
 
-      const startPct = (s.platforms[p].start / s.duration) * 100;
-      const endPct   = (s.platforms[p].end   / s.duration) * 100;
+      // Convert pointer position → seconds
+      const posSec = (getPct(e) / 100) * dur;
 
       if (dragging === 'start') {
-        // Clamp using percentage units — allow start anywhere before end
-        pct = Math.max(0, Math.min(pct, endPct - minGap));
-        s.platforms[p].start = (pct / 100) * s.duration;
-        // Slide end forward if clip would exceed maxSec
-        if (maxSec && (s.platforms[p].end - s.platforms[p].start) > maxSec) {
-          s.platforms[p].end = Math.min(s.duration, s.platforms[p].start + maxSec);
+        // Start can go anywhere from 0 up to (end - MIN_CLIP)
+        let newStart = Math.max(0, Math.min(posSec, s.platforms[p].end - MIN_CLIP));
+        s.platforms[p].start = newStart;
+        // If clip is now longer than max, slide end forward with it
+        if (max && (s.platforms[p].end - s.platforms[p].start) > max) {
+          s.platforms[p].end = Math.min(dur, s.platforms[p].start + max);
         }
       } else {
-        // Clamp using percentage units
-        pct = Math.min(100, Math.max(pct, startPct + minGap));
-        s.platforms[p].end = (pct / 100) * s.duration;
-        // Don't let clip exceed maxSec
-        if (maxSec && (s.platforms[p].end - s.platforms[p].start) > maxSec) {
-          s.platforms[p].end = s.platforms[p].start + maxSec;
-        }
+        // End can go anywhere from (start + MIN_CLIP) up to video end
+        let newEnd = Math.max(s.platforms[p].start + MIN_CLIP, Math.min(posSec, dur));
+        // But can't make the clip longer than max
+        if (max) newEnd = Math.min(newEnd, s.platforms[p].start + max);
+        s.platforms[p].end = newEnd;
       }
-      const sp = (s.platforms[p].start / s.duration) * 100;
-      const ep = (s.platforms[p].end   / s.duration) * 100;
+
+      const sp = (s.platforms[p].start / dur) * 100;
+      const ep = (s.platforms[p].end   / dur) * 100;
       updateTrimmerVisuals(id, sp, ep);
     }
 
