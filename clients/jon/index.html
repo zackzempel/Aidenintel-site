@@ -854,23 +854,47 @@ footer a { color: var(--accent2); text-decoration: none; }
     recognition.start();
   }
 
-  // ── VIDEO TRIMMER ──────────────────────────────────────────────
-  const trimState = {}; // { id: { start, end, duration, previewTimer } }
+  // ── VIDEO TRIMMER (per-platform) ───────────────────────────────
+  // trimState[id] = { duration, activePlatform, previewTimer,
+  //   platforms: { instagram:{start,end}, tiktok:{start,end}, ... } }
+  const trimState = {};
+  const PLATFORMS = {
+    instagram: { label: '📸 Instagram trim', maxSec: 30 },
+    tiktok:    { label: '🎵 TikTok trim',    maxSec: 60 },
+    facebook:  { label: '👥 Facebook trim',  maxSec: 90 },
+    youtube:   { label: '▶️ YouTube trim',   maxSec: null }
+  };
 
   function initTrimmer(id) {
     const vid = document.getElementById(`vid-${id}`);
     if (!vid) return;
-    vid.addEventListener('loadedmetadata', () => {
-      trimState[id] = { start: 0, end: vid.duration, duration: vid.duration, previewTimer: null };
-      updateTrimmer(id);
+    vid.addEventListener('error', () => {
+      const errEl = document.getElementById(`vid-err-${id}`);
+      if (errEl) errEl.style.display = 'block';
     });
+    const onMeta = () => {
+      const dur = vid.duration;
+      if (!dur || isNaN(dur)) return;
+      trimState[id] = {
+        duration: dur, activePlatform: 'instagram', previewTimer: null,
+        platforms: {
+          instagram: { start: 0, end: Math.min(30, dur) },
+          tiktok:    { start: 0, end: Math.min(60, dur) },
+          facebook:  { start: 0, end: Math.min(90, dur) },
+          youtube:   { start: 0, end: dur }
+        }
+      };
+      renderTrimmer(id);
+    };
+    if (vid.readyState >= 1) { onMeta(); } else { vid.addEventListener('loadedmetadata', onMeta); }
+    vid.load();
     vid.addEventListener('timeupdate', () => {
       if (!trimState[id]) return;
-      const pct = (vid.currentTime / trimState[id].duration) * 100;
+      const dur = trimState[id].duration;
       const prog = document.getElementById(`progress-${id}`);
-      if (prog) { prog.style.display = 'block'; prog.style.left = pct + '%'; }
-      // Stop at trim end
-      if (trimState[id].previewTimer && vid.currentTime >= trimState[id].end) {
+      if (prog) { prog.style.display = 'block'; prog.style.left = ((vid.currentTime / dur) * 100) + '%'; }
+      const p = trimState[id].activePlatform;
+      if (trimState[id].previewTimer && vid.currentTime >= trimState[id].platforms[p].end) {
         vid.pause();
         clearInterval(trimState[id].previewTimer);
         trimState[id].previewTimer = null;
@@ -880,62 +904,82 @@ footer a { color: var(--accent2); text-decoration: none; }
     });
   }
 
-  function updateTrimmer(id) {
-    const vid = document.getElementById(`vid-${id}`);
-    const startEl = document.getElementById(`trim-start-${id}`);
-    const endEl = document.getElementById(`trim-end-${id}`);
-    if (!vid || !startEl || !endEl || !trimState[id]) return;
-
-    let startPct = parseFloat(startEl.value);
-    let endPct = parseFloat(endEl.value);
-
-    // Keep start < end with min 1s gap
-    const minGap = (1 / trimState[id].duration) * 100;
-    if (startPct >= endPct - minGap) {
-      if (document.activeElement === startEl) startPct = endPct - minGap;
-      else endPct = startPct + minGap;
-      startEl.value = startPct;
-      endEl.value = endPct;
-    }
-
-    trimState[id].start = (startPct / 100) * trimState[id].duration;
-    trimState[id].end = (endPct / 100) * trimState[id].duration;
-
-    // Update visual range bar
-    const bar = document.getElementById(`range-bar-${id}`);
-    if (bar) { bar.style.left = startPct + '%'; bar.style.width = (endPct - startPct) + '%'; }
-
-    // Update thumbs
-    const thumbS = document.getElementById(`thumb-start-${id}`);
-    const thumbE = document.getElementById(`thumb-end-${id}`);
-    if (thumbS) thumbS.style.left = `calc(${startPct}% - 7px)`;
-    if (thumbE) thumbE.style.left = `calc(${endPct}% - 7px)`;
-
-    // Update labels
-    const len = trimState[id].end - trimState[id].start;
-    document.getElementById(`label-start-${id}`).textContent = `Start: ${fmtTime(trimState[id].start)}`;
-    document.getElementById(`label-end-${id}`).textContent = `End: ${fmtTime(trimState[id].end)}`;
-    document.getElementById(`label-len-${id}`).textContent = `Length: ${fmtTime(len)}`;
+  function renderTrimmer(id) {
+    const s = trimState[id];
+    if (!s) return;
+    const p = s.activePlatform;
+    const { start, end } = s.platforms[p];
+    const startPct = (start / s.duration) * 100;
+    const endPct   = (end   / s.duration) * 100;
+    document.getElementById(`trim-start-${id}`).value = startPct;
+    document.getElementById(`trim-end-${id}`).value   = endPct;
+    updateTrimmerVisuals(id, startPct, endPct);
   }
 
-  function setTrimPreset(id, maxSec) {
-    if (!trimState[id]) return;
-    const dur = trimState[id].duration;
-    const endSec = maxSec ? Math.min(maxSec, dur) : dur;
+  function updateTrimmer(id) {
+    const s = trimState[id];
+    if (!s) return;
     const startEl = document.getElementById(`trim-start-${id}`);
-    const endEl = document.getElementById(`trim-end-${id}`);
-    startEl.value = 0;
-    endEl.value = (endSec / dur) * 100;
-    updateTrimmer(id);
-    // Highlight active preset
-    document.querySelectorAll(`#trimmer-${id} .preset-btn`).forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    const endEl   = document.getElementById(`trim-end-${id}`);
+    let sp = parseFloat(startEl.value);
+    let ep = parseFloat(endEl.value);
+    const minGap = Math.max(0.5, (1 / s.duration) * 100);
+    if (sp >= ep - minGap) {
+      if (document.activeElement === startEl) sp = ep - minGap;
+      else ep = sp + minGap;
+      startEl.value = sp; endEl.value = ep;
+    }
+    // Enforce platform max length
+    const p = s.activePlatform;
+    const maxSec = PLATFORMS[p].maxSec;
+    if (maxSec) {
+      const lenSec = ((ep - sp) / 100) * s.duration;
+      if (lenSec > maxSec) {
+        if (document.activeElement === startEl) ep = sp + (maxSec / s.duration * 100);
+        else sp = ep - (maxSec / s.duration * 100);
+        startEl.value = sp; endEl.value = ep;
+      }
+    }
+    s.platforms[p].start = (sp / 100) * s.duration;
+    s.platforms[p].end   = (ep / 100) * s.duration;
+    updateTrimmerVisuals(id, sp, ep);
+  }
+
+  function updateTrimmerVisuals(id, sp, ep) {
+    const s = trimState[id];
+    const bar = document.getElementById(`range-bar-${id}`);
+    if (bar) { bar.style.left = sp + '%'; bar.style.width = (ep - sp) + '%'; }
+    const tS = document.getElementById(`thumb-start-${id}`);
+    const tE = document.getElementById(`thumb-end-${id}`);
+    if (tS) tS.style.left = sp + '%';
+    if (tE) tE.style.left = ep + '%';
+    const start = s ? (sp / 100) * s.duration : 0;
+    const end   = s ? (ep / 100) * s.duration : 0;
+    const len   = end - start;
+    document.getElementById(`label-start-${id}`).textContent = `Start: ${fmtTime(start)}`;
+    document.getElementById(`label-end-${id}`).textContent   = `End: ${fmtTime(end)}`;
+    document.getElementById(`label-len-${id}`).textContent   = `Length: ${fmtTime(len)}`;
+  }
+
+  function switchPlatform(id, platform, maxSec) {
+    if (!trimState[id]) return;
+    trimState[id].activePlatform = platform;
+    // Update tab styles
+    Object.keys(PLATFORMS).forEach(p => {
+      const btn = document.getElementById(`tab-${p}-${id}`);
+      if (btn) btn.classList.toggle('active', p === platform);
+    });
+    // Update label
+    const lbl = document.getElementById(`active-platform-label-${id}`);
+    if (lbl) lbl.textContent = PLATFORMS[platform].label;
+    renderTrimmer(id);
   }
 
   function previewTrim(id) {
     const vid = document.getElementById(`vid-${id}`);
     const btn = document.getElementById(`preview-btn-${id}`);
     if (!vid || !trimState[id]) return;
+    const p = trimState[id].activePlatform;
     if (trimState[id].previewTimer) {
       vid.pause();
       clearInterval(trimState[id].previewTimer);
@@ -943,11 +987,11 @@ footer a { color: var(--accent2); text-decoration: none; }
       btn.textContent = '▶ Preview Trim';
       return;
     }
-    vid.currentTime = trimState[id].start;
-    vid.play();
+    vid.currentTime = trimState[id].platforms[p].start;
+    vid.play().catch(() => {});
     btn.textContent = '⏹ Stop Preview';
     trimState[id].previewTimer = setInterval(() => {
-      if (vid.currentTime >= trimState[id].end) {
+      if (vid.currentTime >= trimState[id].platforms[p].end) {
         vid.pause();
         clearInterval(trimState[id].previewTimer);
         trimState[id].previewTimer = null;
@@ -957,14 +1001,14 @@ footer a { color: var(--accent2); text-decoration: none; }
   }
 
   function fmtTime(sec) {
+    if (!sec || isNaN(sec)) return '0:00';
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
     return `${m}:${s.toString().padStart(2,'0')}`;
   }
 
-  // Init all trimmers after captions load
   function initAllTrimmers(captions) {
-    captions.forEach(c => { if (c.video_url) setTimeout(() => initTrimmer(c.id), 100); });
+    captions.forEach(c => { if (c.video_url) setTimeout(() => initTrimmer(c.id), 200); });
   }
   // ───────────────────────────────────────────────────────────────
 
@@ -1017,63 +1061,38 @@ footer a { color: var(--accent2); text-decoration: none; }
           <div style="font-size:0.75rem;color:var(--text3);margin-bottom:16px;">${new Date(c.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
 
           ${c.video_url ? `
-          <!-- Video Trimmer -->
           <div class="trimmer-wrap" id="trimmer-${c.id}">
-            <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🎬 Video Editor</div>
-
-            <!-- Platform presets -->
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-              <button class="preset-btn" onclick="setTrimPreset('${c.id}', 30)" title="Max 30s">📸 Instagram</button>
-              <button class="preset-btn" onclick="setTrimPreset('${c.id}', 60)" title="Max 60s">🎵 TikTok</button>
-              <button class="preset-btn" onclick="setTrimPreset('${c.id}', 90)" title="Max 90s">👥 Facebook</button>
-              <button class="preset-btn" onclick="setTrimPreset('${c.id}', null)" title="Full video">▶️ YouTube (Full)</button>
+            <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🎬 Video Editor — pick a platform to set its trim</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+              <button class="preset-btn active" id="tab-instagram-${c.id}" onclick="switchPlatform('${c.id}','instagram',30)">📸 Instagram <span style="font-size:0.7rem;opacity:0.7;">≤30s</span></button>
+              <button class="preset-btn" id="tab-tiktok-${c.id}" onclick="switchPlatform('${c.id}','tiktok',60)">🎵 TikTok <span style="font-size:0.7rem;opacity:0.7;">≤60s</span></button>
+              <button class="preset-btn" id="tab-facebook-${c.id}" onclick="switchPlatform('${c.id}','facebook',90)">👥 Facebook <span style="font-size:0.7rem;opacity:0.7;">≤90s</span></button>
+              <button class="preset-btn" id="tab-youtube-${c.id}" onclick="switchPlatform('${c.id}','youtube',null)">▶️ YouTube</button>
             </div>
-
-            <!-- Video player -->
-            <video id="vid-${c.id}" style="width:100%;border-radius:10px;background:#000;max-height:300px;" preload="metadata">
+            <div id="active-platform-label-${c.id}" style="font-size:0.78rem;color:var(--accent2);font-weight:600;margin-bottom:8px;">📸 Instagram trim</div>
+            <video id="vid-${c.id}" style="width:100%;border-radius:10px;background:#111;max-height:300px;" preload="auto" playsinline controls>
               <source src="${c.video_url}" type="video/mp4">
             </video>
-
-            <!-- Timeline scrubber -->
-            <div style="margin-top:12px;position:relative;padding:0 4px;">
-              <div style="position:relative;height:36px;background:rgba(255,255,255,0.05);border-radius:8px;overflow:visible;margin-bottom:6px;">
-                <!-- Selected range highlight -->
-                <div id="range-bar-${c.id}" style="position:absolute;top:0;bottom:0;background:rgba(99,102,241,0.35);border-radius:8px;pointer-events:none;"></div>
-                <!-- Progress indicator -->
-                <div id="progress-${c.id}" style="position:absolute;top:0;bottom:0;width:2px;background:var(--accent2);pointer-events:none;display:none;"></div>
-                <!-- Start handle -->
-                <input type="range" id="trim-start-${c.id}" min="0" max="100" value="0" step="0.1"
-                  oninput="updateTrimmer('${c.id}')"
-                  style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:2;">
-                <!-- End handle -->
-                <input type="range" id="trim-end-${c.id}" min="0" max="100" value="100" step="0.1"
-                  oninput="updateTrimmer('${c.id}')"
-                  style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:3;">
-                <!-- Start thumb -->
-                <div id="thumb-start-${c.id}" style="position:absolute;top:50%;transform:translateY(-50%);width:14px;height:28px;background:white;border-radius:4px;pointer-events:none;left:0;box-shadow:0 2px 6px rgba(0,0,0,0.5);"></div>
-                <!-- End thumb -->
-                <div id="thumb-end-${c.id}" style="position:absolute;top:50%;transform:translateY(-50%);width:14px;height:28px;background:white;border-radius:4px;pointer-events:none;right:0;box-shadow:0 2px 6px rgba(0,0,0,0.5);"></div>
+            <div id="vid-err-${c.id}" style="display:none;padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;font-size:0.8rem;color:var(--red);margin-top:6px;">⚠️ Video preview unavailable. <a href="${c.video_url}" target="_blank" style="color:var(--accent2);">Open directly →</a></div>
+            <div style="margin-top:12px;padding:0 6px;">
+              <div style="position:relative;height:40px;background:rgba(255,255,255,0.06);border-radius:8px;margin-bottom:8px;">
+                <div id="range-bar-${c.id}" style="position:absolute;top:0;bottom:0;left:0;right:0;background:rgba(99,102,241,0.3);border-radius:8px;pointer-events:none;"></div>
+                <div id="progress-${c.id}" style="position:absolute;top:4px;bottom:4px;width:3px;background:var(--accent2);border-radius:2px;pointer-events:none;display:none;left:0;"></div>
+                <input type="range" id="trim-start-${c.id}" min="0" max="100" value="0" step="0.1" oninput="updateTrimmer('${c.id}')" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:2;margin:0;">
+                <input type="range" id="trim-end-${c.id}" min="0" max="100" value="100" step="0.1" oninput="updateTrimmer('${c.id}')" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:3;margin:0;">
+                <div id="thumb-start-${c.id}" style="position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:30px;background:white;border-radius:4px;pointer-events:none;left:0;box-shadow:0 2px 8px rgba(0,0,0,0.6);"></div>
+                <div id="thumb-end-${c.id}" style="position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:30px;background:white;border-radius:4px;pointer-events:none;left:100%;box-shadow:0 2px 8px rgba(0,0,0,0.6);"></div>
               </div>
-
-              <!-- Time labels -->
               <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text3);">
                 <span id="label-start-${c.id}">Start: 0:00</span>
-                <span id="label-len-${c.id}" style="color:var(--accent2);font-weight:700;">Length: —</span>
-                <span id="label-end-${c.id}">End: 0:00</span>
+                <span id="label-len-${c.id}" style="color:var(--accent2);font-weight:700;">Length: loading...</span>
+                <span id="label-end-${c.id}">End: —</span>
               </div>
             </div>
-
-            <!-- Action buttons -->
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-              <button onclick="previewTrim('${c.id}')" id="preview-btn-${c.id}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);color:var(--accent2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">
-                ▶ Preview Trim
-              </button>
-              <a href="${c.video_url}" download style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);color:var(--text2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;text-decoration:none;">
-                ⬇️ Download Original
-              </a>
-              <button onclick="alert('Auto-posting coming soon! Download and use captions below for now.')" style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">
-                🚀 Auto-Post <span style="font-size:0.7rem;opacity:0.6;">(soon)</span>
-              </button>
+              <button onclick="previewTrim('${c.id}')" id="preview-btn-${c.id}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);color:var(--accent2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">▶ Preview Trim</button>
+              <a href="${c.video_url}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);color:var(--text2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;text-decoration:none;">⬇️ Download Original</a>
+              <button onclick="alert('Auto-posting coming soon!')" style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">🚀 Auto-Post <span style="font-size:0.7rem;opacity:0.6;">(soon)</span></button>
             </div>
           </div>` : ''}
 
