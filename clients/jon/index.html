@@ -1077,23 +1077,19 @@ footer a { color: var(--accent2); text-decoration: none; }
       setStatus(`✂️ Trimming ${platformLabel} clip (${fmtTime(start)} → ${fmtTime(end)})…`);
 
       const apiUrl = `/api/trim?url=${encodeURIComponent(videoUrl)}&start=${start.toFixed(3)}&end=${end.toFixed(3)}`;
-      const resp = await fetch(apiUrl);
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({ error: `HTTP ${resp.status}` }));
-        throw new Error(err.error || `HTTP ${resp.status}`);
-      }
 
-      setStatus(`📥 Downloading clip…`);
-      const blob = await resp.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href = url;
+      // Use a direct link — server sends Content-Disposition: attachment
+      // This works in all browsers including Safari (avoids blob URL issues)
+      const a = document.createElement('a');
+      a.href = apiUrl;
       a.download = `listing-${p}-${Math.round(end - start)}s.mp4`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
 
-      setStatus(`✅ Clip saved! Open ${platformLabel} and upload it.`, 'var(--green)');
-      setTimeout(() => { status.style.display = 'none'; }, 5000);
+      setStatus(`📥 Downloading clip… check your Downloads folder in a moment.`);
+      setTimeout(() => {
+        setStatus(`✅ Clip saved! Open ${platformLabel} and upload it.`, 'var(--green)');
+        setTimeout(() => { status.style.display = 'none'; }, 5000);
+      }, 3000);
 
     } catch(err) {
       setStatus(`❌ ${err.message}`, 'var(--red)');
