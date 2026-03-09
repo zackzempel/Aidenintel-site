@@ -696,7 +696,6 @@ footer a { color: var(--accent2); text-decoration: none; }
   </footer>
 </div>
 
-<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // Supabase — init after page loads
@@ -1053,89 +1052,111 @@ footer a { color: var(--accent2); text-decoration: none; }
     });
   }
 
-  // ── FFMPEG IN-BROWSER TRIMMER ──────────────────────────────────
-  let _ffmpeg = null;
-
-  async function getFFmpeg() {
-    if (_ffmpeg && _ffmpeg.isLoaded()) return _ffmpeg;
-    if (!window.FFmpeg) throw new Error('FFmpeg library not loaded');
-    const { createFFmpeg } = window.FFmpeg;
-    _ffmpeg = createFFmpeg({
-      log: false,
-      corePath: 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js'
-    });
-    await _ffmpeg.load();
-    return _ffmpeg;
-  }
+  // ── IN-BROWSER TRIM VIA MEDIARECORDER ─────────────────────────
+  const activeRecorders = {};
 
   async function trimAndDownload(id) {
     const s = trimState[id];
     if (!s) return;
     const p = s.activePlatform;
     const { start, end } = s.platforms[p];
+    const duration = end - start;
+    const vid    = document.getElementById(`vid-${id}`);
     const btn    = document.getElementById(`dl-btn-${id}`);
     const status = document.getElementById(`dl-status-${id}`);
-    const vid    = document.getElementById(`vid-${id}`);
     if (!vid) return;
 
-    const videoUrl  = vid.querySelector('source') ? vid.querySelector('source').src : vid.src;
-    const platformLabel = { instagram: 'Instagram', tiktok: 'TikTok', facebook: 'Facebook', youtube: 'YouTube' }[p] || p;
-    const filename  = `listing-${p}-${Math.round(end - start)}s.mp4`;
+    const labels = { instagram: 'Instagram', tiktok: 'TikTok', facebook: 'Facebook', youtube: 'YouTube' };
+    const platformLabel = labels[p] || p;
 
-    btn.disabled = true;
-    status.style.display = 'block';
-    status.style.color   = 'var(--text2)';
-
-    const setStatus = (msg, color) => {
-      status.style.color   = color || 'var(--text2)';
-      status.textContent   = msg;
-    };
-
-    try {
-      setStatus('⏳ Loading video processor (first time is ~5 sec)...');
-      const ff = await getFFmpeg();
-
-      setStatus('📥 Fetching video...');
-      let videoData;
-      try {
-        const resp = await fetch(videoUrl, { mode: 'cors' });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        videoData = new Uint8Array(await resp.arrayBuffer());
-      } catch (corsErr) {
-        // CORS fallback — download original, inform user
-        setStatus(`⚠️ Can't trim this video source directly (CORS restriction). Opening original video instead — manually trim to ${fmtTime(start)}–${fmtTime(end)} before uploading.`, 'var(--yellow)');
-        window.open(videoUrl, '_blank');
-        btn.disabled = false;
-        return;
-      }
-
-      setStatus(`✂️ Trimming ${platformLabel} clip (${fmtTime(start)} → ${fmtTime(end)})...`);
-      const { fetchFile } = window.FFmpeg;
-      ff.FS('writeFile', 'input.mp4', videoData);
-      await ff.run('-i', 'input.mp4', '-ss', start.toFixed(3), '-to', end.toFixed(3), '-c', 'copy', '-avoid_negative_ts', '1', 'output.mp4');
-
-      const out  = ff.FS('readFile', 'output.mp4');
-      try { ff.FS('unlink', 'input.mp4'); } catch(_) {}
-      try { ff.FS('unlink', 'output.mp4'); } catch(_) {}
-
-      const blobUrl = URL.createObjectURL(new Blob([out.buffer], { type: 'video/mp4' }));
-      const a = document.createElement('a');
-      a.href     = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-
-      setStatus(`✅ "${filename}" downloaded! Open Instagram (or ${platformLabel}) and upload it.`, 'var(--green)');
-      setTimeout(() => { status.style.display = 'none'; }, 5000);
-
-    } catch (err) {
-      setStatus(`❌ Error: ${err.message}. Try downloading the original instead.`, 'var(--red)');
-      console.error('FFmpeg trim error:', err);
+    // Cancel any in-progress recording for this id
+    if (activeRecorders[id]) {
+      activeRecorders[id].stop();
+      delete activeRecorders[id];
+      btn.textContent = '⬇ Download Trimmed Clip';
+      btn.disabled = false;
+      status.style.display = 'none';
+      return;
     }
 
     btn.disabled = false;
+    btn.textContent = '⏹ Cancel';
+    status.style.display = 'block';
+    status.style.color = 'var(--text2)';
+
+    const setStatus = (msg, color) => { status.style.color = color || 'var(--text2)'; status.innerHTML = msg; };
+
+    try {
+      if (!vid.captureStream && !vid.mozCaptureStream) throw new Error('captureStream not supported — try Chrome or Edge.');
+
+      // Seek to start point first
+      vid.pause();
+      vid.currentTime = start;
+      await new Promise(res => { vid.onseeked = res; setTimeout(res, 1500); });
+
+      const stream = (vid.captureStream || vid.mozCaptureStream).call(vid);
+
+      // Pick best supported mime type
+      const mimeType = ['video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm'].find(t => MediaRecorder.isTypeSupported(t)) || 'video/webm';
+      const ext = mimeType.startsWith('video/mp4') ? 'mp4' : 'webm';
+      const filename = `listing-${p}-${Math.round(duration)}s.${ext}`;
+
+      const chunks = [];
+      const recorder = new MediaRecorder(stream, { mimeType });
+      activeRecorders[id] = recorder;
+
+      recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+
+      recorder.onstop = () => {
+        delete activeRecorders[id];
+        const blob = new Blob(chunks, { type: mimeType });
+        const url  = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        setStatus(`✅ "${filename}" saved! Open ${platformLabel} and upload it.`, 'var(--green)');
+        setTimeout(() => { status.style.display = 'none'; }, 5000);
+        btn.textContent = '⬇ Download Trimmed Clip';
+        btn.disabled = false;
+        vid.pause();
+      };
+
+      // Start recording + playback
+      recorder.start(200);
+      vid.play().catch(() => {});
+
+      // Countdown progress bar
+      const totalMs = duration * 1000;
+      const pollMs  = 200;
+      let elapsed   = 0;
+      const tick = setInterval(() => {
+        elapsed += pollMs;
+        const pct = Math.min(100, (elapsed / totalMs) * 100);
+        const rem = Math.max(0, duration - elapsed / 1000);
+        setStatus(`🔴 Recording ${platformLabel} clip — ${rem.toFixed(0)}s left&nbsp;&nbsp;<span style="display:inline-block;width:120px;height:8px;background:var(--border2);border-radius:4px;vertical-align:middle;overflow:hidden;"><span style="display:block;height:100%;width:${pct}%;background:var(--accent);border-radius:4px;transition:width 0.2s;"></span></span>`);
+        if (elapsed >= totalMs + 300) {
+          clearInterval(tick);
+          if (recorder.state === 'recording') recorder.stop();
+          vid.pause();
+        }
+      }, pollMs);
+
+      // Also watch currentTime as a fallback stop trigger
+      const watchTime = setInterval(() => {
+        if (vid.currentTime >= end) {
+          clearInterval(watchTime);
+          clearInterval(tick);
+          if (recorder.state === 'recording') recorder.stop();
+          vid.pause();
+        }
+      }, 100);
+
+    } catch(err) {
+      setStatus(`❌ ${err.message}`, 'var(--red)');
+      btn.textContent = '⬇ Download Trimmed Clip';
+      btn.disabled = false;
+    }
   }
   // ───────────────────────────────────────────────────────────────
 
