@@ -924,17 +924,22 @@ footer a { color: var(--accent2); text-decoration: none; }
       let pct = getPct(e);
       const minGap = Math.max(1, (1 / s.duration) * 100);
 
+      const startPct = (s.platforms[p].start / s.duration) * 100;
+      const endPct   = (s.platforms[p].end   / s.duration) * 100;
+
       if (dragging === 'start') {
-        // Allow start to move freely; slide end forward if it would exceed maxSec
-        pct = Math.max(0, Math.min(pct, s.platforms[p].end - minGap));
+        // Clamp using percentage units — allow start anywhere before end
+        pct = Math.max(0, Math.min(pct, endPct - minGap));
         s.platforms[p].start = (pct / 100) * s.duration;
+        // Slide end forward if clip would exceed maxSec
         if (maxSec && (s.platforms[p].end - s.platforms[p].start) > maxSec) {
           s.platforms[p].end = Math.min(s.duration, s.platforms[p].start + maxSec);
         }
       } else {
-        // End can move freely; can't make clip longer than maxSec
-        pct = Math.min(100, Math.max(pct, s.platforms[p].start / s.duration * 100 + minGap));
+        // Clamp using percentage units
+        pct = Math.min(100, Math.max(pct, startPct + minGap));
         s.platforms[p].end = (pct / 100) * s.duration;
+        // Don't let clip exceed maxSec
         if (maxSec && (s.platforms[p].end - s.platforms[p].start) > maxSec) {
           s.platforms[p].end = s.platforms[p].start + maxSec;
         }
