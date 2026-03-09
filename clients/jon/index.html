@@ -701,7 +701,7 @@ footer a { color: var(--accent2); text-decoration: none; }
   // Auto-unlock if already authenticated
   if (localStorage.getItem(SESSION_KEY) === '1') showPortal();
 
-  // Upload asset to Supabase Storage
+  // Upload asset to Supabase Storage (direct fetch — more reliable than JS SDK for anon uploads)
   async function uploadAsset(input, assetType) {
     const file = input.files[0];
     if (!file) return;
@@ -714,24 +714,36 @@ footer a { color: var(--accent2); text-decoration: none; }
     const ext = file.name.split('.').pop();
     const filename = `jon-severson/${assetType}-${Date.now()}.${ext}`;
 
-    const { data, error } = await supabaseClient.storage
-      .from('client-assets')
-      .upload(filename, file, { upsert: true });
-
-    if (error) {
-      statusEl.style.color = 'var(--red)';
-      statusEl.textContent = `Upload failed: ${error.message}`;
-    } else {
-      statusEl.style.color = 'var(--green)';
-      statusEl.textContent = `✅ ${assetType} uploaded successfully! Aiden and Zack have been notified.`;
-      // Also log as a client request so Aiden gets notified
-      await supabaseClient.from('client_requests').insert({
-        client_name: 'Jon Severson',
-        client_id: 'jon',
-        request_type: 'Asset upload',
-        message: `Jon uploaded a new asset: ${assetType} (${filename})`,
-        status: 'new'
+    try {
+      const response = await fetch(`${SUPABASE_URL}/storage/v1/object/client-assets/${filename}`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': file.type
+        },
+        body: file
       });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = `Upload failed: ${result.message || result.error || 'Unknown error'}`;
+      } else {
+        statusEl.style.color = 'var(--green)';
+        statusEl.textContent = `✅ ${assetType} uploaded! Aiden and Zack have been notified.`;
+        await supabaseClient.from('client_requests').insert({
+          client_name: 'Jon Severson',
+          client_id: 'jon',
+          request_type: 'Asset upload',
+          message: `Jon uploaded a new asset: ${assetType} (${filename})`,
+          status: 'new'
+        });
+      }
+    } catch(e) {
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = `Upload failed: ${e.message}`;
     }
   }
 
