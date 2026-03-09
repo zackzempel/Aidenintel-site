@@ -696,6 +696,7 @@ footer a { color: var(--accent2); text-decoration: none; }
   </footer>
 </div>
 
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // Supabase — init after page loads
@@ -1035,6 +1036,109 @@ footer a { color: var(--accent2); text-decoration: none; }
   }
   // ───────────────────────────────────────────────────────────────
 
+  // ── CAPTION DATA STORE ─────────────────────────────────────────
+  const captionData = {}; // id → { instagram_caption, tiktok_caption, ... }
+
+  function copyActivePlatformCaption(id) {
+    const s = trimState[id];
+    const p = s ? s.activePlatform : 'instagram';
+    const caps = captionData[id];
+    if (!caps) return;
+    const keyMap = { instagram: 'instagram_caption', tiktok: 'tiktok_caption', facebook: 'facebook_caption', youtube: 'youtube_description' };
+    const text = caps[keyMap[p]] || '';
+    if (!text) { alert('No caption for this platform yet.'); return; }
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById(`copy-cap-btn-${id}`);
+      if (btn) { btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = '📋 Copy Caption', 2000); }
+    });
+  }
+
+  // ── FFMPEG IN-BROWSER TRIMMER ──────────────────────────────────
+  let _ffmpeg = null;
+
+  async function getFFmpeg() {
+    if (_ffmpeg && _ffmpeg.isLoaded()) return _ffmpeg;
+    if (!window.FFmpeg) throw new Error('FFmpeg library not loaded');
+    const { createFFmpeg } = window.FFmpeg;
+    _ffmpeg = createFFmpeg({
+      log: false,
+      corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+    });
+    await _ffmpeg.load();
+    return _ffmpeg;
+  }
+
+  async function trimAndDownload(id) {
+    const s = trimState[id];
+    if (!s) return;
+    const p = s.activePlatform;
+    const { start, end } = s.platforms[p];
+    const btn    = document.getElementById(`dl-btn-${id}`);
+    const status = document.getElementById(`dl-status-${id}`);
+    const vid    = document.getElementById(`vid-${id}`);
+    if (!vid) return;
+
+    const videoUrl  = vid.querySelector('source') ? vid.querySelector('source').src : vid.src;
+    const platformLabel = { instagram: 'Instagram', tiktok: 'TikTok', facebook: 'Facebook', youtube: 'YouTube' }[p] || p;
+    const filename  = `listing-${p}-${Math.round(end - start)}s.mp4`;
+
+    btn.disabled = true;
+    status.style.display = 'block';
+    status.style.color   = 'var(--text2)';
+
+    const setStatus = (msg, color) => {
+      status.style.color   = color || 'var(--text2)';
+      status.textContent   = msg;
+    };
+
+    try {
+      setStatus('⏳ Loading video processor (first time is ~5 sec)...');
+      const ff = await getFFmpeg();
+
+      setStatus('📥 Fetching video...');
+      let videoData;
+      try {
+        const resp = await fetch(videoUrl, { mode: 'cors' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        videoData = new Uint8Array(await resp.arrayBuffer());
+      } catch (corsErr) {
+        // CORS fallback — download original, inform user
+        setStatus(`⚠️ Can't trim this video source directly (CORS restriction). Opening original video instead — manually trim to ${fmtTime(start)}–${fmtTime(end)} before uploading.`, 'var(--yellow)');
+        window.open(videoUrl, '_blank');
+        btn.disabled = false;
+        return;
+      }
+
+      setStatus(`✂️ Trimming ${platformLabel} clip (${fmtTime(start)} → ${fmtTime(end)})...`);
+      const { fetchFile } = window.FFmpeg;
+      ff.FS('writeFile', 'input.mp4', videoData);
+      await ff.run('-i', 'input.mp4', '-ss', start.toFixed(3), '-to', end.toFixed(3), '-c', 'copy', '-avoid_negative_ts', '1', 'output.mp4');
+
+      const out  = ff.FS('readFile', 'output.mp4');
+      try { ff.FS('unlink', 'input.mp4'); } catch(_) {}
+      try { ff.FS('unlink', 'output.mp4'); } catch(_) {}
+
+      const blobUrl = URL.createObjectURL(new Blob([out.buffer], { type: 'video/mp4' }));
+      const a = document.createElement('a');
+      a.href     = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+
+      setStatus(`✅ "${filename}" downloaded! Open Instagram (or ${platformLabel}) and upload it.`, 'var(--green)');
+      setTimeout(() => { status.style.display = 'none'; }, 5000);
+
+    } catch (err) {
+      setStatus(`❌ Error: ${err.message}. Try downloading the original instead.`, 'var(--red)');
+      console.error('FFmpeg trim error:', err);
+    }
+
+    btn.disabled = false;
+  }
+  // ───────────────────────────────────────────────────────────────
+
   // Submit social caption request
   async function submitSocialRequest() {
     const address = document.getElementById('listingAddress').value.trim();
@@ -1078,6 +1182,16 @@ footer a { color: var(--accent2); text-decoration: none; }
         return;
       }
 
+      // Populate captionData store so copy buttons can access text
+      captions.forEach(c => {
+        captionData[c.id] = {
+          instagram_caption:  c.instagram_caption  || '',
+          tiktok_caption:     c.tiktok_caption     || '',
+          facebook_caption:   c.facebook_caption   || '',
+          youtube_description: c.youtube_description || ''
+        };
+      });
+
       listEl.innerHTML = captions.map(c => `
         <div style="border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:24px;" data-caption-id="${c.id}">
           <div style="font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:2px;">${c.listing_address || 'Listing'}</div>
@@ -1110,11 +1224,12 @@ footer a { color: var(--accent2); text-decoration: none; }
                 <span id="label-end-${c.id}">End: —</span>
               </div>
             </div>
-            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-              <button onclick="previewTrim('${c.id}')" id="preview-btn-${c.id}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);color:var(--accent2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">▶ Preview Trim</button>
-              <a href="${c.video_url}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);color:var(--text2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;text-decoration:none;">⬇️ Download Original</a>
-              <button onclick="alert('Auto-posting coming soon!')" style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">🚀 Auto-Post <span style="font-size:0.7rem;opacity:0.6;">(soon)</span></button>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center;">
+              <button onclick="previewTrim('${c.id}')" id="preview-btn-${c.id}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);color:var(--accent2);padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">▶ Preview</button>
+              <button onclick="trimAndDownload('${c.id}')" id="dl-btn-${c.id}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.4);color:var(--accent2);padding:8px 18px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">⬇ Download Trimmed Clip</button>
+              <button onclick="copyActivePlatformCaption('${c.id}')" id="copy-cap-btn-${c.id}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">📋 Copy Caption</button>
             </div>
+            <div id="dl-status-${c.id}" style="display:none;font-size:0.78rem;margin-top:8px;padding:8px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;line-height:1.5;"></div>
           </div>` : ''}
 
           <!-- Captions -->
