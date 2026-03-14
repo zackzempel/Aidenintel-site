@@ -526,6 +526,11 @@ function toggleMic() {
 }
 
 async function submitRequest() {
+  // Stop mic if recording
+  if (isRecording && recognition) {
+    recognition.stop();
+  }
+
   const input = document.getElementById('user-input').value.trim();
   if (!input) return;
 
