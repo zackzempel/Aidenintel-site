@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal — John Reilly | Aiden Intel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #05070f;
+  --surface: #0a0d1a;
+  --surface2: #0f1222;
+  --border: #1a2035;
+  --border2: #252d45;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #475569;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 60px 24px 120px;
+  position: relative;
+  z-index: 1;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+.logo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 28px;
+  opacity: 0.8;
+}
+.greeting {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #f1f5f9 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.subheading {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.7;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.card-body {
+  font-size: 0.95rem;
+  color: var(--text2);
+  line-height: 1.75;
+}
+
+/* AUDIT ITEMS */
+.audit-item {
+  display: flex;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.audit-item:last-child { border-bottom: none; padding-bottom: 0; }
+.audit-item:first-child { padding-top: 0; }
+.audit-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.audit-icon.yellow { background: rgba(245,158,11,0.12); }
+.audit-icon.red { background: rgba(239,68,68,0.12); }
+.audit-icon.blue { background: rgba(99,102,241,0.12); }
+.audit-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.audit-desc {
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+/* VALUE PROPS */
+.value-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 4px;
+}
+@media (max-width: 600px) { .value-grid { grid-template-columns: 1fr; } }
+.value-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.value-icon { font-size: 1.4rem; margin-bottom: 10px; }
+.value-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.value-desc {
+  font-size: 0.83rem;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+/* INPUT SECTION */
+.input-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+}
+.input-section h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.input-section p {
+  font-size: 0.93rem;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  padding: 16px;
+  resize: vertical;
+  min-height: 140px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+textarea::placeholder { color: var(--text3); }
+textarea:focus { border-color: var(--accent); }
+.submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 14px 28px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+.submit-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* SUCCESS STATE */
+.success-box {
+  display: none;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 20px;
+  color: var(--green);
+  font-size: 0.93rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* RESULT SECTION */
+#result-section {
+  display: none;
+  background: var(--surface);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+}
+#result-section h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent2);
+  margin-bottom: 20px;
+}
+.result-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.result-item:last-child { border-bottom: none; }
+.result-num {
+  width: 28px;
+  height: 28px;
+  background: rgba(99,102,241,0.15);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent2);
+  flex-shrink: 0;
+}
+.result-text {
+  font-size: 0.93rem;
+  color: var(--text);
+  line-height: 1.65;
+  padding-top: 4px;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding-top: 40px;
+  color: var(--text3);
+  font-size: 0.8rem;
+}
+.footer span { color: var(--accent2); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">Aiden Intel · Client Portal</div>
+    <h1 class="greeting">Hey John, we've been looking forward to this.</h1>
+    <p class="subheading">We took a look at Rayito de Sol before this meeting. Here's what we found — and where we think we can make a real impact for your business.</p>
+  </div>
+
+  <!-- ABOUT RAYITO -->
+  <div class="card">
+    <div class="card-label">What We Know About You</div>
+    <div class="card-title">Rayito de Sol — Spanish Immersion Early Learning</div>
+    <div class="card-body">
+      Rayito de Sol is a genuinely impressive concept — full Spanish immersion for children aged 6 weeks to 6 years, across multiple locations in Illinois and Minnesota. The program is differentiated, the mission is clear, and the brand has real warmth. Parents who find you are likely sold quickly. The challenge is making sure the right parents find you in the first place — and that no lead slips through the cracks after they do.
+    </div>
+  </div>
+
+  <!-- WEBSITE AUDIT -->
+  <div class="card">
+    <div class="card-label">Website Audit</div>
+    <div class="card-title">A Few Things We Noticed</div>
+
+    <div class="audit-item">
+      <div class="audit-icon yellow">⚠️</div>
+      <div>
+        <div class="audit-title">The "Schedule a Visit" CTA is hard to find on mobile</div>
+        <div class="audit-desc">Your most important conversion action — getting a parent to book a tour — is buried below the fold on smaller screens. Parents are researching daycares on their phones during nap time. If they have to scroll to find the button, many won't. This is likely costing you leads every day.</div>
+      </div>
+    </div>
+
+    <div class="audit-item">
+      <div class="audit-icon red">🔴</div>
+      <div>
+        <div class="audit-title">No visible follow-up after a visit request</div>
+        <div class="audit-desc">When a parent fills out your contact form, what happens next? If the answer is "someone checks email and replies eventually," you're losing families to competitors who follow up within minutes. Speed to response is one of the biggest factors in daycare enrollment decisions.</div>
+      </div>
+    </div>
+
+    <div class="audit-item">
+      <div class="audit-icon blue">💡</div>
+      <div>
+        <div class="audit-title">Multi-location coordination is an untapped asset</div>
+        <div class="audit-desc">Having locations in both Illinois and Minnesota is a strength, but the site treats them almost identically. Location-specific landing pages with local SEO, community ties, and tailored messaging could meaningfully increase organic traffic at each site.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHERE WE ADD VALUE -->
+  <div class="card">
+    <div class="card-label">Where We'd Add Value</div>
+    <div class="card-title">What Aiden Intel Would Build For You</div>
+    <div class="value-grid">
+      <div class="value-item">
+        <div class="value-icon">⚡</div>
+        <div class="value-title">Instant Lead Response Agent</div>
+        <div class="value-desc">When a parent requests a visit, an AI agent responds within seconds — personalized, warm, and on-brand. No more leads going cold overnight.</div>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">📱</div>
+        <div class="value-title">Social Content Pipeline</div>
+        <div class="value-desc">Consistent, culturally rich content for Instagram, Facebook, and TikTok — built around your curriculum and generated automatically from your program themes.</div>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">📍</div>
+        <div class="value-title">Location-Specific SEO Pages</div>
+        <div class="value-desc">Dedicated landing pages for each school optimized for local search — so parents in your neighborhoods find you before they find anyone else.</div>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">📊</div>
+        <div class="value-title">Enrollment Dashboard</div>
+        <div class="value-desc">A simple dashboard that shows you lead volume, tour bookings, and enrollment trends across all locations — in one place, in real time.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUT SECTION -->
+  <div class="input-section">
+    <h2>What would you like us to build?</h2>
+    <p>Tell us in your own words. What keeps you up at night? Where does your team lose the most time? What would make the biggest difference for Rayito de Sol? We'll take it from here.</p>
+
+    <textarea id="user-input" placeholder="e.g. We lose a lot of parents because we're slow to follow up. I also wish we had a better way to manage waitlists across locations..."></textarea>
+    <br>
+    <button class="submit-btn" id="submit-btn" onclick="submitRequest()">
+      <span>Send to Aiden Intel</span>
+      <span>→</span>
+    </button>
+    <div class="success-box" id="success-box">
+      ✅ Got it, John. We're reviewing your priorities now and will follow up shortly with a proposed plan of action.
+    </div>
+  </div>
+
+  <!-- RESULT SECTION (populated dynamically) -->
+  <div id="result-section">
+    <h2>🎯 Your Proposed Focus Areas</h2>
+    <div id="result-list"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Built for John Reilly by <span>Aiden Intel</span> · Intelligent Agentic Solutions
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
+
+async function submitRequest() {
+  const input = document.getElementById('user-input').value.trim();
+  if (!input) return;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span>Sending...</span>';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/client_requests`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        client_name: 'John Reilly',
+        client_id: 'john',
+        request_type: 'Discovery',
+        message: input,
+        status: 'new'
+      })
+    });
+
+    if (res.ok) {
+      document.getElementById('success-box').style.display = 'block';
+      btn.innerHTML = '<span>✓ Sent</span>';
+
+      // Generate a simple prioritized list from what they typed
+      generatePriorityList(input);
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Send to Aiden Intel</span><span>→</span>';
+      alert('Something went wrong. Please try again.');
+    }
+  } catch (e) {
+    btn.disabled = false;
+    btn.innerHTML = '<span>Send to Aiden Intel</span><span>→</span>';
+    alert('Connection error. Please try again.');
+  }
+}
+
+function generatePriorityList(input) {
+  const lower = input.toLowerCase();
+  const items = [];
+
+  // Simple keyword-based priority detection
+  if (lower.includes('follow') || lower.includes('response') || lower.includes('slow') || lower.includes('lead')) {
+    items.push('Automated lead follow-up — respond to every visit request within 60 seconds, 24/7, in your brand voice');
+  }
+  if (lower.includes('waitlist') || lower.includes('enroll') || lower.includes('wait list')) {
+    items.push('Smart waitlist management — track waitlists across all locations with automated parent updates');
+  }
+  if (lower.includes('social') || lower.includes('instagram') || lower.includes('content') || lower.includes('post')) {
+    items.push('Social content pipeline — weekly content calendar generated automatically from your curriculum themes');
+  }
+  if (lower.includes('location') || lower.includes('multi') || lower.includes('coordinat')) {
+    items.push('Multi-location dashboard — unified view of leads, tours, and enrollments across Illinois and Minnesota');
+  }
+  if (lower.includes('seo') || lower.includes('google') || lower.includes('find') || lower.includes('search')) {
+    items.push('Local SEO pages — location-specific landing pages to capture parents searching in your neighborhoods');
+  }
+  if (lower.includes('staff') || lower.includes('team') || lower.includes('admin') || lower.includes('time')) {
+    items.push('Admin automation — reduce manual work for your team with automated scheduling, reminders, and reporting');
+  }
+  if (lower.includes('parent') || lower.includes('communicat') || lower.includes('update')) {
+    items.push('Parent communication hub — automated updates, newsletters, and milestone messages for enrolled families');
+  }
+
+  // Always add a catch-all if we found specific items, plus a general one
+  if (items.length === 0) {
+    items.push('Discovery deep-dive — we\'ll schedule a call to map out the highest-impact opportunities for Rayito de Sol');
+    items.push('Custom AI agent strategy — tailored to your team\'s workflow and growth goals');
+  } else {
+    items.push('Full strategy session — we\'ll walk you through a detailed implementation plan and timeline');
+  }
+
+  // Render
+  const section = document.getElementById('result-section');
+  const list = document.getElementById('result-list');
+  list.innerHTML = items.map((item, i) => `
+    <div class="result-item">
+      <div class="result-num">${i + 1}</div>
+      <div class="result-text">${item}</div>
+    </div>
+  `).join('');
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
