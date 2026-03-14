@@ -678,6 +678,9 @@ async function submitRequest() {
   if (lower.includes('waitlist') || lower.includes('wait list') || lower.includes('registered') || lower.includes('waiting') || lower.includes('spot') || lower.includes('capacity') || lower.includes('reach out') || lower.includes('list')) {
     detectedMockups.push('waitlist');
   }
+  if (lower.includes('lead') || lower.includes('agent') || lower.includes('response') || lower.includes('follow') || lower.includes('message') || lower.includes('reply') || lower.includes('personalized') || lower.includes('warm') || lower.includes('example') || lower.includes('what would') || lower.includes('show me')) {
+    detectedMockups.push('lead-agent');
+  }
 
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/client_requests`, {
@@ -766,6 +769,9 @@ function revealMockups() {
   const reveal = document.getElementById('mockup-reveal');
   const links = document.getElementById('mockup-links');
   let html = '';
+  if (detectedMockups.includes('lead-agent')) {
+    html += `<a class="mockup-link purple" href="/clients/john/lead-agent.html" target="_blank">⚡ See the Lead Response Agent in Action →</a>`;
+  }
   if (detectedMockups.includes('dashboard')) {
     html += `<a class="mockup-link purple" href="/clients/john/dashboard.html" target="_blank">📊 View Enrollment Dashboard Preview →</a>`;
   }

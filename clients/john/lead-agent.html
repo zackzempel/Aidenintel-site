@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Response Agent Demo — Rayito de Sol | Aiden Intel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #05070f; --surface: #0a0d1a; --surface2: #0f1222;
+  --border: #1a2035; --border2: #252d45;
+  --accent: #6366f1; --accent2: #818cf8;
+  --green: #10b981; --yellow: #f59e0b; --red: #ef4444; --blue: #3b82f6;
+  --text: #f1f5f9; --text2: #94a3b8; --text3: #475569;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+.container { max-width: 780px; margin: 0 auto; padding: 48px 24px 100px; position: relative; z-index: 1; }
+
+.logo { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent2); margin-bottom: 12px; opacity: 0.8; }
+.page-title { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; margin-bottom: 8px; }
+.page-sub { font-size: 0.9rem; color: var(--text2); margin-bottom: 12px; line-height: 1.65; }
+.demo-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(--yellow); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; }
+.header { margin-bottom: 36px; }
+
+/* HOW IT WORKS */
+.steps-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 32px; }
+@media (max-width: 600px) { .steps-row { grid-template-columns: 1fr; } }
+.step { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.step-num { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent2); margin-bottom: 8px; }
+.step-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 5px; }
+.step-desc { font-size: 0.78rem; color: var(--text3); line-height: 1.55; }
+
+/* DEMO LABEL */
+.demo-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 14px; }
+
+/* PHONE MOCKUP */
+.phone-wrap { display: flex; justify-content: center; margin-bottom: 32px; }
+.phone {
+  width: 340px;
+  background: #0d0f1a;
+  border: 1.5px solid var(--border2);
+  border-radius: 36px;
+  padding: 20px 12px 28px;
+  box-shadow: 0 0 60px rgba(99,102,241,0.08);
+}
+.phone-notch { width: 90px; height: 22px; background: #0a0c17; border-radius: 20px; margin: 0 auto 16px; }
+.phone-header { display: flex; align-items: center; gap: 10px; padding: 0 8px 14px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.phone-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ef4444); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800; color: #fff; flex-shrink: 0; }
+.phone-contact { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+.phone-status { font-size: 0.72rem; color: var(--green); }
+
+/* MESSAGES */
+.messages { padding: 0 4px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 85%; }
+.msg.parent { align-self: flex-end; }
+.msg.agent { align-self: flex-start; }
+.msg-bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.msg.parent .msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.msg.agent .msg-bubble { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); border-bottom-left-radius: 4px; }
+.msg-time { font-size: 0.65rem; color: var(--text3); margin-top: 4px; text-align: right; }
+.msg.agent .msg-time { text-align: left; }
+.msg-time .fast { color: var(--green); font-weight: 700; }
+
+/* TYPING INDICATOR */
+.typing { display: flex; align-items: center; gap: 5px; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; }
+.dot { width: 6px; height: 6px; background: var(--text3); border-radius: 50%; animation: blink 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
+
+/* ANIMATION CLASSES */
+.hidden { opacity: 0; transform: translateY(8px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.visible { opacity: 1; transform: translateY(0); }
+
+/* REPLAY BTN */
+.replay-wrap { text-align: center; margin-bottom: 32px; }
+.replay-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--surface); border: 1px solid var(--border2); color: var(--text2); border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.83rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.replay-btn:hover { border-color: var(--accent); color: var(--accent2); }
+
+/* WHAT THIS MEANS */
+.explain-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 28px; }
+.explain-title { font-size: 1rem; font-weight: 800; margin-bottom: 16px; }
+.explain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 550px) { .explain-grid { grid-template-columns: 1fr; } }
+.explain-item { background: var(--surface2); border-radius: 10px; padding: 16px; }
+.explain-icon { font-size: 1.2rem; margin-bottom: 8px; }
+.explain-item-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+.explain-item-desc { font-size: 0.78rem; color: var(--text3); line-height: 1.55; }
+
+/* CTA */
+.cta-card { background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(129,140,248,0.05) 100%); border: 1px solid rgba(99,102,241,0.25); border-radius: 14px; padding: 32px; text-align: center; }
+.cta-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; }
+.cta-sub { font-size: 0.9rem; color: var(--text2); margin-bottom: 24px; line-height: 1.65; }
+.cta-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+.cta-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+
+.footer { text-align: center; padding-top: 40px; color: var(--text3); font-size: 0.8rem; }
+.footer span { color: var(--accent2); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">Aiden Intel · Agent Demo</div>
+    <h1 class="page-title">Instant Lead Response Agent</h1>
+    <p class="page-sub">A parent submits a tour request on your website. Here's exactly what happens next — in real time, automatically, without anyone on your team lifting a finger.</p>
+    <div class="demo-badge">⚡ Live Demo — Watch it happen</div>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps-row">
+    <div class="step">
+      <div class="step-num">Step 1</div>
+      <div class="step-title">Parent Submits a Request</div>
+      <div class="step-desc">A parent fills out your "Schedule a Visit" form on rayitoschools.com — any time, day or night.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 2</div>
+      <div class="step-title">Aiden Detects It Instantly</div>
+      <div class="step-desc">The agent picks up the request within seconds, reads the details, and crafts a personalized reply in Rayito de Sol's voice.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 3</div>
+      <div class="step-title">Parent Gets a Warm Reply</div>
+      <div class="step-desc">Within 60 seconds, the parent has a response that feels human, helpful, and on-brand. Tour booked. Lead captured.</div>
+    </div>
+  </div>
+
+  <!-- PHONE DEMO -->
+  <div class="demo-label">Here's what it looks like:</div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-header">
+        <div class="phone-avatar">R</div>
+        <div>
+          <div class="phone-contact">Rayito de Sol</div>
+          <div class="phone-status">● Online</div>
+        </div>
+      </div>
+      <div class="messages" id="messages">
+
+        <!-- Parent message 1 -->
+        <div class="msg parent hidden" id="msg1">
+          <div class="msg-bubble">Hi! I'm interested in enrolling my daughter (she'll be 18 months in April) in your toddler program at the Naperville location. Can I schedule a tour?</div>
+          <div class="msg-time">Sarah R. · 11:47 PM</div>
+        </div>
+
+        <!-- Typing -->
+        <div class="msg agent hidden" id="typing1">
+          <div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <div class="msg-time">Rayito de Sol is responding...</div>
+        </div>
+
+        <!-- Agent reply -->
+        <div class="msg agent hidden" id="msg2">
+          <div class="msg-bubble">Hi Sarah! 🌟 We'd love to welcome your daughter to Rayito de Sol — she sounds like she'd be a perfect fit for our Toddler program!<br><br>We have tour availability at our Naperville location this week:<br>• Thursday at 10:00 AM<br>• Friday at 2:00 PM<br>• Saturday at 11:00 AM<br><br>Which works best for your family? We can also answer any questions about our Spanish immersion curriculum when you visit. ¡Nos vemos pronto! 🇪🇸</div>
+          <div class="msg-time">Rayito de Sol · 11:47 PM · <span class="fast">⚡ replied in 38 sec</span></div>
+        </div>
+
+        <!-- Parent message 2 -->
+        <div class="msg parent hidden" id="msg3">
+          <div class="msg-bubble">Saturday at 11 works perfectly! How long is the tour?</div>
+          <div class="msg-time">Sarah R. · 11:49 PM</div>
+        </div>
+
+        <!-- Typing 2 -->
+        <div class="msg agent hidden" id="typing2">
+          <div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        </div>
+
+        <!-- Agent reply 2 -->
+        <div class="msg agent hidden" id="msg4">
+          <div class="msg-bubble">Saturday at 11 AM is confirmed for you! 🎉<br><br>Tours typically last 30–45 minutes — you'll get to see the classrooms, meet our lead teachers, and watch how the Spanish immersion environment works in action. Feel free to bring your daughter so she can get a feel for the space!<br><br>I've sent a confirmation to your email. See you Saturday! 🌞</div>
+          <div class="msg-time">Rayito de Sol · 11:49 PM · <span class="fast">⚡ replied in 22 sec</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="replay-wrap">
+    <button class="replay-btn" onclick="replayDemo()">↺ Replay Demo</button>
+  </div>
+
+  <!-- WHAT THIS MEANS -->
+  <div class="explain-card">
+    <div class="explain-title">What this means for Rayito de Sol</div>
+    <div class="explain-grid">
+      <div class="explain-item">
+        <div class="explain-icon">🕐</div>
+        <div class="explain-item-title">24/7 Coverage</div>
+        <div class="explain-item-desc">Sarah reached out at 11:47 PM. Without the agent, she'd wait until morning — and might have contacted a competitor first.</div>
+      </div>
+      <div class="explain-item">
+        <div class="explain-icon">🎯</div>
+        <div class="explain-item-title">Always On-Brand</div>
+        <div class="explain-item-desc">Every response uses Rayito de Sol's warm, bilingual tone. Consistent across every inquiry, every location, every time.</div>
+      </div>
+      <div class="explain-item">
+        <div class="explain-icon">📅</div>
+        <div class="explain-item-title">Tour Booked Automatically</div>
+        <div class="explain-item-desc">The agent checks availability and books the tour in the same conversation. No back-and-forth, no calendar tag-you're-it.</div>
+      </div>
+      <div class="explain-item">
+        <div class="explain-icon">📈</div>
+        <div class="explain-item-title">More Enrollments</div>
+        <div class="explain-item-desc">Studies show responding within 5 minutes increases lead conversion by 9x. At 38 seconds, you're in a different league.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-card">
+    <div class="cta-title">Ready to never miss a lead again?</div>
+    <div class="cta-sub">This agent would be live and responding to real parent inquiries within days of getting started — trained on your programs, your locations, and your brand voice.</div>
+    <a class="cta-btn" href="/clients/john">← Back to Your Portal</a>
+  </div>
+
+  <div class="footer">Built for John Reilly by <span>Aiden Intel</span> · Intelligent Agentic Solutions</div>
+</div>
+
+<script>
+let demoPlayed = false;
+
+function showMsg(id, delay) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.add('visible'); el.classList.remove('hidden'); }
+  }, delay);
+}
+
+function hideMsg(id) {
+  const el = document.getElementById(id);
+  if (el) { el.classList.remove('visible'); el.classList.add('hidden'); }
+}
+
+function playDemo() {
+  showMsg('msg1', 300);
+  showMsg('typing1', 1400);
+  setTimeout(() => hideMsg('typing1'), 3800);
+  showMsg('msg2', 4000);
+  showMsg('msg3', 6500);
+  showMsg('typing2', 7800);
+  setTimeout(() => hideMsg('typing2'), 9600);
+  showMsg('msg4', 9800);
+}
+
+function replayDemo() {
+  ['msg1','typing1','msg2','msg3','typing2','msg4'].forEach(hideMsg);
+  setTimeout(playDemo, 400);
+}
+
+// Auto-play on load
+window.addEventListener('load', () => setTimeout(playDemo, 600));
+</script>
+</body>
+</html>
