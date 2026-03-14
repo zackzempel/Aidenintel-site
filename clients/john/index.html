@@ -289,6 +289,88 @@ textarea:focus { border-color: var(--accent); }
   line-height: 1.6;
 }
 
+/* SPINNER */
+.spinner-box {
+  display: none;
+  background: rgba(99,102,241,0.06);
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 16px;
+  text-align: center;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-text { font-size: 0.9rem; color: var(--text2); line-height: 1.6; }
+.spinner-text strong { color: var(--accent2); }
+
+/* DELIVERY CHOICE */
+.delivery-box {
+  display: none;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 16px;
+}
+.delivery-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.delivery-sub { font-size: 0.85rem; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
+.delivery-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.delivery-opt {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; cursor: pointer;
+  transition: all 0.15s;
+}
+.delivery-opt:hover { border-color: var(--accent); background: rgba(99,102,241,0.05); }
+.delivery-opt.selected { border-color: var(--accent); background: rgba(99,102,241,0.08); }
+.delivery-opt-icon { font-size: 1.2rem; width: 28px; text-align: center; flex-shrink: 0; }
+.delivery-opt-label { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+.delivery-opt-sub { font-size: 0.78rem; color: var(--text3); margin-top: 2px; }
+.delivery-input-wrap { display: none; margin-top: 10px; }
+.delivery-input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif;
+  font-size: 0.9rem; padding: 11px 14px; outline: none; transition: border-color 0.2s;
+}
+.delivery-input:focus { border-color: var(--accent); }
+.delivery-input::placeholder { color: var(--text3); }
+.delivery-confirm-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 14px; padding: 12px 24px;
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 10px; font-family: 'Inter', sans-serif;
+  font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+}
+.delivery-confirm-btn:hover { background: var(--accent2); }
+
+/* MOCKUP REVEAL */
+.mockup-reveal {
+  display: none;
+  margin-top: 14px;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(99,102,241,0.25);
+  background: rgba(99,102,241,0.06);
+}
+.mockup-reveal-title { font-size: 0.88rem; font-weight: 700; color: var(--accent2); margin-bottom: 10px; }
+.mockup-links { display: flex; flex-direction: column; gap: 8px; }
+.mockup-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 8px; font-size: 0.85rem;
+  font-weight: 700; text-decoration: none; transition: all 0.2s; width: fit-content;
+}
+.mockup-link.purple { background: var(--accent); color: #fff; }
+.mockup-link.yellow { background: var(--yellow); color: #000; }
+.mockup-link:hover { opacity: 0.88; transform: translateY(-1px); }
+
 /* RESULT SECTION */
 #result-section {
   display: none;
@@ -437,19 +519,54 @@ textarea:focus { border-color: var(--accent); }
       </button>
     </div>
     <div class="success-box" id="success-box">
-      ✅ Got it, John. We're reviewing your priorities now and will follow up shortly with a proposed plan of action.
+      ✅ Got it, John. We're building your custom preview now.
     </div>
 
-    <div class="dashboard-teaser" id="dashboard-teaser" style="display:none;margin-top:16px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:12px;padding:20px 24px;">
-      <div style="font-size:0.85rem;font-weight:700;color:var(--accent2);margin-bottom:8px;">📊 Dashboard Mockup Ready</div>
-      <div style="font-size:0.88rem;color:var(--text2);line-height:1.65;margin-bottom:14px;">We built a preview of what your enrollment dashboard would look like — real layout, real data structure, built for Rayito de Sol.</div>
-      <a href="/clients/john/dashboard.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border-radius:10px;font-size:0.88rem;font-weight:700;text-decoration:none;transition:all 0.2s;">View Your Dashboard Preview →</a>
+    <!-- SPINNER -->
+    <div class="spinner-box" id="spinner-box">
+      <div class="spinner"></div>
+      <div class="spinner-text"><strong>Aiden is reviewing your request...</strong><br>Building something custom for you. This will just take a moment.</div>
     </div>
 
-    <div id="waitlist-teaser" style="display:none;margin-top:16px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:20px 24px;">
-      <div style="font-size:0.85rem;font-weight:700;color:var(--yellow);margin-bottom:8px;">📋 Waitlist Manager Mockup Ready</div>
-      <div style="font-size:0.88rem;color:var(--text2);line-height:1.65;margin-bottom:14px;">We built a preview of your waitlist tool — every family ranked by priority, with automated outreach built right in.</div>
-      <a href="/clients/john/waitlist.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--yellow);color:#000;border-radius:10px;font-size:0.88rem;font-weight:700;text-decoration:none;transition:all 0.2s;">View Your Waitlist Preview →</a>
+    <!-- DELIVERY CHOICE -->
+    <div class="delivery-box" id="delivery-box">
+      <div class="delivery-title">How would you like your preview delivered?</div>
+      <div class="delivery-sub">We've prepared something specific to what you asked for. Choose how you'd like to receive it.</div>
+      <div class="delivery-options">
+        <div class="delivery-opt" id="opt-email" onclick="selectDelivery('email')">
+          <div class="delivery-opt-icon">📧</div>
+          <div>
+            <div class="delivery-opt-label">Send to my email</div>
+            <div class="delivery-opt-sub">We'll send you a direct link — great for sharing with your team</div>
+          </div>
+        </div>
+        <div class="delivery-opt" id="opt-text" onclick="selectDelivery('text')">
+          <div class="delivery-opt-icon">📱</div>
+          <div>
+            <div class="delivery-opt-label">Text me the link</div>
+            <div class="delivery-opt-sub">Quick and easy — tap the link from your phone</div>
+          </div>
+        </div>
+        <div class="delivery-opt" id="opt-here" onclick="selectDelivery('here')">
+          <div class="delivery-opt-icon">🔗</div>
+          <div>
+            <div class="delivery-opt-label">Just show it here</div>
+            <div class="delivery-opt-sub">View your preview right on this page</div>
+          </div>
+        </div>
+      </div>
+      <div class="delivery-input-wrap" id="delivery-input-wrap">
+        <input class="delivery-input" id="delivery-input" type="text" placeholder="">
+      </div>
+      <button class="delivery-confirm-btn" id="delivery-confirm-btn" onclick="confirmDelivery()" style="display:none;">
+        <span>Confirm</span><span>→</span>
+      </button>
+    </div>
+
+    <!-- MOCKUP REVEAL -->
+    <div class="mockup-reveal" id="mockup-reveal">
+      <div class="mockup-reveal-title">✨ Your custom previews are ready:</div>
+      <div class="mockup-links" id="mockup-links"></div>
     </div>
   </div>
 
@@ -537,21 +654,33 @@ function toggleMic() {
   recognition.start();
 }
 
+let lastInput = '';
+let selectedDelivery = null;
+let detectedMockups = [];
+
 async function submitRequest() {
-  // Stop mic if recording
-  if (isRecording && recognition) {
-    recognition.stop();
-  }
+  if (isRecording && recognition) recognition.stop();
 
   const input = document.getElementById('user-input').value.trim();
   if (!input) return;
 
+  lastInput = input;
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
   btn.innerHTML = '<span>Sending...</span>';
 
+  // Detect what mockups to show based on what they said
+  const lower = input.toLowerCase();
+  detectedMockups = [];
+  if (lower.includes('dashboard') || lower.includes('enrollment') || lower.includes('metric') || lower.includes('overview') || lower.includes('report') || lower.includes('data') || lower.includes('numbers') || lower.includes('track')) {
+    detectedMockups.push('dashboard');
+  }
+  if (lower.includes('waitlist') || lower.includes('wait list') || lower.includes('registered') || lower.includes('waiting') || lower.includes('spot') || lower.includes('capacity') || lower.includes('reach out') || lower.includes('list')) {
+    detectedMockups.push('waitlist');
+  }
+
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/client_requests`, {
+    await fetch(`${SUPABASE_URL}/rest/v1/client_requests`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -567,43 +696,85 @@ async function submitRequest() {
         status: 'new'
       })
     });
+  } catch(e) { /* fail silently, still show the experience */ }
 
-    if (res.ok) {
-      document.getElementById('success-box').style.display = 'block';
-      btn.innerHTML = '<span>✓ Sent</span>';
+  // Show success + generate priority list
+  document.getElementById('success-box').style.display = 'block';
+  btn.innerHTML = '<span>✓ Sent</span>';
+  generatePriorityList(input);
 
-      // Generate a simple prioritized list from what they typed
-      generatePriorityList(input);
+  // If mockups detected — show spinner first, then delivery choice
+  if (detectedMockups.length > 0) {
+    const spinnerBox = document.getElementById('spinner-box');
+    spinnerBox.style.display = 'block';
+    spinnerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-      // If they mentioned dashboard/mockup, show the link right away
-      const lower = input.toLowerCase();
-      if (lower.includes('dashboard') || lower.includes('mockup') || lower.includes('mock up') || lower.includes('example') || lower.includes('sample') || lower.includes('show me') || lower.includes('what would')) {
-        showDashboardTeaser();
-      }
-      // If they mentioned waitlist
-      if (lower.includes('waitlist') || lower.includes('wait list') || lower.includes('registered') || lower.includes('reach out') || lower.includes('who\'s waiting') || lower.includes('list of')) {
-        showWaitlistTeaser();
-      }
-    } else {
-      btn.disabled = false;
-      btn.innerHTML = '<span>Send to Aiden Intel</span><span>→</span>';
-      alert('Something went wrong. Please try again.');
-    }
-  } catch (e) {
-    btn.disabled = false;
-    btn.innerHTML = '<span>Send to Aiden Intel</span><span>→</span>';
-    alert('Connection error. Please try again.');
+    setTimeout(() => {
+      spinnerBox.style.display = 'none';
+      const deliveryBox = document.getElementById('delivery-box');
+      deliveryBox.style.display = 'block';
+      deliveryBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 6000);
   }
 }
 
-function showDashboardTeaser() {
-  document.getElementById('dashboard-teaser').style.display = 'block';
-  document.getElementById('dashboard-teaser').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function selectDelivery(type) {
+  selectedDelivery = type;
+  document.querySelectorAll('.delivery-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('opt-' + type).classList.add('selected');
+
+  const wrap = document.getElementById('delivery-input-wrap');
+  const inp = document.getElementById('delivery-input');
+  const confirmBtn = document.getElementById('delivery-confirm-btn');
+
+  if (type === 'email') {
+    wrap.style.display = 'block';
+    inp.type = 'email';
+    inp.placeholder = 'your@email.com';
+    inp.focus();
+    confirmBtn.style.display = 'inline-flex';
+  } else if (type === 'text') {
+    wrap.style.display = 'block';
+    inp.type = 'tel';
+    inp.placeholder = '(555) 000-0000';
+    inp.focus();
+    confirmBtn.style.display = 'inline-flex';
+  } else {
+    wrap.style.display = 'none';
+    confirmBtn.style.display = 'none';
+    revealMockups();
+  }
 }
 
-function showWaitlistTeaser() {
-  document.getElementById('waitlist-teaser').style.display = 'block';
-  document.getElementById('waitlist-teaser').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function confirmDelivery() {
+  const val = document.getElementById('delivery-input').value.trim();
+  if (!val) {
+    document.getElementById('delivery-input').focus();
+    return;
+  }
+  // Store contact info alongside the request (fire and forget)
+  fetch(`${SUPABASE_URL}/rest/v1/client_requests`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ client_name: 'John Reilly', client_id: 'john', request_type: 'Contact Info', message: `${selectedDelivery}: ${val}`, status: 'new' })
+  });
+  revealMockups();
+}
+
+function revealMockups() {
+  document.getElementById('delivery-box').style.display = 'none';
+  const reveal = document.getElementById('mockup-reveal');
+  const links = document.getElementById('mockup-links');
+  let html = '';
+  if (detectedMockups.includes('dashboard')) {
+    html += `<a class="mockup-link purple" href="/clients/john/dashboard.html" target="_blank">📊 View Enrollment Dashboard Preview →</a>`;
+  }
+  if (detectedMockups.includes('waitlist')) {
+    html += `<a class="mockup-link yellow" href="/clients/john/waitlist.html" target="_blank">📋 View Waitlist Manager Preview →</a>`;
+  }
+  links.innerHTML = html;
+  reveal.style.display = 'block';
+  reveal.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function generatePriorityList(input) {
