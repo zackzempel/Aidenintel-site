@@ -212,11 +212,54 @@ textarea {
 }
 textarea::placeholder { color: var(--text3); }
 textarea:focus { border-color: var(--accent); }
+.input-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.mic-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.mic-btn:hover { border-color: var(--accent); color: var(--accent2); }
+.mic-btn.recording {
+  background: rgba(239,68,68,0.12);
+  border-color: var(--red);
+  color: var(--red);
+  animation: pulse 1.2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+}
+.mic-label {
+  font-size: 0.78rem;
+  color: var(--text3);
+  margin-top: 6px;
+  text-align: center;
+}
+.mic-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .submit-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 16px;
   padding: 14px 28px;
   background: var(--accent);
   color: #fff;
@@ -382,11 +425,17 @@ textarea:focus { border-color: var(--accent); }
     <p>Tell us in your own words. What keeps you up at night? Where does your team lose the most time? What would make the biggest difference for Rayito de Sol? We'll take it from here.</p>
 
     <textarea id="user-input" placeholder="e.g. We lose a lot of parents because we're slow to follow up. I also wish we had a better way to manage waitlists across locations..."></textarea>
-    <br>
-    <button class="submit-btn" id="submit-btn" onclick="submitRequest()">
-      <span>Send to Aiden Intel</span>
-      <span>→</span>
-    </button>
+
+    <div class="input-controls">
+      <div class="mic-wrapper">
+        <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Tap to speak">🎙️</button>
+        <div class="mic-label" id="mic-label">Tap to speak</div>
+      </div>
+      <button class="submit-btn" id="submit-btn" onclick="submitRequest()">
+        <span>Send to Aiden Intel</span>
+        <span>→</span>
+      </button>
+    </div>
     <div class="success-box" id="success-box">
       ✅ Got it, John. We're reviewing your priorities now and will follow up shortly with a proposed plan of action.
     </div>
@@ -408,6 +457,73 @@ textarea:focus { border-color: var(--accent); }
 <script>
 const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
+
+let recognition = null;
+let isRecording = false;
+
+function toggleMic() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Speech recognition is not supported in this browser. Please use Chrome.');
+    return;
+  }
+
+  if (isRecording) {
+    recognition.stop();
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  const micBtn = document.getElementById('mic-btn');
+  const micLabel = document.getElementById('mic-label');
+  const textarea = document.getElementById('user-input');
+  let existingText = textarea.value;
+
+  recognition.onstart = () => {
+    isRecording = true;
+    micBtn.classList.add('recording');
+    micBtn.innerHTML = '⏹️';
+    micLabel.textContent = 'Listening...';
+  };
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    let final = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        final += event.results[i][0].transcript + ' ';
+      } else {
+        interim += event.results[i][0].transcript;
+      }
+    }
+    textarea.value = existingText + final + interim;
+    if (final) existingText += final;
+  };
+
+  recognition.onend = () => {
+    isRecording = false;
+    micBtn.classList.remove('recording');
+    micBtn.innerHTML = '🎙️';
+    micLabel.textContent = 'Tap to speak';
+    textarea.value = existingText.trim();
+  };
+
+  recognition.onerror = (event) => {
+    isRecording = false;
+    micBtn.classList.remove('recording');
+    micBtn.innerHTML = '🎙️';
+    micLabel.textContent = 'Tap to speak';
+    if (event.error !== 'no-speech') {
+      alert('Mic error: ' + event.error + '. Please try again.');
+    }
+  };
+
+  recognition.start();
+}
 
 async function submitRequest() {
   const input = document.getElementById('user-input').value.trim();
