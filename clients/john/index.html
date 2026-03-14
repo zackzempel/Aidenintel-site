@@ -443,7 +443,13 @@ textarea:focus { border-color: var(--accent); }
     <div class="dashboard-teaser" id="dashboard-teaser" style="display:none;margin-top:16px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:12px;padding:20px 24px;">
       <div style="font-size:0.85rem;font-weight:700;color:var(--accent2);margin-bottom:8px;">📊 Dashboard Mockup Ready</div>
       <div style="font-size:0.88rem;color:var(--text2);line-height:1.65;margin-bottom:14px;">We built a preview of what your enrollment dashboard would look like — real layout, real data structure, built for Rayito de Sol.</div>
-      <a id="dashboard-link" href="/clients/john/dashboard.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border-radius:10px;font-size:0.88rem;font-weight:700;text-decoration:none;transition:all 0.2s;">View Your Dashboard Preview →</a>
+      <a href="/clients/john/dashboard.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border-radius:10px;font-size:0.88rem;font-weight:700;text-decoration:none;transition:all 0.2s;">View Your Dashboard Preview →</a>
+    </div>
+
+    <div id="waitlist-teaser" style="display:none;margin-top:16px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:20px 24px;">
+      <div style="font-size:0.85rem;font-weight:700;color:var(--yellow);margin-bottom:8px;">📋 Waitlist Manager Mockup Ready</div>
+      <div style="font-size:0.88rem;color:var(--text2);line-height:1.65;margin-bottom:14px;">We built a preview of your waitlist tool — every family ranked by priority, with automated outreach built right in.</div>
+      <a href="/clients/john/waitlist.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--yellow);color:#000;border-radius:10px;font-size:0.88rem;font-weight:700;text-decoration:none;transition:all 0.2s;">View Your Waitlist Preview →</a>
     </div>
   </div>
 
@@ -574,6 +580,10 @@ async function submitRequest() {
       if (lower.includes('dashboard') || lower.includes('mockup') || lower.includes('mock up') || lower.includes('example') || lower.includes('sample') || lower.includes('show me') || lower.includes('what would')) {
         showDashboardTeaser();
       }
+      // If they mentioned waitlist
+      if (lower.includes('waitlist') || lower.includes('wait list') || lower.includes('registered') || lower.includes('reach out') || lower.includes('who\'s waiting') || lower.includes('list of')) {
+        showWaitlistTeaser();
+      }
     } else {
       btn.disabled = false;
       btn.innerHTML = '<span>Send to Aiden Intel</span><span>→</span>';
@@ -589,6 +599,11 @@ async function submitRequest() {
 function showDashboardTeaser() {
   document.getElementById('dashboard-teaser').style.display = 'block';
   document.getElementById('dashboard-teaser').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showWaitlistTeaser() {
+  document.getElementById('waitlist-teaser').style.display = 'block';
+  document.getElementById('waitlist-teaser').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function generatePriorityList(input) {
