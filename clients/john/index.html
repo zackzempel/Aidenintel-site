@@ -701,23 +701,29 @@ async function submitRequest() {
     });
   } catch(e) { /* fail silently, still show the experience */ }
 
-  // Show success + generate priority list
+  // Show success
   document.getElementById('success-box').style.display = 'block';
   btn.innerHTML = '<span>✓ Sent</span>';
-  generatePriorityList(input);
 
-  // If mockups detected — show spinner first, then delivery choice
   if (detectedMockups.length > 0) {
+    // Spinner first — delay priority list so spinner gets the scroll focus
     const spinnerBox = document.getElementById('spinner-box');
     spinnerBox.style.display = 'block';
-    spinnerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => spinnerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 
+    // Show priority list quietly after a beat (no scroll)
+    setTimeout(() => generatePriorityList(input, false), 800);
+
+    // After 6 seconds: hide spinner, show delivery choice
     setTimeout(() => {
       spinnerBox.style.display = 'none';
       const deliveryBox = document.getElementById('delivery-box');
       deliveryBox.style.display = 'block';
       deliveryBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 6000);
+  } else {
+    // No mockup — just show priority list normally
+    generatePriorityList(input, true);
   }
 }
 
@@ -783,67 +789,61 @@ function revealMockups() {
   reveal.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function generatePriorityList(input) {
+function generatePriorityList(input, scrollToIt = true) {
   const lower = input.toLowerCase();
   const items = [];
 
   // LEAD & FOLLOW-UP
-  if (lower.includes('follow') || lower.includes('response') || lower.includes('slow') || lower.includes('lead') || lower.includes('contact') || lower.includes('inquiry') || lower.includes('tour') || lower.includes('visit') || lower.includes('reach out')) {
+  if (lower.includes('lead') || lower.includes('follow up') || lower.includes('response time') || lower.includes('slow to') || lower.includes('inquiry') || lower.includes('tour request') || lower.includes('reach out') || lower.includes('response agent') || lower.includes('instant')) {
     items.push('Instant lead response agent — every parent inquiry gets a warm, personalized reply within 60 seconds, day or night, in Rayito de Sol\'s voice');
   }
 
   // ENROLLMENT & WAITLIST
-  if (lower.includes('waitlist') || lower.includes('wait list') || lower.includes('enroll') || lower.includes('registration') || lower.includes('sign up') || lower.includes('opening') || lower.includes('spot') || lower.includes('capacity')) {
+  if (lower.includes('waitlist') || lower.includes('wait list') || lower.includes('enroll') || lower.includes('registration') || lower.includes('sign up') || lower.includes('open spot') || lower.includes('capacity') || lower.includes('spot open')) {
     items.push('Enrollment & waitlist automation — parents get real-time status updates, and your team gets notified the moment a spot opens up');
   }
 
   // DASHBOARD
-  if (lower.includes('dashboard') || lower.includes('track') || lower.includes('report') || lower.includes('overview') || lower.includes('metric') || lower.includes('number') || lower.includes('data') || lower.includes('see') || lower.includes('know')) {
+  if (lower.includes('dashboard') || lower.includes('reporting') || lower.includes('analytics') || lower.includes('metric') || lower.includes('overview') || lower.includes('track leads') || lower.includes('all locations')) {
     items.push('Live enrollment dashboard — a single view showing leads, tours booked, enrollment rates, and trends across all your locations in real time');
   }
 
   // SOCIAL CONTENT
-  if (lower.includes('social') || lower.includes('instagram') || lower.includes('facebook') || lower.includes('tiktok') || lower.includes('content') || lower.includes('post') || lower.includes('market') || lower.includes('brand') || lower.includes('awareness')) {
+  if (lower.includes('social media') || lower.includes('instagram') || lower.includes('facebook') || lower.includes('tiktok') || lower.includes('content') || lower.includes('posting') || lower.includes('marketing')) {
     items.push('Social content pipeline — consistent, culturally rich posts for Instagram, Facebook, and TikTok generated weekly from your curriculum themes');
   }
 
   // MULTI-LOCATION
-  if (lower.includes('location') || lower.includes('multi') || lower.includes('coordinat') || lower.includes('illinois') || lower.includes('minnesota') || lower.includes('school') || lower.includes('campus') || lower.includes('site')) {
+  if (lower.includes('location') || lower.includes('multi-location') || lower.includes('illinois') || lower.includes('minnesota') || lower.includes('coordinate') || lower.includes('multiple schools')) {
     items.push('Multi-location coordination — unified tools so your IL and MN schools stay in sync on messaging, capacity, and operations');
   }
 
   // SEO & DISCOVERY
-  if (lower.includes('seo') || lower.includes('google') || lower.includes('find') || lower.includes('search') || lower.includes('discover') || lower.includes('online') || lower.includes('website') || lower.includes('web') || lower.includes('traffic')) {
+  if (lower.includes('seo') || lower.includes('google') || lower.includes('search') || lower.includes('found online') || lower.includes('website traffic') || lower.includes('show up')) {
     items.push('Local SEO & landing pages — location-specific pages optimized for search so parents in your neighborhoods find Rayito de Sol first');
   }
 
   // STAFF & ADMIN
-  if (lower.includes('staff') || lower.includes('team') || lower.includes('admin') || lower.includes('manual') || lower.includes('time') || lower.includes('paperwork') || lower.includes('busy') || lower.includes('overwhelm') || lower.includes('work')) {
+  if (lower.includes('staff') || lower.includes('admin') || lower.includes('paperwork') || lower.includes('manual') || lower.includes('overwhelmed') || lower.includes('too much time')) {
     items.push('Admin automation — eliminate repetitive manual tasks for your team: scheduling, reminders, reporting, and parent onboarding paperwork');
   }
 
   // PARENT COMMUNICATION
-  if (lower.includes('parent') || lower.includes('communicat') || lower.includes('update') || lower.includes('newsletter') || lower.includes('message') || lower.includes('notify') || lower.includes('inform') || lower.includes('family')) {
+  if (lower.includes('parent communication') || lower.includes('newsletter') || lower.includes('updates to parents') || lower.includes('keep families') || lower.includes('notify families')) {
     items.push('Parent communication hub — automated milestone updates, newsletters, and event reminders that keep families engaged and informed');
   }
 
   // REVIEWS & REPUTATION
-  if (lower.includes('review') || lower.includes('reputation') || lower.includes('rating') || lower.includes('yelp') || lower.includes('google review') || lower.includes('word of mouth') || lower.includes('referral') || lower.includes('recommend')) {
-    items.push('Reputation & reviews agent — automatically follow up with happy families to request Google reviews and referrals, growing your word-of-mouth pipeline');
+  if (lower.includes('review') || lower.includes('reputation') || lower.includes('google rating') || lower.includes('referral') || lower.includes('word of mouth')) {
+    items.push('Reputation & reviews agent — automatically follow up with happy families to request Google reviews and referrals');
   }
 
-  // RETENTION
-  if (lower.includes('retain') || lower.includes('retention') || lower.includes('keep') || lower.includes('churn') || lower.includes('leave') || lower.includes('drop') || lower.includes('re-enroll') || lower.includes('reenroll')) {
-    items.push('Family retention system — proactive check-ins and re-enrollment reminders so you never lose a family to inactivity or a missed deadline');
-  }
-
-  // Fallback if nothing matched
+  // Fallback
   if (items.length === 0) {
     items.push('Discovery deep-dive — we\'ll map out the highest-impact AI opportunities specific to Rayito de Sol\'s workflow and growth goals');
-    items.push('Custom agent strategy — a tailored plan built around your team\'s day-to-day and where you want to be in 12 months');
     items.push('Quick wins roadmap — 3 things we could have running within 2 weeks that would make an immediate difference');
   } else {
-    items.push('Implementation roadmap — a clear timeline for rolling these out one by one, starting with the highest-impact item first');
+    items.push('Implementation roadmap — a clear timeline for rolling these out, starting with the highest-impact item first');
   }
 
   // Render
@@ -856,7 +856,7 @@ function generatePriorityList(input) {
     </div>
   `).join('');
   section.style.display = 'block';
-  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (scrollToIt) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
 </body>
