@@ -664,11 +664,11 @@ footer a { color: var(--accent2); text-decoration: none; }
           </div>
 
           <button onclick="submitIntakeAnswers()" id="intakeBtn" style="background:var(--accent); color:white; border:none; padding:12px 28px; border-radius:10px; font-size:0.9rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:background 0.2s; display:flex; align-items:center; gap:8px;">
-            Submit Answers →
+            ✅ Submit My Intake Answers →
           </button>
 
           <div id="intakeSuccess" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
-            ✅ Answers submitted! Aiden is reviewing your responses and will have a full scope draft ready soon.
+            ✅ Answers received — Aiden is reviewing your responses and will have a full scope document ready within 24–48 hours. Nothing else needed from you on this request.
           </div>
           <div id="intakeError" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:10px; color:#ef4444; font-size:0.875rem;">
             Something went wrong. Please try again or email hello@aidenintel.com
@@ -980,7 +980,7 @@ footer a { color: var(--accent2); text-decoration: none; }
         status: 'new'
       });
 
-      btn.textContent = 'Submit Answers →';
+      btn.textContent = '✅ Submit My Intake Answers →';
       btn.disabled = false;
 
       if (error) {
@@ -988,15 +988,33 @@ footer a { color: var(--accent2); text-decoration: none; }
       } else {
         document.getElementById('intakeSuccess').style.display = 'block';
         document.getElementById('intakeError').style.display = 'none';
-        // Disable form after submit
-        ['iq1','iq2','iq3','iq4'].forEach(id => {
-          document.getElementById(id).disabled = true;
-          document.getElementById(id).style.opacity = '0.5';
-        });
-        btn.style.display = 'none';
+        // Collapse intake form after submit — fade out questions, leave success message
+        setTimeout(() => {
+          ['iq1','iq2','iq3','iq4'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.closest('.intake-q').style.transition = 'opacity 0.4s'; el.closest('.intake-q').style.opacity = '0'; }
+          });
+          btn.style.display = 'none';
+          setTimeout(() => {
+            ['iq1','iq2','iq3','iq4'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.closest('.intake-q').style.display = 'none';
+            });
+            // Update the card border to green — action complete
+            const card = document.querySelector('#active-requests .project-card');
+            if (card) {
+              card.style.borderColor = 'rgba(16,185,129,0.35)';
+              card.style.borderLeft = '4px solid var(--green)';
+              card.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.03) 0%, var(--surface) 60%)';
+            }
+            // Update badge
+            const badge = document.querySelector('#active-requests .badge-purple');
+            if (badge) { badge.className = 'badge badge-green'; badge.textContent = '✓ Intake Complete'; }
+          }, 450);
+        }, 800);
       }
     } catch(e) {
-      btn.textContent = 'Submit Answers →';
+      btn.textContent = '✅ Submit My Intake Answers →';
       btn.disabled = false;
       document.getElementById('intakeError').style.display = 'block';
       document.getElementById('intakeError').textContent = 'Connection error: ' + e.message;
