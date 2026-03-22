@@ -365,7 +365,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     <div class="portal-header">
       <div class="client-info">
         <h1>👋 Hey Jon!</h1>
-        <p>Here's everything we're working on for you. Last updated: March 7, 2026</p>
+        <p>Here's everything we're working on for you. Last updated: <span id='lastUpdatedDate'>loading...</span></p>
       </div>
       <div class="overall-status">
         <div class="status-dot"></div>
@@ -800,24 +800,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     <div style="margin-top: 40px;" id="recent-updates">
       <div class="section-title">Recent Updates</div>
       <div class="project-card">
-        <div class="timeline" style="gap:0;">
-          <div class="update-item">
-            <div class="update-date">Mar 8</div>
-            <div class="update-text"><strong>2 Instagram Reels generated and ready for review.</strong> Built from your 6798 153rd Ln listing video — "Just Listed" and "Dream Home" angles, both 30 sec vertical format. Download and post, or send feedback!</div>
-          </div>
-          <div class="update-item">
-            <div class="update-date">Mar 7</div>
-            <div class="update-text"><strong>Website mockup ready for review.</strong> Full redesign built — navy/gold theme, expertise sections, new construction highlight, lead form, video placeholder. Check it out above!</div>
-          </div>
-          <div class="update-item">
-            <div class="update-date">Mar 6</div>
-            <div class="update-text"><strong>Listing showcase page delivered.</strong> Built from your Aryeo media — 30+ photos, luxury video, all 4 floor plans live.</div>
-          </div>
-          <div class="update-item">
-            <div class="update-date">Mar 6</div>
-            <div class="update-text"><strong>Discovery complete.</strong> Confirmed Lofty + Northstar MLS setup. Agreed on mockup-first approach before Lofty implementation.</div>
-          </div>
-        </div>
+        <div id="updates-feed"><div style="color:var(--text3);font-size:0.875rem;padding:16px 0;">Loading updates...</div></div>
       </div>
     </div>
 
@@ -1551,6 +1534,35 @@ footer a { color: var(--accent2); text-decoration: none; }
     // trimmers init via initAllTrimmers called inside loadCaptions
   }
 
+  // ── PORTAL UPDATES (dynamic) ──────────────────────────────────
+  async function loadPortalUpdates() {
+    try {
+      const res = await fetch('/clients/jon/portal-updates.json?t=' + Date.now());
+      const data = await res.json();
+      const updates = data.updates || [];
+      if (!updates.length) return;
+
+      // Set "Last updated" from most recent entry
+      const dateEl = document.getElementById('lastUpdatedDate');
+      if (dateEl) dateEl.textContent = updates[0].date;
+
+      // Render updates feed
+      const feed = document.getElementById('updates-feed');
+      if (feed) {
+        feed.innerHTML = updates.map(u => `
+          <div class="update-item">
+            <div class="update-date">${u.date.replace(', 2026','').replace(', 2025','')}</div>
+            <div class="update-text"><strong>${u.title}</strong>${u.body ? ' ' + u.body : ''}</div>
+          </div>`).join('');
+      }
+    } catch(e) {
+      console.warn('Could not load portal updates:', e);
+      const dateEl = document.getElementById('lastUpdatedDate');
+      if (dateEl) dateEl.textContent = 'March 22, 2026';
+    }
+  }
+  // ───────────────────────────────────────────────────────────────
+
   // ── SECTION NAV ───────────────────────────────────────────────
   function scrollToSection(id) {
     const el = document.getElementById(id);
@@ -1590,8 +1602,9 @@ footer a { color: var(--accent2); text-decoration: none; }
   window.showPortal = function() {
     if (origShowPortal) origShowPortal();
     loadCaptions().then && loadCaptions();
+    loadPortalUpdates();
   };
-  if (localStorage.getItem(SESSION_KEY) === '1') loadCaptions();
+  if (localStorage.getItem(SESSION_KEY) === '1') { loadCaptions(); loadPortalUpdates(); }
 </script>
 </body>
 </html>
