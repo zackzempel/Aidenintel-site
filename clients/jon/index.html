@@ -492,6 +492,17 @@ footer a { color: var(--accent2); text-decoration: none; }
     <div class="nav-client">Logged in as <strong>Jon Severson</strong></div>
   </nav>
 
+  <!-- RESPONSE BANNER -->
+  <div id="response-banner" style="display:none; background:rgba(245,158,11,0.12); border-bottom:1px solid rgba(245,158,11,0.25); padding:12px 40px; position:sticky; top:60px; z-index:89;">
+    <div style="max-width:1000px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:1rem;">🔔</span>
+        <span id="banner-text" style="font-size:0.875rem; font-weight:600; color:var(--yellow);">Aiden has a response waiting for you</span>
+      </div>
+      <button onclick="dismissBanner()" style="background:transparent; border:1px solid rgba(245,158,11,0.3); color:var(--yellow); font-size:0.75rem; font-weight:700; padding:5px 12px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif;">Dismiss</button>
+    </div>
+  </div>
+
   <!-- SECTION NAV -->
   <div id="section-nav">
     <div class="section-nav-inner">
@@ -1830,6 +1841,38 @@ footer a { color: var(--accent2); text-decoration: none; }
   }
   // ───────────────────────────────────────────────────────────────
 
+  // ── PORTAL RESPONSES (banner + badge) ─────────────────────────
+  const BANNER_DISMISS_KEY = 'jon_banner_dismissed';
+
+  async function loadPortalResponses() {
+    try {
+      const res = await fetch('/clients/jon/portal-responses.json?t=' + Date.now());
+      const data = await res.json();
+      if (!data.hasUnread) return;
+      // Check if already dismissed this session
+      if (sessionStorage.getItem(BANNER_DISMISS_KEY)) return;
+      // Show banner
+      const unread = (data.requests || []).filter(r => r.status === 'responded');
+      const count = unread.length;
+      if (count > 0) {
+        const text = count === 1
+          ? `Aiden has a response ready on "${unread[0].title}" →`
+          : `Aiden has ${count} responses waiting for you →`;
+        document.getElementById('banner-text').textContent = '🔔 ' + text;
+        document.getElementById('response-banner').style.display = 'block';
+        // Adjust section nav top to account for banner
+        document.getElementById('section-nav').style.top = '104px';
+      }
+    } catch(e) { /* silent fail */ }
+  }
+
+  function dismissBanner() {
+    document.getElementById('response-banner').style.display = 'none';
+    document.getElementById('section-nav').style.top = '60px';
+    sessionStorage.setItem(BANNER_DISMISS_KEY, '1');
+  }
+  // ───────────────────────────────────────────────────────────────
+
   // ── PORTAL UPDATES (dynamic) ──────────────────────────────────
   async function loadPortalUpdates() {
     try {
@@ -1899,8 +1942,9 @@ footer a { color: var(--accent2); text-decoration: none; }
     if (origShowPortal) origShowPortal();
     loadCaptions().then && loadCaptions();
     loadPortalUpdates();
+    loadPortalResponses();
   };
-  if (localStorage.getItem(SESSION_KEY) === '1') { loadCaptions(); loadPortalUpdates(); }
+  if (localStorage.getItem(SESSION_KEY) === '1') { loadCaptions(); loadPortalUpdates(); loadPortalResponses(); }
 </script>
 </body>
 </html>

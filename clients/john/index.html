@@ -559,6 +559,17 @@ footer a { color: var(--accent2); text-decoration: none; }
     <div class="nav-client">Logged in as <strong>John Reilly</strong></div>
   </nav>
 
+  <!-- RESPONSE BANNER -->
+  <div id="response-banner" style="display:none; background:rgba(245,158,11,0.12); border-bottom:1px solid rgba(245,158,11,0.25); padding:12px 40px; position:sticky; top:60px; z-index:89;">
+    <div style="max-width:1000px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:1rem;">🔔</span>
+        <span id="banner-text" style="font-size:0.875rem; font-weight:600; color:var(--yellow);">Aiden has a response waiting for you</span>
+      </div>
+      <button onclick="dismissBanner()" style="background:transparent; border:1px solid rgba(245,158,11,0.3); color:var(--yellow); font-size:0.75rem; font-weight:700; padding:5px 12px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif;">Dismiss</button>
+    </div>
+  </div>
+
   <!-- SECTION NAV -->
   <div id="section-nav">
     <div class="section-nav-inner">
@@ -921,6 +932,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
   }
   function showPortal() {
+    loadPortalResponses();
     document.getElementById('lockscreen').style.display = 'none';
     document.getElementById('portal').style.display = 'block';
   }
@@ -935,7 +947,51 @@ footer a { color: var(--accent2); text-decoration: none; }
       document.getElementById('passInput').focus();
     }
   }
-  if (localStorage.getItem(SESSION_KEY) === '1') showPortal();
+  if (localStorage.getItem(SESSION_KEY) === '1') { showPortal(); loadPortalResponses(); }
+
+  // ── PORTAL RESPONSES (banner + badge) ─────────────────────────
+  const BANNER_DISMISS_KEY = 'john_banner_dismissed';
+
+  async function loadPortalResponses() {
+    try {
+      const res = await fetch('/clients/john/portal-responses.json?t=' + Date.now());
+      const data = await res.json();
+      if (!data.hasUnread) return;
+      if (sessionStorage.getItem(BANNER_DISMISS_KEY)) return;
+      const unread = (data.requests || []).filter(r => r.status === 'responded');
+      const count = unread.length;
+      if (count > 0) {
+        const text = count === 1
+          ? `Aiden has a response ready on "${unread[0].title}" →`
+          : `Aiden has ${count} responses waiting for you →`;
+        document.getElementById('banner-text').textContent = '🔔 ' + text;
+        document.getElementById('response-banner').style.display = 'block';
+        document.getElementById('section-nav').style.top = '104px';
+        // Update matching request card badge if present
+        unread.forEach(r => {
+          const badges = document.querySelectorAll('#active-requests .badge');
+          badges.forEach(b => {
+            if (b.textContent.includes('Scope Review') || b.textContent.includes('Reviewing')) {
+              b.className = 'badge badge-green';
+              b.textContent = '✅ Response Ready';
+            }
+          });
+          // Show Aiden's note if present
+          if (r.aidensNote) {
+            const noteEl = document.getElementById('aidens-note-' + r.id);
+            if (noteEl) { noteEl.textContent = r.aidensNote; noteEl.style.display = 'block'; }
+          }
+        });
+      }
+    } catch(e) { /* silent fail */ }
+  }
+
+  function dismissBanner() {
+    document.getElementById('response-banner').style.display = 'none';
+    document.getElementById('section-nav').style.top = '60px';
+    sessionStorage.setItem(BANNER_DISMISS_KEY, '1');
+  }
+  // ───────────────────────────────────────────────────────────────
 
   // ── INTAKE QUESTIONS SUBMIT ───────────────────
   async function submitIntakeAnswers() {
