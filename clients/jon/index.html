@@ -622,10 +622,13 @@ footer a { color: var(--accent2); text-decoration: none; }
     </div>
 
     <!-- REQUEST FORM -->
-    <div style="margin-top: 40px;">
+    <div style="margin-top: 40px;" id="submit-request">
       <div class="section-title">Submit a Request</div>
       <div class="project-card">
-        <p style="font-size:0.9rem; color:var(--text2); margin-bottom:24px; line-height:1.7;">Have a change, question, or new idea? Type it below or use your microphone to speak your request. Aiden will pick it up and get to work — Zack will review and you'll get a notification when it's ready.</p>
+        <div style="display:flex; align-items:flex-start; gap:12px; margin-bottom:20px;">
+          <p style="font-size:0.9rem; color:var(--text2); line-height:1.7; flex:1;">Have a change, question, or new idea? For best results, <strong style="color:var(--text);">vet your idea in ChatGPT or Claude first</strong>, save it as a Word doc, and upload it below. Aiden will review it, assess what's possible, and get back to you.</p>
+          <button onclick="toggleHowToModal()" title="How to submit a great request" style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.35); color:var(--accent2); font-size:1rem; cursor:pointer; font-family:'Inter',sans-serif; display:flex; align-items:center; justify-content:center; transition:all 0.2s; margin-top:2px;">ℹ️</button>
+        </div>
 
         <div class="form-group" style="margin-bottom:16px;">
           <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Request Type</label>
@@ -634,6 +637,7 @@ footer a { color: var(--accent2); text-decoration: none; }
             <option>New listing to feature</option>
             <option>Marketing content request</option>
             <option>SEO update</option>
+            <option>New feature idea</option>
             <option>General question</option>
             <option>Other</option>
           </select>
@@ -641,10 +645,37 @@ footer a { color: var(--accent2); text-decoration: none; }
 
         <div class="form-group" style="margin-bottom:16px; position:relative;">
           <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Your Request</label>
-          <textarea id="reqMessage" placeholder="Describe what you need..." style="width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:120px; transition:border-color 0.2s;"></textarea>
+          <textarea id="reqMessage" placeholder="Describe what you need... or use the mic, or upload a doc below." style="width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:100px; transition:border-color 0.2s;"></textarea>
         </div>
 
-        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+        <!-- DRAG & DROP UPLOAD -->
+        <div style="margin-bottom:20px;">
+          <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+            📎 Attach Document
+            <span style="font-size:0.72rem; color:var(--text3); font-weight:400; text-transform:none; letter-spacing:0;">(Word, PDF — optional but recommended)</span>
+          </label>
+          <div id="dropZone"
+            onclick="document.getElementById('reqFileInput').click()"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event)"
+            style="border:2px dashed var(--border2); border-radius:12px; padding:28px 20px; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(255,255,255,0.02);">
+            <div style="font-size:2rem; margin-bottom:8px;">📄</div>
+            <div style="font-size:0.875rem; color:var(--text2); font-weight:500; margin-bottom:4px;">Drag & drop your doc here, or click to browse</div>
+            <div style="font-size:0.75rem; color:var(--text3);">.docx, .doc, .pdf — max 10MB</div>
+            <input type="file" id="reqFileInput" accept=".doc,.docx,.pdf" style="display:none;" onchange="handleFileSelect(event)">
+          </div>
+          <div id="filePreview" style="display:none; margin-top:10px; padding:10px 14px; background:var(--surface2); border:1px solid var(--border2); border-radius:10px; display:none; align-items:center; gap:10px;">
+            <span style="font-size:1.2rem;">📎</span>
+            <span id="fileName" style="font-size:0.875rem; color:var(--text); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+            <button onclick="clearFile()" style="background:transparent; border:none; color:var(--text3); font-size:1rem; cursor:pointer; padding:2px 6px; border-radius:4px; transition:color 0.15s;" title="Remove file">✕</button>
+          </div>
+          <div id="uploadProgress" style="display:none; margin-top:8px; font-size:0.8rem; color:var(--text2); padding:8px 12px; background:rgba(99,102,241,0.08); border-radius:8px; border:1px solid rgba(99,102,241,0.2);">
+            ⏳ Uploading document...
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px;">
           <button id="micBtn" onclick="toggleMic()" style="display:flex; align-items:center; gap:8px; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.25); color:var(--accent2); padding:10px 20px; border-radius:10px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
             🎤 Use Microphone
           </button>
@@ -656,11 +687,55 @@ footer a { color: var(--accent2); text-decoration: none; }
         </button>
 
         <div id="reqSuccess" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
-          ✅ Request submitted! Aiden is on it. You'll hear back soon.
+          ✅ Request submitted! Aiden is reviewing it — you'll hear back soon.
         </div>
         <div id="reqError" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:10px; color:#ef4444; font-size:0.875rem;">
           Something went wrong. Please try again or email hello@aidenintel.com
         </div>
+      </div>
+    </div>
+
+    <!-- HOW-TO MODAL -->
+    <div id="howToModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:500; align-items:center; justify-content:center; padding:24px;">
+      <div style="background:var(--surface); border:1px solid var(--border2); border-radius:20px; padding:36px; max-width:540px; width:100%; position:relative; max-height:90vh; overflow-y:auto;">
+        <button onclick="toggleHowToModal()" style="position:absolute; top:16px; right:16px; background:var(--surface2); border:1px solid var(--border2); color:var(--text2); width:32px; height:32px; border-radius:50%; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+        <div style="font-size:1.5rem; margin-bottom:12px;">💡</div>
+        <h2 style="font-size:1.15rem; font-weight:800; margin-bottom:8px;">How to Submit a Great Request</h2>
+        <p style="font-size:0.875rem; color:var(--text2); line-height:1.7; margin-bottom:24px;">Before hitting submit, take 10 minutes to think through your idea properly. A well-documented request gets built faster and gets built right.</p>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(99,102,241,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent2); font-size:0.85rem;">1</div>
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">Talk it through with AI first</div>
+              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Open ChatGPT or Claude and describe your idea out loud. Ask it to challenge your thinking, poke holes, and help you get specific. "I want X because Y and the outcome I expect is Z."</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(99,102,241,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent2); font-size:0.85rem;">2</div>
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">Answer the key questions</div>
+              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;"><strong style="color:var(--text);">What</strong> do you want built or changed? <strong style="color:var(--text);">Why</strong> does it matter to your business? <strong style="color:var(--text);">Who</strong> is it for? <strong style="color:var(--text);">What does success look like?</strong> Any examples or references you love?</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(99,102,241,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent2); font-size:0.85rem;">3</div>
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">Write it up in a Word doc</div>
+              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Doesn't need to be pretty — just organized. A short summary at the top, then the detail. Screenshots or links are helpful if you have them.</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(99,102,241,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent2); font-size:0.85rem;">4</div>
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">Upload & submit</div>
+              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Drag the doc into the upload zone below, pick a request type, add any quick notes, and hit Send. Aiden will read your doc, assess what's possible, and respond with next steps.</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:24px; padding:14px 16px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:10px; font-size:0.825rem; color:#10b981; line-height:1.6;">
+          <strong>Pro tip:</strong> The more specific you are, the faster we can build it. Vague requests take longer because we have to ask follow-up questions. Specific requests ship faster.
+        </div>
+        <button onclick="toggleHowToModal()" style="margin-top:20px; width:100%; background:var(--accent); color:white; border:none; padding:12px; border-radius:10px; font-size:0.9rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;">Got it →</button>
       </div>
     </div>
 
@@ -776,18 +851,132 @@ footer a { color: var(--accent2); text-decoration: none; }
     }
   }
 
-  // Submit request to Supabase
+  // ── HOW-TO MODAL ──────────────────────────────────────────────
+  function toggleHowToModal() {
+    const modal = document.getElementById('howToModal');
+    const isOpen = modal.style.display === 'flex';
+    modal.style.display = isOpen ? 'none' : 'flex';
+  }
+  // Close modal on backdrop click
+  document.addEventListener('click', (e) => {
+    const modal = document.getElementById('howToModal');
+    if (modal && e.target === modal) modal.style.display = 'none';
+  });
+
+  // ── DRAG & DROP FILE HANDLING ──────────────────────────────────
+  let pendingFileUrl = null;
+  let pendingFile    = null;
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    const zone = document.getElementById('dropZone');
+    zone.style.borderColor = 'var(--accent)';
+    zone.style.background  = 'rgba(99,102,241,0.08)';
+  }
+  function handleDragLeave(e) {
+    const zone = document.getElementById('dropZone');
+    zone.style.borderColor = 'var(--border2)';
+    zone.style.background  = 'rgba(255,255,255,0.02)';
+  }
+  function handleDrop(e) {
+    e.preventDefault();
+    handleDragLeave(e);
+    const file = e.dataTransfer.files[0];
+    if (file) setFile(file);
+  }
+  function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) setFile(file);
+  }
+  function setFile(file) {
+    const allowed = ['.doc','.docx','.pdf'];
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!allowed.includes(ext)) {
+      alert('Please upload a .doc, .docx, or .pdf file.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File too large. Max size is 10MB.');
+      return;
+    }
+    pendingFile = file;
+    pendingFileUrl = null;
+    document.getElementById('fileName').textContent = file.name;
+    const preview = document.getElementById('filePreview');
+    preview.style.display = 'flex';
+  }
+  function clearFile() {
+    pendingFile = null;
+    pendingFileUrl = null;
+    document.getElementById('filePreview').style.display = 'none';
+    document.getElementById('reqFileInput').value = '';
+  }
+
+  async function uploadRequestFile(file) {
+    const ext      = file.name.split('.').pop();
+    const filename = `jon-severson/requests/${Date.now()}-${file.name.replace(/[^a-z0-9._-]/gi,'_')}`;
+    document.getElementById('uploadProgress').style.display = 'block';
+    try {
+      const response = await fetch(`${SUPABASE_URL}/storage/v1/object/client-assets/${filename}`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': file.type || 'application/octet-stream'
+        },
+        body: file
+      });
+      document.getElementById('uploadProgress').style.display = 'none';
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || err.error || 'Upload failed');
+      }
+      // Return the public URL
+      return `${SUPABASE_URL}/storage/v1/object/public/client-assets/${filename}`;
+    } catch(e) {
+      document.getElementById('uploadProgress').style.display = 'none';
+      throw e;
+    }
+  }
+
+  // ── SUBMIT REQUEST ─────────────────────────────────────────────
   async function submitRequest() {
     // Stop mic if still recording
     if (isListening && recognition) { recognition.stop(); }
 
-    const message = document.getElementById('reqMessage').value.trim();
-    const type = document.getElementById('reqType').value;
-    if (!message) { document.getElementById('reqMessage').focus(); return; }
+    let message = document.getElementById('reqMessage').value.trim();
+    const type  = document.getElementById('reqType').value;
+
+    if (!message && !pendingFile) {
+      document.getElementById('reqMessage').focus();
+      document.getElementById('reqMessage').style.borderColor = 'rgba(239,68,68,0.5)';
+      setTimeout(() => document.getElementById('reqMessage').style.borderColor = '', 2000);
+      return;
+    }
 
     const btn = document.getElementById('submitBtn');
     btn.textContent = 'Sending...';
     btn.disabled = true;
+
+    // Upload file first if attached
+    let fileUrl = null;
+    if (pendingFile) {
+      try {
+        fileUrl = await uploadRequestFile(pendingFile);
+      } catch(e) {
+        document.getElementById('reqError').style.display = 'block';
+        document.getElementById('reqError').textContent = `File upload failed: ${e.message}`;
+        btn.textContent = 'Send Request →';
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    // Append file reference to message so Aiden can find it
+    if (fileUrl) {
+      message = (message ? message + '\n\n' : '') + `[attached-doc: ${fileUrl}]`;
+    }
+    if (!message) message = `(No additional notes — see attached document)`;
 
     const { error } = await supabaseClient.from('client_requests').insert({
       client_name: 'Jon Severson',
@@ -797,15 +986,16 @@ footer a { color: var(--accent2); text-decoration: none; }
       status: 'new'
     });
 
+    btn.textContent = 'Send Request →';
+    btn.disabled = false;
+
     if (error) {
       document.getElementById('reqError').style.display = 'block';
-      btn.textContent = 'Send Request →';
-      btn.disabled = false;
     } else {
       document.getElementById('reqSuccess').style.display = 'block';
       document.getElementById('reqMessage').value = '';
-      btn.textContent = 'Send Request →';
-      btn.disabled = false;
+      clearFile();
+      setTimeout(() => document.getElementById('reqSuccess').style.display = 'none', 8000);
     }
   }
 
