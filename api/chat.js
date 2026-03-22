@@ -11,11 +11,22 @@ export default async function handler(req, res) {
   if (messages.length > 30) return res.status(429).json({ error: 'Session limit reached' });
 
   // Mode: 'chat' = Haiku (fast back-and-forth), 'summarize' = Sonnet (generate structured request)
-  const model = mode === 'summarize'
+  const model = (mode === 'summarize' || mode === 'summarize-intake')
     ? 'claude-sonnet-4-6'
     : 'claude-haiku-4-5';
 
-  const systemPrompt = mode === 'summarize'
+  const systemPrompt = mode === 'summarize-intake'
+    ? `You are Aiden at Aiden Intel. You just helped John Reilly think through his intake questions for a B2B Lead Generation project for Rayito de Sol.
+
+Review the conversation and extract clear answers to these 4 intake questions. Format your response EXACTLY like this — one answer per line, no extra text:
+
+Q1: [answer to "What's your current monthly web lead volume, and what % convert to enrolled students?"]
+Q2: [answer to "Geographic focus for B2B outreach — Illinois, Minnesota, or both simultaneously?"]
+Q3: [answer to "Do you have any existing B2B relationships or partnerships we should know about?"]
+Q4: [answer to "What's your rough budget range for outreach materials (flyers, digital assets, direct mail)?"]
+
+If John didn't address a question, write Q[n]: Not provided. Be concise — these go directly into form fields.`
+    : mode === 'summarize'
     ? `You are Aiden, an AI consultant at Aiden Intel. You just had a brainstorming conversation with Jon Severson, a real estate agent and Aiden Intel client.
 
 Review the conversation and produce a clear, structured request document that Jon can submit to the Aiden Intel team.

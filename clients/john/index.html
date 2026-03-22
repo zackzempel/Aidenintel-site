@@ -632,7 +632,7 @@ footer a { color: var(--accent2); text-decoration: none; }
         <!-- Talk to Aiden nudge -->
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.18); border-radius:10px; margin-bottom:16px; flex-wrap:wrap;">
           <div style="font-size:0.825rem; color:var(--text2); line-height:1.5;"><strong style="color:var(--text);">Not sure how to answer?</strong> Talk it through with Aiden first — use the chat to think out loud and Aiden will help you shape your answers.</div>
-          <button onclick="toggleChat()" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; flex-shrink:0;">💬 Talk to Aiden</button>
+          <button onclick="openChat('intake')" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; flex-shrink:0;">💬 Talk to Aiden about these questions →</button>
         </div>
 
         <!-- Intake questions -->
@@ -1228,26 +1228,57 @@ footer a { color: var(--accent2); text-decoration: none; }
   let chatHistory = [];
   let chatOpen = false;
   let chatBusy = false;
+  let chatContext = 'general'; // 'general' | 'intake'
 
-  const CHAT_SYSTEM_CONTEXT = `You are Aiden, an AI partner at Aiden Intel working with John Reilly, the founder of Rayito de Sol — a Spanish immersion daycare and early learning center with locations in Illinois and Minnesota, serving children ages 6 weeks to 6 years. John is in the Discovery Phase with Aiden Intel. His first request is a B2B Lead Generation System to reduce reliance on web leads by marketing directly to residential condo communities and kid-adjacent local businesses (pediatricians, children's activity centers, etc.). Help John think through his ideas, ask clarifying questions, and when he has a clear request, offer to generate it as a formal submission.`;
+  function toggleChat() { openChat('general'); }
 
-  function toggleChat() {
-    chatOpen = !chatOpen;
+  function openChat(context) {
+    context = context || 'general';
+    const alreadyOpenInContext = chatOpen && chatContext === context;
+    if (alreadyOpenInContext) { // close if same context clicked again
+      chatOpen = false;
+      document.getElementById('chat-panel').classList.remove('visible');
+      document.getElementById('chat-fab').classList.remove('open');
+      document.getElementById('chat-fab').textContent = '💬 Talk to Aiden';
+      return;
+    }
+    // If switching context mid-chat, reset
+    if (chatOpen && chatContext !== context) {
+      chatHistory = [];
+      document.getElementById('chatMessages').innerHTML = '';
+      document.getElementById('generateBtn').classList.remove('visible');
+    }
+    chatContext = context;
+    chatOpen = true;
     const panel = document.getElementById('chat-panel');
     const fab   = document.getElementById('chat-fab');
-    panel.classList.toggle('visible', chatOpen);
-    fab.classList.toggle('open', chatOpen);
-    fab.textContent = chatOpen ? '✕ Close' : '💬 Talk to Aiden';
-    if (chatOpen && chatHistory.length === 0) {
-      appendChatMsg('aiden', "Hey John! What's on your mind? Tell me about Rayito de Sol and what you're trying to build — I'll help shape it into something we can execute.");
+    panel.classList.add('visible');
+    fab.classList.add('open');
+    fab.textContent = '✕ Close';
+
+    // Update generate button label based on context
+    const genBtn = document.getElementById('generateBtn');
+    if (context === 'intake') {
+      genBtn.innerHTML = '✅ Fill In My Intake Answers →';
+    } else {
+      genBtn.innerHTML = '✨ Looks good — Generate Request →';
     }
-    if (chatOpen) setTimeout(() => document.getElementById('chatInput').focus(), 100);
+
+    if (chatHistory.length === 0) {
+      const greeting = context === 'intake'
+        ? "Hey John! Let's work through these intake questions together. Tell me what you know — I'll help you shape your answers to each one. We can start with whichever feels easiest."
+        : "Hey John! What's on your mind? Tell me about Rayito de Sol and what you're trying to build — I'll help shape it into something we can execute.";
+      appendChatMsg('aiden', greeting);
+    }
+    setTimeout(() => document.getElementById('chatInput').focus(), 100);
   }
 
   function clearChat() {
     chatHistory = [];
+    chatContext = 'general';
     document.getElementById('chatMessages').innerHTML = '';
     document.getElementById('generateBtn').classList.remove('visible');
+    document.getElementById('generateBtn').innerHTML = '✨ Looks good — Generate Request →';
     appendChatMsg('aiden', "Hey John! What's on your mind? Tell me about Rayito de Sol and what you're trying to build — I'll help shape it into something we can execute.");
   }
 
@@ -1324,28 +1355,66 @@ footer a { color: var(--accent2); text-decoration: none; }
 
   async function generateRequest() {
     const btn = document.getElementById('generateBtn');
+    const isIntake = chatContext === 'intake';
     btn.textContent = '⏳ Generating…';
     btn.style.pointerEvents = 'none';
+
+    const summarizeMode = isIntake ? 'summarize-intake' : 'summarize';
 
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chatHistory, mode: 'summarize', clientId: 'john' })
+        body: JSON.stringify({ messages: chatHistory, mode: summarizeMode, clientId: 'john' })
       });
       const data = await res.json();
       const summary = data.text || '';
 
-      toggleChat();
-      scrollToSection('submit-request');
-      setTimeout(() => {
-        document.getElementById('reqMessage').value = summary;
-        document.getElementById('reqMessage').style.borderColor = 'rgba(99,102,241,0.5)';
-        setTimeout(() => document.getElementById('reqMessage').style.borderColor = '', 2000);
-        document.getElementById('reqType').value = 'New feature idea';
-      }, 600);
+      // Close chat
+      chatOpen = false;
+      document.getElementById('chat-panel').classList.remove('visible');
+      document.getElementById('chat-fab').classList.remove('open');
+      document.getElementById('chat-fab').textContent = '💬 Talk to Aiden';
+
+      if (isIntake) {
+        // Parse the 4 answers from the summary and fill intake fields
+        // Summary comes back as Q1: ... Q2: ... Q3: ... Q4: ...
+        scrollToSection('active-requests');
+        setTimeout(() => {
+          const lines = summary.split(/\n+/);
+          const answers = ['', '', '', ''];
+          let current = -1;
+          lines.forEach(line => {
+            const match = line.match(/^Q?([1-4])[:.]/i);
+            if (match) { current = parseInt(match[1]) - 1; answers[current] = line.replace(/^Q?[1-4][:.]\s*/i,'').trim(); }
+            else if (current >= 0 && line.trim()) { answers[current] += (answers[current] ? ' ' : '') + line.trim(); }
+          });
+          // If parsing failed, put full summary in Q1
+          if (answers.every(a => !a)) answers[0] = summary;
+          ['iq1','iq2','iq3','iq4'].forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (el && answers[i]) {
+              el.value = answers[i];
+              el.style.borderColor = 'rgba(99,102,241,0.5)';
+              setTimeout(() => el.style.borderColor = '', 2000);
+            }
+          });
+          // Flash the intake section
+          const intakeBox = document.querySelector('#active-requests .project-card');
+          if (intakeBox) { intakeBox.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.3)'; setTimeout(() => intakeBox.style.boxShadow = '', 2000); }
+        }, 500);
+      } else {
+        // General request — pre-fill submit form
+        scrollToSection('submit-request');
+        setTimeout(() => {
+          document.getElementById('reqMessage').value = summary;
+          document.getElementById('reqMessage').style.borderColor = 'rgba(99,102,241,0.5)';
+          setTimeout(() => document.getElementById('reqMessage').style.borderColor = '', 2000);
+          document.getElementById('reqType').value = 'New feature idea';
+        }, 600);
+      }
     } catch(e) {
-      btn.textContent = '✨ Looks good — Generate Request →';
+      btn.textContent = isIntake ? '✅ Fill In My Intake Answers →' : '✨ Looks good — Generate Request →';
       btn.style.pointerEvents = '';
     }
   }
