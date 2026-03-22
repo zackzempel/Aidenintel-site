@@ -125,7 +125,49 @@ nav {
 .nav-client { font-size: 0.8rem; color: var(--text3); }
 .nav-client strong { color: var(--text2); }
 
-.portal-wrap { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
+/* SECTION NAV */
+#section-nav {
+  position: sticky;
+  top: 60px;
+  z-index: 90;
+  background: rgba(5,7,15,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 0 40px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+#section-nav::-webkit-scrollbar { display: none; }
+.section-nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 44px;
+  min-width: max-content;
+}
+.snav-btn {
+  background: transparent;
+  border: none;
+  color: var(--text3);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  letter-spacing: 0.3px;
+}
+.snav-btn:hover { color: var(--text2); background: rgba(255,255,255,0.05); }
+.snav-btn.active { color: var(--accent2); background: rgba(99,102,241,0.12); }
+
+.portal-wrap { max-width: 1000px; margin: 0 auto; padding: 36px 24px; }
+
+@media (max-width: 640px) {
+  #section-nav { padding: 0 12px; }
+}
 
 /* HEADER */
 .portal-header {
@@ -305,6 +347,18 @@ footer a { color: var(--accent2); text-decoration: none; }
     <div class="nav-client">Logged in as <strong>Jon Severson</strong></div>
   </nav>
 
+  <!-- SECTION NAV -->
+  <div id="section-nav">
+    <div class="section-nav-inner">
+      <button class="snav-btn" onclick="scrollToSection('action-needed')">⚡ Action Needed</button>
+      <button class="snav-btn" onclick="scrollToSection('active-projects')">🗂 Projects</button>
+      <button class="snav-btn" onclick="scrollToSection('social-captions')">📱 Social Captions</button>
+      <button class="snav-btn" onclick="scrollToSection('your-assets')">📁 Assets</button>
+      <button class="snav-btn" onclick="scrollToSection('submit-request')">📬 Submit a Request</button>
+      <button class="snav-btn" onclick="scrollToSection('recent-updates')">🕐 Updates</button>
+    </div>
+  </div>
+
   <div class="portal-wrap">
 
     <!-- HEADER -->
@@ -339,7 +393,43 @@ footer a { color: var(--accent2); text-decoration: none; }
       </div>
     </div>
 
+    <!-- ACTION NEEDED FROM YOU -->
+    <div style="margin-bottom: 28px;" id="action-needed">
+      <div class="section-title">⚡ Action Needed From You</div>
+      <div class="project-card">
+        <p style="font-size:0.9rem; color:var(--text2); margin-bottom:24px; line-height:1.7;">A few things we need to keep your projects moving. Upload files below or submit a request with details.</p>
+        <div class="deliverables">
+          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
+            <span class="d-icon">📸</span>
+            <span class="d-name">Professional headshot — for your website bio section</span>
+            <label style="background:var(--accent); color:white; padding:6px 14px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; white-space:nowrap;">
+              Upload <input type="file" accept="image/*" onchange="uploadAsset(this, 'headshot')" style="display:none;">
+            </label>
+          </div>
+          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
+            <span class="d-icon">🏆</span>
+            <span class="d-name">Your stats — years experience, homes sold, builder partnerships</span>
+            <a class="d-link" href="#submit-request" onclick="document.getElementById('reqMessage').value='Here are my stats: '">Add →</a>
+          </div>
+          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
+            <span class="d-icon">✅</span>
+            <span class="d-name">Website mockup approval — ready to implement in Lofty</span>
+            <a class="d-link" href="https://jon-severson-mockup.vercel.app" target="_blank">Review →</a>
+          </div>
+          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
+            <span class="d-icon">🎥</span>
+            <span class="d-name">Intro video recording — quick 30-60 sec "meet Jon" clip</span>
+            <label style="background:var(--accent); color:white; padding:6px 14px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; white-space:nowrap;">
+              Upload <input type="file" accept="video/*" onchange="uploadAsset(this, 'intro-video')" style="display:none;">
+            </label>
+          </div>
+        </div>
+        <div id="uploadStatus" style="margin-top:16px; font-size:0.85rem; color:var(--green); display:none;"></div>
+      </div>
+    </div>
+
     <!-- PROJECTS -->
+    <div id="active-projects">
     <div class="section-title">Active Projects</div>
 
     <!-- Project 1: Website -->
@@ -474,7 +564,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     </div>
 
     <!-- TIMELINE -->
-    <div style="margin-top: 40px;">
+    <div style="margin-top: 40px;" id="project-timeline">
       <div class="section-title">Project Timeline</div>
       <div class="project-card">
         <div class="timeline">
@@ -510,43 +600,10 @@ footer a { color: var(--accent2); text-decoration: none; }
       </div>
     </div>
 
-    <!-- WHAT WE NEED FROM YOU -->
-    <div style="margin-top: 40px;">
-      <div class="section-title">⚡ Action Needed From You</div>
-      <div class="project-card">
-        <p style="font-size:0.9rem; color:var(--text2); margin-bottom:24px; line-height:1.7;">A few things we need to keep your projects moving. Upload files below or submit a request with details.</p>
-        <div class="deliverables">
-          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
-            <span class="d-icon">📸</span>
-            <span class="d-name">Professional headshot — for your website bio section</span>
-            <label style="background:var(--accent); color:white; padding:6px 14px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; white-space:nowrap;">
-              Upload <input type="file" accept="image/*" onchange="uploadAsset(this, 'headshot')" style="display:none;">
-            </label>
-          </div>
-          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
-            <span class="d-icon">🏆</span>
-            <span class="d-name">Your stats — years experience, homes sold, builder partnerships</span>
-            <a class="d-link" href="#submit-request" onclick="document.getElementById('reqMessage').value='Here are my stats: '">Add →</a>
-          </div>
-          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
-            <span class="d-icon">✅</span>
-            <span class="d-name">Website mockup approval — ready to implement in Lofty</span>
-            <a class="d-link" href="https://jon-severson-mockup.vercel.app" target="_blank">Review →</a>
-          </div>
-          <div class="deliverable" style="border-left: 3px solid var(--yellow); padding-left: 12px;">
-            <span class="d-icon">🎥</span>
-            <span class="d-name">Intro video recording — quick 30-60 sec "meet Jon" clip</span>
-            <label style="background:var(--accent); color:white; padding:6px 14px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; white-space:nowrap;">
-              Upload <input type="file" accept="video/*" onchange="uploadAsset(this, 'intro-video')" style="display:none;">
-            </label>
-          </div>
-        </div>
-        <div id="uploadStatus" style="margin-top:16px; font-size:0.85rem; color:var(--green); display:none;"></div>
-      </div>
-    </div>
+    </div><!-- /active-projects -->
 
     <!-- YOUR ASSETS -->
-    <div style="margin-top: 40px;">
+    <div style="margin-top: 40px;" id="your-assets">
       <div class="section-title">Your Assets</div>
       <div class="project-card">
         <p style="font-size:0.9rem; color:var(--text2); margin-bottom:24px; line-height:1.7;">Everything Aiden Intel has built for you — all in one place.</p>
@@ -596,7 +653,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     </div>
 
     <!-- SOCIAL CAPTIONS -->
-    <div style="margin-top: 40px;">
+    <div style="margin-top: 40px;" id="social-captions">
       <div class="section-title">📱 Social Captions</div>
       <div class="project-card">
         <p style="font-size:0.9rem; color:var(--text2); margin-bottom:24px; line-height:1.7;">When you have a new listing video ready from AGNT Media, submit the link below and Aiden will generate ready-to-post captions for every platform. Copy and paste — done.</p>
@@ -740,7 +797,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     </div>
 
     <!-- UPDATES -->
-    <div style="margin-top: 40px;">
+    <div style="margin-top: 40px;" id="recent-updates">
       <div class="section-title">Recent Updates</div>
       <div class="project-card">
         <div class="timeline" style="gap:0;">
@@ -1493,6 +1550,40 @@ footer a { color: var(--accent2); text-decoration: none; }
     await _origLoad();
     // trimmers init via initAllTrimmers called inside loadCaptions
   }
+
+  // ── SECTION NAV ───────────────────────────────────────────────
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    // Offset for sticky nav (main nav 60px + section nav 44px + 12px breathing room)
+    const offset = 60 + 44 + 12;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+
+  function updateActiveSnavBtn() {
+    const sections = [
+      { id: 'action-needed',   btn: 0 },
+      { id: 'active-projects', btn: 1 },
+      { id: 'social-captions', btn: 2 },
+      { id: 'your-assets',     btn: 3 },
+      { id: 'submit-request',  btn: 4 },
+      { id: 'recent-updates',  btn: 5 },
+    ];
+    const offset = 60 + 44 + 60;
+    const scrollY = window.scrollY + offset;
+    let active = 0;
+    sections.forEach((s, i) => {
+      const el = document.getElementById(s.id);
+      if (el && el.offsetTop <= scrollY) active = i;
+    });
+    document.querySelectorAll('.snav-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i === active);
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveSnavBtn, { passive: true });
+  // ───────────────────────────────────────────────────────────────
 
   // Load captions on portal unlock
   const origShowPortal = window.showPortal;
