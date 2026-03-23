@@ -43,6 +43,8 @@ export default async function handler(req, res) {
 
 function renderPage({ name, request, status, responseText, createdAt, record }) {
   const isResponded = status === 'done';
+  // If response contains a URL or is a delivery, skip reply buttons entirely
+  const isDelivery = responseText && (responseText.includes('http') || responseText.includes('aidenintel.com'));
   const isNotFound = status === 'not_found';
   const displayName = name.charAt(0).toUpperCase() + name.slice(1);
 
@@ -53,81 +55,15 @@ function renderPage({ name, request, status, responseText, createdAt, record }) 
     : `<div class="status-badge pending"><span class="dot"></span> Aiden is reviewing your request...</div>`;
 
   const slug = record ? record.audio_url : '';
+  const formattedResponse = responseText
+    ? responseText.replace(/\n/g, '<br>').replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:#818cf8;font-weight:700;text-decoration:underline;">$1</a>')
+    : '';
+
   const responseSection = isResponded && responseText ? `
     <div class="response-card">
       <div class="response-label">💬 Aiden's Response</div>
-      <div class="response-body">${responseText.replace(/\n/g, '<br>')}</div>
-      <div class="response-cta">
-        <div id="reply-wrap">
-          <p style="font-size:0.8rem;color:#94a3b8;margin-bottom:12px;">Ready to move forward?</p>
-          <button onclick="sendReply('yes')" class="btn-reply-yes">Yes, let's build it! →</button>
-          <button onclick="sendReply('question')" class="btn-reply-q">I have a question</button>
-        </div>
-        <div id="reply-input" style="display:none;">
-          <textarea id="reply-text" placeholder="What's your question?" style="width:100%;background:#0f1222;border:1px solid #1a2035;border-radius:10px;padding:12px;color:#f1f5f9;font-size:0.875rem;font-family:'Inter',sans-serif;resize:vertical;min-height:80px;outline:none;margin-bottom:10px;"></textarea>
-          <button onclick="submitReply()" class="btn-reply-yes">Send →</button>
-        </div>
-        <div id="reply-done" style="display:none;padding:16px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:10px;line-height:1.6;">
-          <div style="color:#10b981;font-size:0.875rem;font-weight:600;margin-bottom:10px;">✅ We're on it! Check back here to see your request come to life.</div>
-          <div style="font-size:0.75rem;color:#94a3b8;margin-bottom:8px;">📌 Save your link so you can check back:</div>
-          <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:8px 12px;font-size:0.78rem;color:#818cf8;font-family:monospace;word-break:break-all;margin-bottom:10px;">https://aidenintel.com/intake/${slug}</div>
-          <button onclick="navigator.clipboard.writeText('https://aidenintel.com/intake/${slug}').then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='📋 Copy Link',2000)})" style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#818cf8;padding:7px 16px;border-radius:7px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">📋 Copy Link</button>
-        </div>
-      </div>
-    </div>
-    <script>
-    const SLUG = '${slug}';
-    const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
-    const REPLIED_KEY = 'intake_replied_' + SLUG;
-
-    // Restore replied state on load
-    window.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem(REPLIED_KEY)) {
-        document.getElementById('reply-wrap').style.display = 'none';
-        document.getElementById('reply-input').style.display = 'none';
-        document.getElementById('reply-done').style.display = 'block';
-      }
-    });
-
-    function sendReply(type) {
-      if (type === 'yes') {
-        submitReplyText('Yes, please build it!');
-      } else {
-        document.getElementById('reply-wrap').style.display = 'none';
-        document.getElementById('reply-input').style.display = 'block';
-        document.getElementById('reply-text').focus();
-      }
-    }
-    function submitReply() {
-      const text = document.getElementById('reply-text').value.trim();
-      if (!text) return;
-      submitReplyText(text);
-    }
-    async function submitReplyText(text) {
-      document.getElementById('reply-wrap').style.display = 'none';
-      document.getElementById('reply-input').style.display = 'none';
-      await fetch(SUPABASE_URL + '/rest/v1/client_requests', {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({
-          client_name: '${displayName}',
-          client_id: 'intake-reply',
-          request_type: 'Intake Reply',
-          message: '[Reply to ' + SLUG + '] ' + text,
-          status: 'new',
-          audio_url: SLUG
-        })
-      });
-      localStorage.setItem(REPLIED_KEY, '1');
-      document.getElementById('reply-done').style.display = 'block';
-    }
-    </script>` : isResponded ? `
+      <div class="response-body">${formattedResponse}</div>
+    </div>` : isResponded ? `
     <div class="response-card">
       <div class="response-label">💬 Aiden's Response</div>
       <div class="response-body">Your response is ready — Zack will be in touch shortly with next steps.</div>
