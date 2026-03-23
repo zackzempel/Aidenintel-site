@@ -26,12 +26,16 @@ export default async function handler(req, res) {
     ? record.client_name
     : 'there';
 
+  // Parse message — split on ---RESPONSE--- separator
+  const parts = record.message.split('---RESPONSE---');
+  const originalRequest = parts[0].trim();
+  const responseText = parts.length > 1 ? parts[1].trim() : null;
+
   return res.status(200).setHeader('Content-Type', 'text/html').send(renderPage({
     name,
-    request: record.message,
+    request: originalRequest,
     status: record.status,
-    response: record.status === 'done' ? record.request_type : null, // response stored in request_type when done
-    responseText: record.status === 'done' ? record.message.replace(/^\[response\]\s*/i, '') : null,
+    responseText: record.status === 'done' ? responseText : null,
     createdAt: record.created_at
   }));
 }
