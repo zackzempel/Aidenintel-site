@@ -982,6 +982,7 @@ footer a { color: var(--accent2); text-decoration: none; }
       ✨ Looks good — Generate Request →
     </button>
     <div class="chat-input-row">
+      <button id="chatMicBtn" onclick="toggleChatMic()" style="background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.25); color:var(--accent2); width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; transition:all 0.2s;">🎤</button>
       <textarea id="chatInput" rows="1" placeholder="Tell me your idea..." onkeydown="chatKeydown(event)" oninput="autoResizeChat(this)"></textarea>
       <button id="chatSendBtn" onclick="sendChat()">↑</button>
     </div>
@@ -1213,6 +1214,40 @@ footer a { color: var(--accent2); text-decoration: none; }
       setTimeout(() => document.getElementById('reqSuccess').style.display = 'none', 8000);
     }
   }
+
+  // ── CHAT MIC ──────────────────────────────────────────────────
+  let chatRecognition = null;
+  let chatListening = false;
+
+  function toggleChatMic() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+    if (chatListening) { chatRecognition.stop(); return; }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    chatRecognition = new SR();
+    chatRecognition.continuous = true;
+    chatRecognition.interimResults = true;
+    chatRecognition.lang = 'en-US';
+    chatRecognition.onstart = () => {
+      chatListening = true;
+      document.getElementById('chatMicBtn').textContent = '🔴';
+      document.getElementById('chatMicBtn').style.cssText += 'background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4);color:#ef4444;';
+      document.getElementById('chatInput').placeholder = 'Listening...';
+    };
+    chatRecognition.onresult = (e) => {
+      let t = '';
+      for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+      document.getElementById('chatInput').value = t;
+      autoResizeChat(document.getElementById('chatInput'));
+    };
+    chatRecognition.onend = () => {
+      chatListening = false;
+      document.getElementById('chatMicBtn').textContent = '🎤';
+      document.getElementById('chatMicBtn').style.cssText += 'background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.25);color:var(--accent2);';
+      document.getElementById('chatInput').placeholder = 'Tell me your idea...';
+    };
+    chatRecognition.start();
+  }
+  // ─────────────────────────────────────────────────────────────
 
   // ── VOICE INPUT ───────────────────────────────────────────────
   let recognition = null;
