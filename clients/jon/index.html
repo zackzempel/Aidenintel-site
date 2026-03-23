@@ -1020,7 +1020,22 @@ footer a { color: var(--accent2); text-decoration: none; }
   function strToHex(str) {
     return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
   }
+  function requestMicPermission() {
+    const key = location.pathname + '_mic_asked';
+    if (localStorage.getItem(key)) return; // already asked
+    // Small delay so portal renders first
+    setTimeout(() => {
+      navigator.mediaDevices && navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          stream.getTracks().forEach(t => t.stop()); // stop immediately, we just needed the permission
+          localStorage.setItem(key, '1');
+        })
+        .catch(() => { localStorage.setItem(key, '1'); }); // denied — mark asked, don't nag
+    }, 1200);
+  }
+
   function showPortal() {
+    requestMicPermission();
     document.getElementById('lockscreen').style.display = 'none';
     document.getElementById('portal').style.display = 'block';
   }
@@ -1274,7 +1289,16 @@ footer a { color: var(--accent2); text-decoration: none; }
       document.getElementById('micBtn').style.color = 'var(--accent2)';
       document.getElementById('micStatus').textContent = 'Done — review your message above.';
     };
-    recognition.start();
+    recognition.onerror = (e) => {
+      isListening = false;
+      document.getElementById('micBtn').textContent = '🎤 Use Microphone';
+      document.getElementById('micBtn').style.background = 'rgba(99,102,241,0.1)';
+      document.getElementById('micBtn').style.borderColor = 'rgba(99,102,241,0.25)';
+      document.getElementById('micBtn').style.color = 'var(--accent2)';
+      const msgs = { 'not-allowed': 'Mic access denied — click Allow when your browser asks.', 'no-speech': 'No speech detected. Try again.', 'network': 'Network error. Check your connection.' };
+      document.getElementById('micStatus').textContent = msgs[e.error] || 'Mic error: ' + e.error;
+    };
+    try { recognition.start(); } catch(e) { document.getElementById('micStatus').textContent = 'Could not start mic: ' + e.message; }
   }
 
   // ── VIDEO TRIMMER (per-platform, pointer-drag) ─────────────────
