@@ -891,6 +891,13 @@ footer a { color: var(--accent2); text-decoration: none; }
 
 
 
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+          <button id="micBtn" onclick="toggleMic()" style="display:flex; align-items:center; gap:8px; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.25); color:var(--accent2); padding:10px 20px; border-radius:10px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
+            🎤 Use Microphone
+          </button>
+          <span id="micStatus" style="font-size:0.8rem; color:var(--text3);"></span>
+        </div>
+
         <button onclick="submitRequest()" id="submitBtn" style="background:var(--accent); color:white; border:none; padding:13px 28px; border-radius:10px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
           Send Request →
         </button>
@@ -1206,6 +1213,42 @@ footer a { color: var(--accent2); text-decoration: none; }
       setTimeout(() => document.getElementById('reqSuccess').style.display = 'none', 8000);
     }
   }
+
+  // ── VOICE INPUT ───────────────────────────────────────────────
+  let recognition = null;
+  let isListening = false;
+
+  function toggleMic() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      document.getElementById('micStatus').textContent = 'Not supported in this browser. Try Chrome.';
+      return;
+    }
+    if (isListening) { recognition.stop(); return; }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognition.onstart = () => {
+      isListening = true;
+      document.getElementById('micBtn').innerHTML = '🔴 Stop Recording';
+      document.getElementById('micBtn').style.cssText += 'background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444;';
+      document.getElementById('micStatus').textContent = 'Listening...';
+    };
+    recognition.onresult = (e) => {
+      let t = '';
+      for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+      document.getElementById('reqMessage').value = t;
+    };
+    recognition.onend = () => {
+      isListening = false;
+      document.getElementById('micBtn').innerHTML = '🎤 Use Microphone';
+      document.getElementById('micBtn').style.cssText += 'background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.25);color:var(--accent2);';
+      document.getElementById('micStatus').textContent = 'Done — review your message above.';
+    };
+    recognition.start();
+  }
+  // ─────────────────────────────────────────────────────────────
 
   // ── VIDEO TRIMMER (per-platform, pointer-drag) ─────────────────
   const trimState = {};
