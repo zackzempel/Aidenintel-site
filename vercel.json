@@ -1,6 +1,16 @@
 {
   "rewrites": [
-    { "source": "/demo", "destination": "/demo.html" },
-    { "source": "/intake/:slug", "destination": "/api/intake?slug=:slug" }
+    {
+      "source": "/demo",
+      "destination": "/demo.html"
+    },
+    {
+      "source": "/intake/:slug",
+      "destination": "/api/intake?slug=:slug"
+    },
+    {
+      "source": "/tetris/:slug",
+      "destination": "/tetris/:slug.html"
+    }
   ]
 }
