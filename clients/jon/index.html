@@ -468,7 +468,64 @@ footer a { color: var(--accent2); text-decoration: none; }
 #chatSendBtn:hover { background: #4f46e5; }
 #chatSendBtn:disabled { background: var(--border2); cursor: not-allowed; }
 
+
+/* LIGHT THEME */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface2: #f2f2f7;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.12);
+  --accent: #0071e3;
+  --accent2: #0077ed;
+  --green: #34c759;
+  --yellow: #ff9f0a;
+  --red: #ff3b30;
+  --text: #1d1d1f;
+  --text2: #6e6e73;
+  --text3: #aeaeb2;
+}
+[data-theme="light"] nav {
+  background: rgba(255,255,255,0.85);
+}
+[data-theme="light"] #section-nav {
+  background: rgba(255,255,255,0.92);
+}
+[data-theme="light"] body::before {
+  display: none;
+}
+[data-theme="light"] .chat-msg.aiden .chat-bubble {
+  background: #f2f2f7;
+  border: none;
+  color: #1d1d1f;
+}
+[data-theme="light"] .chat-msg.user .chat-bubble {
+  background: #0071e3;
+}
+[data-theme="light"] #lockscreen {
+  background: #f5f5f7;
+}
+[data-theme="light"] select,
+[data-theme="light"] textarea,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="password"] {
+  background: #f2f2f7 !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  color: #1d1d1f !important;
+}
+[data-theme="light"] .project-card {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .stat-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
 </style>
+<script>
+(function(){
+  const t = localStorage.getItem('jon_theme');
+  if (t === 'light') { document.documentElement.setAttribute('data-theme','light'); }
+})();
+</script>
 </head>
 <body>
 
@@ -490,7 +547,10 @@ footer a { color: var(--accent2); text-decoration: none; }
 <div id="portal">
   <nav>
     <div class="nav-logo">Aiden<em>Intel</em> · Client Portal</div>
-    <div class="nav-client">Logged in as <strong>Jon Severson</strong></div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div class="nav-client">Logged in as <strong>Jon Severson</strong></div>
+      <button id="themeToggle" onclick="toggleTheme()" style="background:transparent; border:none; cursor:pointer; font-size:1.2rem; padding:4px; border-radius:6px; transition:all 0.2s; color:var(--text2);" title="Toggle light/dark mode">🌙</button>
+    </div>
   </nav>
 
   <!-- RESPONSE BANNER -->
@@ -876,7 +936,25 @@ footer a { color: var(--accent2); text-decoration: none; }
   function strToHex(str) {
     return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
   }
+  function toggleTheme() {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('jon_theme', 'dark');
+      document.getElementById('themeToggle').textContent = '🌙';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('jon_theme', 'light');
+      document.getElementById('themeToggle').textContent = '☀️';
+    }
+  }
+  function initThemeIcon() {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = isLight ? '☀️' : '🌙';
+  }
   function showPortal() {
+    initThemeIcon();
     document.getElementById('lockscreen').style.display = 'none';
     document.getElementById('portal').style.display = 'block';
   }
