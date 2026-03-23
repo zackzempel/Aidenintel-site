@@ -36,11 +36,12 @@ export default async function handler(req, res) {
     request: originalRequest,
     status: record.status,
     responseText: record.status === 'done' ? responseText : null,
-    createdAt: record.created_at
+    createdAt: record.created_at,
+    record
   }));
 }
 
-function renderPage({ name, request, status, responseText, createdAt }) {
+function renderPage({ name, request, status, responseText, createdAt, record }) {
   const isResponded = status === 'done';
   const isNotFound = status === 'not_found';
   const displayName = name.charAt(0).toUpperCase() + name.slice(1);
@@ -51,14 +52,67 @@ function renderPage({ name, request, status, responseText, createdAt }) {
     ? `<div class="status-badge done">✅ Response Ready</div>`
     : `<div class="status-badge pending"><span class="dot"></span> Aiden is reviewing your request...</div>`;
 
+  const slug = record ? record.audio_url : '';
   const responseSection = isResponded && responseText ? `
     <div class="response-card">
       <div class="response-label">💬 Aiden's Response</div>
       <div class="response-body">${responseText.replace(/\n/g, '<br>')}</div>
       <div class="response-cta">
-        <a href="https://aidenintel.com" class="btn-primary">Learn more about Aiden Intel →</a>
+        <div id="reply-wrap">
+          <p style="font-size:0.8rem;color:#94a3b8;margin-bottom:12px;">Ready to move forward?</p>
+          <button onclick="sendReply('yes')" class="btn-reply-yes">Yes, let's build it! →</button>
+          <button onclick="sendReply('question')" class="btn-reply-q">I have a question</button>
+        </div>
+        <div id="reply-input" style="display:none;">
+          <textarea id="reply-text" placeholder="What's your question?" style="width:100%;background:#0f1222;border:1px solid #1a2035;border-radius:10px;padding:12px;color:#f1f5f9;font-size:0.875rem;font-family:'Inter',sans-serif;resize:vertical;min-height:80px;outline:none;margin-bottom:10px;"></textarea>
+          <button onclick="submitReply()" class="btn-reply-yes">Send →</button>
+        </div>
+        <div id="reply-done" style="display:none;padding:12px 16px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#10b981;font-size:0.875rem;font-weight:600;">
+          ✅ Got it! Zack will be in touch shortly.
+        </div>
       </div>
-    </div>` : isResponded ? `
+    </div>
+    <script>
+    const SLUG = '${slug}';
+    const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
+    function sendReply(type) {
+      if (type === 'yes') {
+        submitReplyText('Yes, please build it!');
+      } else {
+        document.getElementById('reply-wrap').style.display = 'none';
+        document.getElementById('reply-input').style.display = 'block';
+        document.getElementById('reply-text').focus();
+      }
+    }
+    function submitReply() {
+      const text = document.getElementById('reply-text').value.trim();
+      if (!text) return;
+      submitReplyText(text);
+    }
+    async function submitReplyText(text) {
+      document.getElementById('reply-wrap').style.display = 'none';
+      document.getElementById('reply-input').style.display = 'none';
+      await fetch(SUPABASE_URL + '/rest/v1/client_requests', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          client_name: '${displayName}',
+          client_id: 'intake-reply',
+          request_type: 'Intake Reply',
+          message: '[Reply to ' + SLUG + '] ' + text,
+          status: 'new',
+          audio_url: SLUG
+        })
+      });
+      document.getElementById('reply-done').style.display = 'block';
+    }
+    </script>` : isResponded ? `
     <div class="response-card">
       <div class="response-label">💬 Aiden's Response</div>
       <div class="response-body">Your response is ready — Zack will be in touch shortly with next steps.</div>
@@ -238,6 +292,37 @@ body::before {
   transition: all 0.15s;
 }
 .btn-reload:hover { background: rgba(99,102,241,0.2); }
+.btn-reply-yes {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 10px;
+  transition: background 0.2s;
+}
+.btn-reply-yes:hover { background: #4f46e5; }
+.btn-reply-q {
+  display: block;
+  width: 100%;
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+}
+.btn-reply-q:hover { border-color: var(--accent); color: var(--accent2); }
 .footer-note {
   text-align: center;
   font-size: 0.75rem;
