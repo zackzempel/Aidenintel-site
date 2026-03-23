@@ -1,0 +1,97 @@
+{
+  "projects": [
+    {
+      "id": "website",
+      "icon": "🌐",
+      "title": "Website Redesign — seversonre.com",
+      "badge": "yellow",
+      "badgeText": "⏳ Awaiting Your Approval",
+      "desc": "Full redesign of your Lofty website. New professional layout with expertise sections, builder network highlight, lead capture form, video placeholder, and MLS listing integration.",
+      "progress": 60,
+      "deliverables": [
+        { "icon": "🎨", "name": "Website Mockup — Ready for Review", "link": "https://jon-severson-mockup.vercel.app", "linkText": "View Mockup →" },
+        { "icon": "⚙️", "name": "Lofty Implementation — Pending Your Approval", "badge": "gray", "badgeText": "Not Started" },
+        { "icon": "📹", "name": "Intro Video — Need Recording from Jon", "badge": "yellow", "badgeText": "Pending Jon" }
+      ]
+    },
+    {
+      "id": "social-content",
+      "icon": "📱",
+      "title": "Social Content — Instagram Reels",
+      "badge": "yellow",
+      "badgeText": "⏳ Awaiting Your Review",
+      "desc": "Aiden generated two Instagram Reels from your 6798 153rd Ln NW listing video. Watch them, download whichever you like, and post directly to Instagram. Once you approve the quality, we'll wire up one-click posting so future reels go live automatically.",
+      "progress": 50,
+      "deliverables": [
+        { "icon": "🎬", "name": "Reel #1 — \"Just Listed\" · 30 sec", "link": "https://jon-severson-mockup.vercel.app/social.html#reel1", "linkText": "Review →" },
+        { "icon": "✨", "name": "Reel #2 — \"Dream Home\" · 30 sec", "link": "https://jon-severson-mockup.vercel.app/social.html#reel2", "linkText": "Review →" },
+        { "icon": "🤖", "name": "Auto-posting to Instagram — pending your approval", "badge": "gray", "badgeText": "Coming Soon" }
+      ]
+    },
+    {
+      "id": "video-ratio",
+      "icon": "🎬",
+      "title": "Video Aspect Ratio Control",
+      "badge": "blue",
+      "badgeText": "🔄 Queued",
+      "desc": "Add per-platform aspect ratio control so horizontal videos can preserve their original ratio instead of always cropping to 9x16. You'll be able to choose the best format for each platform — vertical for Instagram/TikTok, original for YouTube/Facebook.",
+      "progress": 5,
+      "deliverables": [
+        { "icon": "⚙️", "name": "Ratio toggle per platform in Social Captions tool", "badge": "blue", "badgeText": "Coming Soon" }
+      ]
+    },
+    {
+      "id": "auto-post",
+      "icon": "🚀",
+      "title": "Social Auto-Post Integration",
+      "badge": "gray",
+      "badgeText": "📋 Phase 2 — Scoping",
+      "desc": "Connect Instagram, TikTok, YouTube, and Gmail so generated content posts automatically — no manual download/upload. This requires API approvals from Meta and TikTok. We're scoping the timeline and will update you before we start.",
+      "progress": 0,
+      "deliverables": [
+        { "icon": "📋", "name": "Scope document + timeline", "badge": "blue", "badgeText": "In Progress" },
+        { "icon": "📸", "name": "Instagram auto-post", "badge": "gray", "badgeText": "Pending API Approval" },
+        { "icon": "🎵", "name": "TikTok auto-post", "badge": "gray", "badgeText": "Pending API Approval" },
+        { "icon": "▶️", "name": "YouTube auto-post", "badge": "gray", "badgeText": "Queued" }
+      ]
+    },
+    {
+      "id": "ai-vision",
+      "icon": "🤖",
+      "title": "AI Pipeline Vision — Severson Real Estate",
+      "badge": "green",
+      "badgeText": "✓ Delivered",
+      "desc": "A full walkthrough of the AI agent vision for your real estate business — showing how automation, listings, marketing, and CRM all connect into one intelligent pipeline.",
+      "progress": 100,
+      "deliverables": [
+        { "icon": "🎯", "name": "AI Vision Overview", "link": "https://jon-severson-mockup.vercel.app/overview.html", "linkText": "View →" },
+        { "icon": "⚙️", "name": "AI Pipeline Demo", "link": "https://jon-severson-mockup.vercel.app/pipeline.html", "linkText": "View →" }
+      ]
+    },
+    {
+      "id": "listing",
+      "icon": "🏡",
+      "title": "Listing Showcase — 6798 153rd Ln NW",
+      "badge": "green",
+      "badgeText": "✓ Delivered",
+      "desc": "AI-powered listing presentation page built from your Aryeo media. Includes 30+ photos with lightbox, luxury video reel, all 4 floor plans, and property overview.",
+      "progress": 100,
+      "deliverables": [
+        { "icon": "🖼️", "name": "Listing Page — Live", "link": "https://agnt-media.aryeo.com/sites/6798-153rd-ln-nw-ramsey-mn-55303-21871395/branded", "linkText": "View Page →" }
+      ]
+    },
+    {
+      "id": "seo",
+      "icon": "🔍",
+      "title": "SEO Strategy — seversonre.com",
+      "badge": "blue",
+      "badgeText": "🔄 In Progress",
+      "desc": "Keyword research and SEO optimization targeting \"realtor Anoka County MN\", \"new construction Minnesota realtor\", \"Ramsey MN homes for sale\" and related terms.",
+      "progress": 25,
+      "deliverables": [
+        { "icon": "📊", "name": "Keyword Research Report", "badge": "blue", "badgeText": "Coming Soon" },
+        { "icon": "✍️", "name": "AI-Generated SEO Page Copy", "badge": "blue", "badgeText": "Coming Soon" }
+      ]
+    }
+  ]
+}
