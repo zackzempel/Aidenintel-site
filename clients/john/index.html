@@ -942,22 +942,7 @@ footer a { color: var(--accent2); text-decoration: none; }
   function strToHex(str) {
     return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
   }
-  function requestMicPermission() {
-    const key = location.pathname + '_mic_asked';
-    if (localStorage.getItem(key)) return; // already asked
-    // Small delay so portal renders first
-    setTimeout(() => {
-      navigator.mediaDevices && navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-          stream.getTracks().forEach(t => t.stop()); // stop immediately, we just needed the permission
-          localStorage.setItem(key, '1');
-        })
-        .catch(() => { localStorage.setItem(key, '1'); }); // denied — mark asked, don't nag
-    }, 1200);
-  }
-
   function showPortal() {
-    requestMicPermission();
     loadPortalResponses();
     document.getElementById('lockscreen').style.display = 'none';
     document.getElementById('portal').style.display = 'block';
