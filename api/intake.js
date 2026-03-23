@@ -67,8 +67,8 @@ function renderPage({ name, request, status, responseText, createdAt, record }) 
           <textarea id="reply-text" placeholder="What's your question?" style="width:100%;background:#0f1222;border:1px solid #1a2035;border-radius:10px;padding:12px;color:#f1f5f9;font-size:0.875rem;font-family:'Inter',sans-serif;resize:vertical;min-height:80px;outline:none;margin-bottom:10px;"></textarea>
           <button onclick="submitReply()" class="btn-reply-yes">Send →</button>
         </div>
-        <div id="reply-done" style="display:none;padding:12px 16px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#10b981;font-size:0.875rem;font-weight:600;">
-          ✅ Got it! Zack will be in touch shortly.
+        <div id="reply-done" style="display:none;padding:14px 16px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#10b981;font-size:0.875rem;font-weight:600;line-height:1.6;">
+          ✅ We're on it! Bookmark this page and check back soon — your request will come to life right here.
         </div>
       </div>
     </div>
