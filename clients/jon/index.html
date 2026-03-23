@@ -1274,16 +1274,7 @@ footer a { color: var(--accent2); text-decoration: none; }
       document.getElementById('micBtn').style.color = 'var(--accent2)';
       document.getElementById('micStatus').textContent = 'Done — review your message above.';
     };
-    recognition.onerror = (e) => {
-      isListening = false;
-      document.getElementById('micBtn').textContent = '🎤 Use Microphone';
-      document.getElementById('micBtn').style.background = 'rgba(99,102,241,0.1)';
-      document.getElementById('micBtn').style.borderColor = 'rgba(99,102,241,0.25)';
-      document.getElementById('micBtn').style.color = 'var(--accent2)';
-      const msgs = { 'not-allowed': 'Mic access denied — click Allow when your browser asks.', 'no-speech': 'No speech detected. Try again.', 'network': 'Network error. Check your connection.' };
-      document.getElementById('micStatus').textContent = msgs[e.error] || 'Mic error: ' + e.error;
-    };
-    try { recognition.start(); } catch(e) { document.getElementById('micStatus').textContent = 'Could not start mic: ' + e.message; }
+    recognition.start();
   }
 
   // ── VIDEO TRIMMER (per-platform, pointer-drag) ─────────────────
