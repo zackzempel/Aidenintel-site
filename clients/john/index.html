@@ -9,19 +9,19 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #05070f;
-  --surface: #0a0d1a;
-  --surface2: #0f1222;
-  --border: #1a2035;
-  --border2: #252d45;
-  --accent: #6366f1;
-  --accent2: #818cf8;
-  --green: #10b981;
-  --yellow: #f59e0b;
-  --red: #ef4444;
-  --text: #f1f5f9;
-  --text2: #94a3b8;
-  --text3: #475569;
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface2: #f2f2f7;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.12);
+  --accent: #0071e3;
+  --accent2: #0077ed;
+  --green: #34c759;
+  --yellow: #ff9f0a;
+  --red: #ff3b30;
+  --text: #1d1d1f;
+  --text2: #6e6e73;
+  --text3: #aeaeb2;
 }
 html { scroll-behavior: smooth; }
 body {
@@ -31,17 +31,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  pointer-events: none;
-  z-index: 0;
-}
+/* no grid pattern — clean Apple background */
 
 /* ── LOCK SCREEN ──────────────────────────────── */
 #lockscreen {
@@ -56,14 +46,15 @@ body::before {
 }
 .lock-card {
   background: var(--surface);
-  border: 1px solid var(--border2);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 48px 40px;
   width: 100%;
   max-width: 400px;
   text-align: center;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.10);
 }
-.lock-logo { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.lock-logo { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
 .lock-logo em { color: var(--accent); font-style: normal; }
 .lock-subtitle { font-size: 0.85rem; color: var(--text3); margin-bottom: 32px; }
 .lock-icon { font-size: 2.5rem; margin-bottom: 20px; }
@@ -71,8 +62,8 @@ body::before {
 .lock-card p { font-size: 0.875rem; color: var(--text2); margin-bottom: 28px; }
 .lock-input {
   width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
+  background: #f2f2f7;
+  border: 1.5px solid transparent;
   border-radius: 10px;
   padding: 13px 16px;
   color: var(--text);
@@ -82,9 +73,9 @@ body::before {
   text-align: center;
   letter-spacing: 4px;
   margin-bottom: 14px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.lock-input:focus { border-color: var(--accent); }
+.lock-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
 .lock-btn {
   width: 100%;
   background: var(--accent);
@@ -98,8 +89,9 @@ body::before {
   font-family: 'Inter', sans-serif;
   transition: background 0.2s;
 }
-.lock-btn:hover { background: #4f46e5; }
-.lock-error { color: #ef4444; font-size: 0.8rem; margin-top: 10px; display: none; }
+.lock-btn:hover { background: var(--accent); }
+.lock-btn:hover { background: var(--accent2); }
+.lock-error { color: var(--red); font-size: 0.8rem; margin-top: 10px; display: none; }
 
 /* ── PORTAL ──────────────────────────────────── */
 #portal { display: none; position: relative; z-index: 1; }
@@ -107,9 +99,10 @@ body::before {
 nav {
   position: sticky;
   top: 0;
-  background: rgba(5,7,15,0.85);
+  background: rgba(255,255,255,0.85);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
   padding: 0 40px;
   height: 60px;
   display: flex;
@@ -127,9 +120,10 @@ nav {
   position: sticky;
   top: 60px;
   z-index: 90;
-  background: rgba(5,7,15,0.92);
+  background: rgba(245,245,247,0.92);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
   padding: 0 40px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -157,8 +151,8 @@ nav {
   transition: all 0.15s;
   letter-spacing: 0.3px;
 }
-.snav-btn:hover { color: var(--text2); background: rgba(255,255,255,0.05); }
-.snav-btn.active { color: var(--accent2); background: rgba(99,102,241,0.12); }
+.snav-btn:hover { color: var(--text2); background: rgba(0,0,0,0.05); }
+.snav-btn.active { color: var(--accent); background: rgba(0,113,227,0.10); }
 
 .portal-wrap { max-width: 1000px; margin: 0 auto; padding: 36px 24px; }
 
@@ -175,7 +169,8 @@ nav {
 .portal-header {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   padding: 36px 40px;
   margin-bottom: 28px;
   display: flex;
@@ -190,8 +185,8 @@ nav {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(245,158,11,0.1);
-  border: 1px solid rgba(245,158,11,0.25);
+  background: rgba(255,159,10,0.10);
+  border: 1px solid rgba(255,159,10,0.25);
   padding: 10px 20px;
   border-radius: 999px;
 }
@@ -209,26 +204,28 @@ nav {
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   padding: 20px 24px;
   text-align: center;
 }
-.stat-card .num { font-size: 2rem; font-weight: 900; letter-spacing: -1px; color: var(--accent2); }
+.stat-card .num { font-size: 2rem; font-weight: 900; letter-spacing: -1px; color: var(--accent); }
 .stat-card .lbl { font-size: 0.75rem; color: var(--text3); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
 
 /* ── SECTION TITLE ──────────────────────────── */
-.section-title { font-size: 1rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
+.section-title { font-size: 0.75rem; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
 
 /* ── CARDS ──────────────────────────────────── */
 .project-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   padding: 28px 32px;
   margin-bottom: 14px;
-  transition: border-color 0.2s;
+  transition: box-shadow 0.2s, border-color 0.2s;
 }
-.project-card:hover { border-color: var(--border2); }
+.project-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); border-color: var(--border2); }
 .project-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
 .project-title { font-size: 1.05rem; font-weight: 700; color: var(--text); }
 .project-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
@@ -244,19 +241,19 @@ nav {
   font-weight: 700;
   letter-spacing: 0.5px;
 }
-.badge-green { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: var(--green); }
-.badge-yellow { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(--yellow); }
-.badge-blue { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25); color: var(--accent2); }
-.badge-gray { background: rgba(71,85,105,0.2); border: 1px solid rgba(71,85,105,0.3); color: var(--text3); }
-.badge-purple { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); color: #a78bfa; }
+.badge-green { background: rgba(52,199,89,0.12); border: 1px solid rgba(52,199,89,0.25); color: #1a7f3c; }
+.badge-yellow { background: rgba(255,159,10,0.12); border: 1px solid rgba(255,159,10,0.25); color: #b35a00; }
+.badge-blue { background: rgba(0,113,227,0.10); border: 1px solid rgba(0,113,227,0.20); color: var(--accent); }
+.badge-gray { background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.10); color: var(--text3); }
+.badge-purple { background: rgba(88,86,214,0.10); border: 1px solid rgba(88,86,214,0.20); color: #5856d6; }
 
 /* ── PROGRESS BAR ────────────────────────────── */
 .progress-wrap { margin-bottom: 16px; }
 .progress-label { display: flex; justify-content: space-between; margin-bottom: 8px; }
 .progress-label span { font-size: 0.78rem; color: var(--text3); }
 .progress-label strong { font-size: 0.78rem; color: var(--text2); }
-.progress-bar { height: 6px; background: var(--border2); border-radius: 999px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1s ease; }
+.progress-bar { height: 4px; background: rgba(0,0,0,0.08); border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 999px; background: var(--accent); transition: width 1s ease; }
 
 /* ── DELIVERABLES ────────────────────────────── */
 .deliverables { display: flex; flex-direction: column; gap: 8px; }
@@ -273,15 +270,15 @@ nav {
 .deliverable .d-name { flex: 1; color: var(--text); }
 .deliverable .d-link {
   font-size: 0.78rem;
-  color: var(--accent2);
+  color: var(--accent);
   text-decoration: none;
   font-weight: 600;
   padding: 4px 10px;
-  background: rgba(99,102,241,0.1);
+  background: rgba(0,113,227,0.08);
   border-radius: 6px;
   transition: background 0.15s;
 }
-.deliverable .d-link:hover { background: rgba(99,102,241,0.2); }
+.deliverable .d-link:hover { background: rgba(0,113,227,0.15); }
 
 /* ── TIMELINE ────────────────────────────────── */
 .timeline { display: flex; flex-direction: column; gap: 0; }
@@ -292,7 +289,7 @@ nav {
 .tl-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 .tl-dot.done { background: var(--green); }
 .tl-dot.active { background: var(--accent); animation: pulse 2s infinite; }
-.tl-dot.pending { background: var(--border2); }
+.tl-dot.pending { background: rgba(0,0,0,0.15); }
 .tl-line { flex: 1; width: 1px; background: var(--border); margin-top: 4px; }
 .tl-content { padding-bottom: 0; }
 .tl-title { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
@@ -303,7 +300,7 @@ nav {
   display: flex;
   gap: 14px;
   padding: 16px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 .update-item:last-child { border-bottom: none; }
 .update-date { font-size: 0.75rem; color: var(--text3); flex-shrink: 0; width: 80px; margin-top: 2px; }
@@ -328,18 +325,18 @@ nav {
   justify-content: center;
   width: 22px;
   height: 22px;
-  background: rgba(99,102,241,0.15);
+  background: rgba(0,113,227,0.12);
   border-radius: 50%;
   font-size: 0.75rem;
   font-weight: 800;
-  color: var(--accent2);
+  color: var(--accent);
   margin-right: 8px;
   flex-shrink: 0;
 }
 .intake-q textarea {
   width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
+  background: #f2f2f7;
+  border: 1.5px solid transparent;
   border-radius: 10px;
   padding: 11px 14px;
   color: var(--text);
@@ -349,14 +346,14 @@ nav {
   resize: vertical;
   min-height: 72px;
   line-height: 1.5;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.intake-q textarea:focus { border-color: rgba(99,102,241,0.5); }
+.intake-q textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
 .intake-q textarea::placeholder { color: var(--text3); }
 
 .scope-draft {
-  background: rgba(99,102,241,0.07);
-  border: 1px solid rgba(99,102,241,0.2);
+  background: rgba(0,113,227,0.05);
+  border: 1px solid rgba(0,113,227,0.15);
   border-left: 3px solid var(--accent);
   border-radius: 10px;
   padding: 16px 18px;
@@ -369,7 +366,7 @@ nav {
 
 .request-summary {
   background: var(--surface2);
-  border: 1px solid var(--border2);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 14px 18px;
   font-size: 0.875rem;
@@ -387,7 +384,7 @@ footer {
   border-top: 1px solid var(--border);
   margin-top: 40px;
 }
-footer a { color: var(--accent2); text-decoration: none; }
+footer a { color: var(--accent); text-decoration: none; }
 
 /* ── CHAT FAB + PANEL ────────────────────────── */
 #chat-fab {
@@ -404,14 +401,14 @@ footer a { color: var(--accent2); text-decoration: none; }
   font-weight: 700;
   font-family: 'Inter', sans-serif;
   cursor: pointer;
-  box-shadow: 0 4px 24px rgba(99,102,241,0.45);
+  box-shadow: 0 4px 20px rgba(0,113,227,0.35);
   display: flex;
   align-items: center;
   gap: 8px;
   transition: all 0.2s;
 }
-#chat-fab:hover { background: #4f46e5; transform: translateY(-2px); }
-#chat-fab.open { background: var(--surface2); border: 1px solid var(--border2); color: var(--text2); box-shadow: none; transform: none; }
+#chat-fab:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,113,227,0.45); }
+#chat-fab.open { background: var(--surface); border: 1px solid var(--border); color: var(--text2); box-shadow: 0 2px 12px rgba(0,0,0,0.08); transform: none; }
 
 #chat-panel {
   position: fixed;
@@ -422,9 +419,9 @@ footer a { color: var(--accent2); text-decoration: none; }
   height: 520px;
   max-height: calc(100vh - 120px);
   background: var(--surface);
-  border: 1px solid var(--border2);
+  border: 1px solid var(--border);
   border-radius: 20px;
-  box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.14);
   z-index: 199;
   display: none;
   flex-direction: column;
@@ -441,11 +438,11 @@ footer a { color: var(--accent2); text-decoration: none; }
   flex-shrink: 0;
 }
 .chat-header-info { display: flex; align-items: center; gap: 10px; }
-.chat-avatar { width: 32px; height: 32px; background: rgba(99,102,241,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.chat-avatar { width: 32px; height: 32px; background: rgba(0,113,227,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
 .chat-header-text .name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
 .chat-header-text .status { font-size: 0.72rem; color: var(--green); font-weight: 600; }
 .chat-clear-btn { background: transparent; border: none; color: var(--text3); font-size: 0.75rem; cursor: pointer; font-family: 'Inter', sans-serif; padding: 4px 8px; border-radius: 6px; transition: all 0.15s; }
-.chat-clear-btn:hover { color: var(--text2); background: rgba(255,255,255,0.05); }
+.chat-clear-btn:hover { color: var(--text2); background: rgba(0,0,0,0.05); }
 
 .chat-messages {
   flex: 1;
@@ -455,7 +452,7 @@ footer a { color: var(--accent2); text-decoration: none; }
   flex-direction: column;
   gap: 12px;
   scrollbar-width: thin;
-  scrollbar-color: var(--border2) transparent;
+  scrollbar-color: rgba(0,0,0,0.10) transparent;
 }
 .chat-msg { display: flex; gap: 8px; align-items: flex-end; }
 .chat-msg.user { flex-direction: row-reverse; }
@@ -467,15 +464,15 @@ footer a { color: var(--accent2); text-decoration: none; }
   line-height: 1.55;
   white-space: pre-wrap;
 }
-.chat-msg.aiden .chat-bubble { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
-.chat-msg.user .chat-bubble { background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+.chat-msg.aiden .chat-bubble { background: #f2f2f7; border: none; color: var(--text); border-bottom-left-radius: 4px; }
+.chat-msg.user .chat-bubble { background: #0071e3; color: white; border-bottom-right-radius: 4px; }
 .chat-msg.aiden .chat-bubble.typing { color: var(--text3); font-style: italic; }
 
 .chat-generate-btn {
   margin: 0 16px 12px;
-  background: rgba(16,185,129,0.1);
-  border: 1px solid rgba(16,185,129,0.3);
-  color: #10b981;
+  background: rgba(52,199,89,0.10);
+  border: 1px solid rgba(52,199,89,0.25);
+  color: #1a7f3c;
   padding: 10px 16px;
   border-radius: 10px;
   font-size: 0.825rem;
@@ -489,7 +486,7 @@ footer a { color: var(--accent2); text-decoration: none; }
   transition: all 0.2s;
   flex-shrink: 0;
 }
-.chat-generate-btn:hover { background: rgba(16,185,129,0.18); }
+.chat-generate-btn:hover { background: rgba(52,199,89,0.18); }
 .chat-generate-btn.visible { display: flex; }
 
 .chat-input-row {
@@ -502,8 +499,8 @@ footer a { color: var(--accent2); text-decoration: none; }
 }
 #chatInput {
   flex: 1;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
+  background: #f2f2f7;
+  border: 1.5px solid transparent;
   border-radius: 12px;
   padding: 10px 14px;
   color: var(--text);
@@ -513,9 +510,9 @@ footer a { color: var(--accent2); text-decoration: none; }
   resize: none;
   max-height: 100px;
   line-height: 1.4;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-#chatInput:focus { border-color: rgba(99,102,241,0.5); }
+#chatInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,0.12); }
 #chatSendBtn {
   background: var(--accent);
   border: none;
@@ -531,8 +528,8 @@ footer a { color: var(--accent2); text-decoration: none; }
   flex-shrink: 0;
   transition: background 0.15s;
 }
-#chatSendBtn:hover { background: #4f46e5; }
-#chatSendBtn:disabled { background: var(--border2); cursor: not-allowed; }
+#chatSendBtn:hover { background: var(--accent); }
+#chatSendBtn:disabled { background: rgba(0,0,0,0.15); cursor: not-allowed; }
 
 </style>
 </head>
@@ -561,13 +558,13 @@ footer a { color: var(--accent2); text-decoration: none; }
   </nav>
 
   <!-- RESPONSE BANNER -->
-  <div id="response-banner" style="display:none; background:rgba(245,158,11,0.12); border-bottom:1px solid rgba(245,158,11,0.25); padding:12px 40px; position:sticky; top:60px; z-index:89;">
+  <div id="response-banner" style="display:none; background:rgba(255,159,10,0.10); border-bottom:1px solid rgba(255,159,10,0.20); padding:12px 40px; position:sticky; top:60px; z-index:89;">
     <div style="max-width:1000px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
       <div style="display:flex; align-items:center; gap:10px;">
         <span style="font-size:1rem;">🔔</span>
         <span id="banner-text" style="font-size:0.875rem; font-weight:600; color:var(--yellow);">Aiden has a response waiting for you</span>
       </div>
-      <button onclick="dismissBanner()" style="background:transparent; border:1px solid rgba(245,158,11,0.3); color:var(--yellow); font-size:0.75rem; font-weight:700; padding:5px 12px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif;">Dismiss</button>
+      <button onclick="dismissBanner()" style="background:transparent; border:1px solid rgba(255,159,10,0.30); color:#b35a00; font-size:0.75rem; font-weight:700; padding:5px 12px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif;">Dismiss</button>
     </div>
   </div>
 
@@ -619,7 +616,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     <div id="active-requests" style="margin-bottom: 40px;">
       <div class="section-title">⚡ Active Requests</div>
 
-      <div class="project-card" style="border-color: rgba(245,158,11,0.35); border-left: 4px solid var(--yellow); background: linear-gradient(135deg, rgba(245,158,11,0.04) 0%, var(--surface) 60%);">
+      <div class="project-card" style="border-color: rgba(255,159,10,0.30); border-left: 4px solid var(--yellow); background: linear-gradient(135deg, rgba(255,159,10,0.03) 0%, var(--surface) 60%);">
         <!-- Request header -->
         <div class="project-header">
           <div>
@@ -642,13 +639,13 @@ footer a { color: var(--accent2); text-decoration: none; }
         </div>
 
         <!-- Talk to Aiden nudge -->
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.18); border-radius:10px; margin-bottom:16px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.15); border-radius:10px; margin-bottom:16px; flex-wrap:wrap;">
           <div style="font-size:0.825rem; color:var(--text2); line-height:1.5;"><strong style="color:var(--text);">Not sure how to answer?</strong> Talk it through with Aiden first — use the chat to think out loud and Aiden will help you shape your answers.</div>
           <button onclick="openChat('intake')" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; flex-shrink:0;">💬 Talk to Aiden about these questions →</button>
         </div>
 
         <!-- Intake questions -->
-        <div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.2); border-radius:14px; padding:24px; margin-bottom:24px;">
+        <div style="background:rgba(255,159,10,0.05); border:1px solid rgba(255,159,10,0.15); border-radius:14px; padding:24px; margin-bottom:24px;">
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
             <span style="font-size:1.1rem;">📋</span>
             <div style="font-size:0.9rem; font-weight:800; color:var(--text);">Intake Questions — We Need Your Input</div>
@@ -679,16 +676,16 @@ footer a { color: var(--accent2); text-decoration: none; }
             ✅ Submit My Intake Answers →
           </button>
 
-          <div id="intakeSuccess" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
+          <div id="intakeSuccess" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(52,199,89,0.10); border:1px solid rgba(52,199,89,0.20); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
             ✅ Answers received — Aiden is reviewing your responses and will have a full scope document ready within 24–48 hours. Nothing else needed from you on this request.
           </div>
-          <div id="intakeError" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:10px; color:#ef4444; font-size:0.875rem;">
+          <div id="intakeError" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(255,59,48,0.10); border:1px solid rgba(255,59,48,0.20); border-radius:10px; color:var(--red); font-size:0.875rem;">
             Something went wrong. Please try again or email hello@aidenintel.com
           </div>
         </div>
 
         <!-- What happens next -->
-        <div style="display:flex; align-items:flex-start; gap:10px; padding:14px 16px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.15); border-radius:10px; font-size:0.825rem; color:var(--text2); line-height:1.6;">
+        <div style="display:flex; align-items:flex-start; gap:10px; padding:14px 16px; background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.12); border-radius:10px; font-size:0.825rem; color:var(--text2); line-height:1.6;">
           <span style="font-size:1rem; flex-shrink:0;">💡</span>
           <span><strong style="color:var(--text);">What happens next:</strong> Once you submit your answers, Aiden will produce a full scope document within 24–48 hours outlining the B2B system design, target list strategy, outreach materials, and estimated timeline.</span>
         </div>
@@ -753,13 +750,13 @@ footer a { color: var(--accent2); text-decoration: none; }
 
       <div class="project-card">
         <div style="margin-bottom:20px;">
-          <button onclick="toggleHowToModal()" style="background:rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.35); color:var(--accent2); font-size:0.78rem; font-weight:700; padding:8px 12px; border-radius:8px; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:5px; transition:all 0.2s; margin-bottom:12px;">ℹ️ How to submit a great request →</button>
-          <p style="font-size:0.9rem; color:var(--text2); line-height:1.7;">Have a new idea, question, or follow-up? <strong style="color:var(--text);">Use the dropdown to categorize your request</strong> — this helps Aiden track and prioritize your work. For best results, use <strong style="color:#f1f5f9;">💬 Talk to Aiden</strong> to vet your idea first, save it as a Word doc, and upload it below. Aiden will review it, assess what's possible, and get back to you.</p>
+          <button onclick="toggleHowToModal()" style="background:rgba(0,113,227,0.10); border:1px solid rgba(0,113,227,0.25); color:var(--accent); font-size:0.78rem; font-weight:700; padding:8px 12px; border-radius:8px; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:5px; transition:all 0.2s; margin-bottom:12px;">ℹ️ How to submit a great request →</button>
+          <p style="font-size:0.9rem; color:var(--text2); line-height:1.7;">Have a new idea, question, or follow-up? <strong style="color:var(--text);">Use the dropdown to categorize your request</strong> — this helps Aiden track and prioritize your work. For best results, use <strong style="color:var(--text);">💬 Talk to Aiden</strong> to vet your idea first, save it as a Word doc, and upload it below. Aiden will review it, assess what's possible, and get back to you.</p>
         </div>
 
         <div style="margin-bottom:16px;">
           <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Request Type</label>
-          <select id="reqType" style="width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none;">
+          <select id="reqType" style="width:100%; background:#f2f2f7; border:1.5px solid transparent; border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; appearance:none; -webkit-appearance:none; cursor:pointer;">
             <option>Website / landing page</option>
             <option>Lead generation</option>
             <option>Marketing content</option>
@@ -772,7 +769,7 @@ footer a { color: var(--accent2); text-decoration: none; }
 
         <div style="margin-bottom:16px; position:relative;">
           <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Your Request</label>
-          <textarea id="reqMessage" placeholder="Describe what you need... or use the mic, or upload a doc below." style="width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:100px; transition:border-color 0.2s;"></textarea>
+          <textarea id="reqMessage" placeholder="Describe what you need... or use the mic, or upload a doc below." style="width:100%; background:#f2f2f7; border:1.5px solid transparent; border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:100px; transition:border-color 0.2s, box-shadow 0.2s;"></textarea>
         </div>
 
         <!-- DRAG & DROP UPLOAD -->
@@ -786,18 +783,18 @@ footer a { color: var(--accent2); text-decoration: none; }
             ondragover="handleDragOver(event)"
             ondragleave="handleDragLeave(event)"
             ondrop="handleDrop(event)"
-            style="border:2px dashed var(--border2); border-radius:12px; padding:28px 20px; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(255,255,255,0.02);">
+            style="border:2px dashed var(--border2); border-radius:12px; padding:28px 20px; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(0,0,0,0.02);">
             <div style="font-size:2rem; margin-bottom:8px;">📄</div>
             <div style="font-size:0.875rem; color:var(--text2); font-weight:500; margin-bottom:4px;">Drag &amp; drop your doc here, or click to browse</div>
             <div style="font-size:0.75rem; color:var(--text3);">.docx, .doc, .pdf — max 10MB</div>
             <input type="file" id="reqFileInput" accept=".doc,.docx,.pdf" style="display:none;" onchange="handleFileSelect(event)">
           </div>
-          <div id="filePreview" style="display:none; margin-top:10px; padding:10px 14px; background:var(--surface2); border:1px solid var(--border2); border-radius:10px; align-items:center; gap:10px;">
+          <div id="filePreview" style="display:none; margin-top:10px; padding:10px 14px; background:#f2f2f7; border:1px solid var(--border); border-radius:10px; align-items:center; gap:10px;">
             <span style="font-size:1.2rem;">📎</span>
             <span id="fileName" style="font-size:0.875rem; color:var(--text); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
             <button onclick="clearFile()" style="background:transparent; border:none; color:var(--text3); font-size:1rem; cursor:pointer; padding:2px 6px; border-radius:4px;" title="Remove file">✕</button>
           </div>
-          <div id="uploadProgress" style="display:none; margin-top:8px; font-size:0.8rem; color:var(--text2); padding:8px 12px; background:rgba(99,102,241,0.08); border-radius:8px; border:1px solid rgba(99,102,241,0.2);">
+          <div id="uploadProgress" style="display:none; margin-top:8px; font-size:0.8rem; color:var(--text2); padding:8px 12px; background:rgba(0,113,227,0.07); border-radius:8px; border:1px solid rgba(0,113,227,0.20);">
             ⏳ Uploading document...
           </div>
         </div>
@@ -805,7 +802,7 @@ footer a { color: var(--accent2); text-decoration: none; }
 
 
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
-          <button id="micBtn" onclick="toggleMic()" style="display:flex; align-items:center; gap:8px; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.25); color:var(--accent2); padding:10px 20px; border-radius:10px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
+          <button id="micBtn" onclick="toggleMic()" style="display:flex; align-items:center; gap:8px; background:rgba(0,113,227,0.10); border:1px solid rgba(0,113,227,0.20); color:var(--accent); padding:10px 20px; border-radius:10px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
             🎤 Use Microphone
           </button>
           <span id="micStatus" style="font-size:0.8rem; color:var(--text3);"></span>
@@ -815,46 +812,46 @@ footer a { color: var(--accent2); text-decoration: none; }
           Send Request →
         </button>
 
-        <div id="reqSuccess" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
+        <div id="reqSuccess" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(52,199,89,0.10); border:1px solid rgba(52,199,89,0.20); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
           ✅ Request submitted! Aiden is reviewing it — you'll hear back soon.
         </div>
-        <div id="reqError" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:10px; color:#ef4444; font-size:0.875rem;">
+        <div id="reqError" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(255,59,48,0.10); border:1px solid rgba(255,59,48,0.20); border-radius:10px; color:var(--red); font-size:0.875rem;">
           Something went wrong. Please try again or email hello@aidenintel.com
         </div>
       </div>
     </div>
 
     <!-- HOW-TO MODAL -->
-    <div id="howToModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:500; align-items:center; justify-content:center; padding:24px;">
+    <div id="howToModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; align-items:center; justify-content:center; padding:24px;">
       <div style="background:var(--surface); border:1px solid var(--border2); border-radius:20px; padding:36px; max-width:540px; width:100%; position:relative; max-height:90vh; overflow-y:auto;">
-        <button onclick="toggleHowToModal()" style="position:absolute; top:16px; right:16px; background:var(--surface2); border:1px solid var(--border2); color:var(--text2); width:32px; height:32px; border-radius:50%; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+        <button onclick="toggleHowToModal()" style="position:absolute; top:16px; right:16px; background:#f2f2f7; border:1px solid var(--border); color:var(--text2); width:32px; height:32px; border-radius:50%; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
         <div style="font-size:1.5rem; margin-bottom:12px;">💡</div>
         <h2 style="font-size:1.15rem; font-weight:800; margin-bottom:8px;">How to Submit a Great Request</h2>
         <p style="font-size:0.875rem; color:var(--text2); line-height:1.7; margin-bottom:24px;">Before hitting submit, take 10 minutes to think through your idea properly. A well-documented request gets built faster and gets built right.</p>
         <div style="display:flex; flex-direction:column; gap:16px;">
           <div style="display:flex; gap:14px; align-items:flex-start;">
-            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(99,102,241,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent2); font-size:0.85rem;">1</div>
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(0,113,227,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent); font-size:0.85rem;">1</div>
             <div>
               <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">Talk it through with Aiden</div>
-              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Click <strong style="color:#f1f5f9;">💬 Talk to Aiden</strong> and describe your idea. Aiden will ask the right questions, shape it into a clear request, and generate the document for you automatically. Then just review and hit Submit — done.</div>
+              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Click <strong style="color:var(--text);">💬 Talk to Aiden</strong> and describe your idea. Aiden will ask the right questions, shape it into a clear request, and generate the document for you automatically. Then just review and hit Submit — done.</div>
             </div>
           </div>
           <div style="display:flex; gap:14px; align-items:flex-start;">
-            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(99,102,241,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent2); font-size:0.85rem;">2</div>
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(0,113,227,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent); font-size:0.85rem;">2</div>
             <div>
               <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">OR write it up yourself</div>
-              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Already know exactly what you want? Write a short doc — <strong style="color:#f1f5f9;">what</strong> you want, <strong style="color:#f1f5f9;">why</strong> it matters, and <strong style="color:#f1f5f9;">what success looks like</strong>. Screenshots or links are helpful.</div>
+              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Already know exactly what you want? Write a short doc — <strong style="color:var(--text);">what</strong> you want, <strong style="color:var(--text);">why</strong> it matters, and <strong style="color:var(--text);">what success looks like</strong>. Screenshots or links are helpful.</div>
             </div>
           </div>
           <div style="display:flex; gap:14px; align-items:flex-start;">
-            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(99,102,241,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent2); font-size:0.85rem;">3</div>
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(0,113,227,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent); font-size:0.85rem;">3</div>
             <div>
               <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">Upload &amp; submit</div>
               <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Drag your doc into the upload zone, pick a category from the dropdown, and hit Send. Aiden will review it and respond with next steps.</div>
             </div>
           </div>
         </div>
-        <div style="margin-top:24px; padding:14px 16px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:10px; font-size:0.825rem; color:#10b981; line-height:1.6;">
+        <div style="margin-top:24px; padding:14px 16px; background:rgba(52,199,89,0.08); border:1px solid rgba(52,199,89,0.20); border-radius:10px; font-size:0.825rem; color:#1a7f3c; line-height:1.6;">
           <strong>Pro tip:</strong> The more specific you are, the faster we can build it. Vague requests take longer because we have to ask follow-up questions. Specific requests ship faster.
         </div>
         <button onclick="toggleHowToModal()" style="margin-top:20px; width:100%; background:var(--accent); color:white; border:none; padding:12px; border-radius:10px; font-size:0.9rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;">Got it →</button>
@@ -903,7 +900,7 @@ footer a { color: var(--accent2); text-decoration: none; }
       ✨ Looks good — Generate Request →
     </button>
     <div class="chat-input-row">
-      <button id="chatMicBtn" onclick="toggleChatMic()" style="background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.25); color:var(--accent2); width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; transition:all 0.2s;">🎤</button>
+      <button id="chatMicBtn" onclick="toggleChatMic()" style="background:rgba(0,113,227,0.10); border:1px solid rgba(0,113,227,0.20); color:var(--accent); width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; transition:all 0.2s;">🎤</button>
       <textarea id="chatInput" rows="1" placeholder="Tell me your idea..." onkeydown="chatKeydown(event)" oninput="autoResizeChat(this)"></textarea>
       <button id="chatSendBtn" onclick="sendChat()">↑</button>
     </div>
@@ -999,7 +996,7 @@ footer a { color: var(--accent2); text-decoration: none; }
 
     if (!q1 && !q2 && !q3 && !q4) {
       document.getElementById('iq1').focus();
-      document.getElementById('iq1').style.borderColor = 'rgba(239,68,68,0.5)';
+      document.getElementById('iq1').style.borderColor = 'rgba(255,59,48,0.50)';
       setTimeout(() => document.getElementById('iq1').style.borderColor = '', 2000);
       return;
     }
@@ -1056,9 +1053,9 @@ footer a { color: var(--accent2); text-decoration: none; }
             // Update the card border to green — action complete
             const card = document.querySelector('#active-requests .project-card');
             if (card) {
-              card.style.borderColor = 'rgba(16,185,129,0.35)';
+              card.style.borderColor = 'rgba(52,199,89,0.30)';
               card.style.borderLeft = '4px solid var(--green)';
-              card.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.03) 0%, var(--surface) 60%)';
+              card.style.background = 'linear-gradient(135deg, rgba(52,199,89,0.03) 0%, var(--surface) 60%)';
             }
             // Update badge
             const badge = document.querySelector('#active-requests .badge-purple');
@@ -1092,12 +1089,12 @@ footer a { color: var(--accent2); text-decoration: none; }
     e.preventDefault();
     const zone = document.getElementById('dropZone');
     zone.style.borderColor = 'var(--accent)';
-    zone.style.background  = 'rgba(99,102,241,0.08)';
+    zone.style.background  = 'rgba(0,113,227,0.07)';
   }
   function handleDragLeave(e) {
     const zone = document.getElementById('dropZone');
     zone.style.borderColor = 'var(--border2)';
-    zone.style.background  = 'rgba(255,255,255,0.02)';
+    zone.style.background  = 'rgba(0,0,0,0.02)';
   }
   function handleDrop(e) {
     e.preventDefault();
@@ -1159,7 +1156,7 @@ footer a { color: var(--accent2); text-decoration: none; }
 
     if (!message && !pendingFile) {
       document.getElementById('reqMessage').focus();
-      document.getElementById('reqMessage').style.borderColor = 'rgba(239,68,68,0.5)';
+      document.getElementById('reqMessage').style.borderColor = 'rgba(255,59,48,0.50)';
       setTimeout(() => document.getElementById('reqMessage').style.borderColor = '', 2000);
       return;
     }
@@ -1222,7 +1219,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     chatRecognition.onstart = () => {
       chatListening = true;
       document.getElementById('chatMicBtn').textContent = '🔴';
-      document.getElementById('chatMicBtn').style.cssText += 'background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4);color:#ef4444;';
+      document.getElementById('chatMicBtn').style.cssText += 'background:rgba(255,59,48,0.15);border-color:rgba(255,59,48,0.40);color:var(--red);';
       document.getElementById('chatInput').placeholder = 'Listening...';
     };
     chatRecognition.onresult = (e) => {
@@ -1234,7 +1231,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     chatRecognition.onend = () => {
       chatListening = false;
       document.getElementById('chatMicBtn').textContent = '🎤';
-      document.getElementById('chatMicBtn').style.cssText += 'background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.25);color:var(--accent2);';
+      document.getElementById('chatMicBtn').style.cssText += 'background:rgba(0,113,227,0.10);border-color:rgba(0,113,227,0.20);color:var(--accent);';
       document.getElementById('chatInput').placeholder = 'Tell me your idea...';
     };
     chatRecognition.start();
@@ -1258,7 +1255,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     recognition.onstart = () => {
       isListening = true;
       document.getElementById('micBtn').innerHTML = '🔴 Stop Recording';
-      document.getElementById('micBtn').style.cssText += 'background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444;';
+      document.getElementById('micBtn').style.cssText += 'background:rgba(255,59,48,0.10);border-color:rgba(255,59,48,0.30);color:var(--red);';
       document.getElementById('micStatus').textContent = 'Listening...';
     };
     recognition.onresult = (e) => {
@@ -1269,7 +1266,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     recognition.onend = () => {
       isListening = false;
       document.getElementById('micBtn').innerHTML = '🎤 Use Microphone';
-      document.getElementById('micBtn').style.cssText += 'background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.25);color:var(--accent2);';
+      document.getElementById('micBtn').style.cssText += 'background:rgba(0,113,227,0.10);border-color:rgba(0,113,227,0.20);color:var(--accent);';
       document.getElementById('micStatus').textContent = 'Done — review your message above.';
     };
     recognition.start();
@@ -1477,20 +1474,20 @@ footer a { color: var(--accent2); text-decoration: none; }
             const el = document.getElementById(id);
             if (el && answers[i]) {
               el.value = answers[i];
-              el.style.borderColor = 'rgba(99,102,241,0.5)';
+              el.style.borderColor = 'rgba(0,113,227,0.50)';
               setTimeout(() => el.style.borderColor = '', 2000);
             }
           });
           // Flash the intake section
           const intakeBox = document.querySelector('#active-requests .project-card');
-          if (intakeBox) { intakeBox.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.3)'; setTimeout(() => intakeBox.style.boxShadow = '', 2000); }
+          if (intakeBox) { intakeBox.style.boxShadow = '0 0 0 3px rgba(0,113,227,0.25)'; setTimeout(() => intakeBox.style.boxShadow = '', 2000); }
         }, 500);
       } else {
         // General request — pre-fill submit form
         scrollToSection('submit-request');
         setTimeout(() => {
           document.getElementById('reqMessage').value = summary;
-          document.getElementById('reqMessage').style.borderColor = 'rgba(99,102,241,0.5)';
+          document.getElementById('reqMessage').style.borderColor = 'rgba(0,113,227,0.50)';
           setTimeout(() => document.getElementById('reqMessage').style.borderColor = '', 2000);
           document.getElementById('reqType').value = 'New feature idea';
         }, 600);
