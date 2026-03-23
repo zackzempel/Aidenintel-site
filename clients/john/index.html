@@ -533,23 +533,7 @@ footer a { color: var(--accent2); text-decoration: none; }
 }
 #chatSendBtn:hover { background: #4f46e5; }
 #chatSendBtn:disabled { background: var(--border2); cursor: not-allowed; }
-#chatMicBtn {
-  background: rgba(99,102,241,0.1);
-  border: 1px solid rgba(99,102,241,0.25);
-  color: var(--accent2);
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
-#chatMicBtn:hover { background: rgba(99,102,241,0.2); }
-#chatMicBtn.recording { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #ef4444; animation: pulse 1.2s infinite; }
+
 </style>
 </head>
 <body>
@@ -818,12 +802,7 @@ footer a { color: var(--accent2); text-decoration: none; }
           </div>
         </div>
 
-        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px;">
-          <button id="micBtn" onclick="toggleMic()" style="display:flex; align-items:center; gap:8px; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.25); color:var(--accent2); padding:10px 20px; border-radius:10px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
-            🎤 Use Microphone
-          </button>
-          <span id="micStatus" style="font-size:0.8rem; color:var(--text3);"></span>
-        </div>
+
 
         <button onclick="submitRequest()" id="submitBtn" style="background:var(--accent); color:white; border:none; padding:13px 28px; border-radius:10px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
           Send Request →
@@ -917,7 +896,6 @@ footer a { color: var(--accent2); text-decoration: none; }
       ✨ Looks good — Generate Request →
     </button>
     <div class="chat-input-row">
-      <button id="chatMicBtn" onclick="toggleChatMic()" title="Speak your idea">🎤</button>
       <textarea id="chatInput" rows="1" placeholder="Tell me your idea..." onkeydown="chatKeydown(event)" oninput="autoResizeChat(this)"></textarea>
       <button id="chatSendBtn" onclick="sendChat()">↑</button>
     </div>
@@ -1166,7 +1144,7 @@ footer a { color: var(--accent2); text-decoration: none; }
 
   // ── SUBMIT REQUEST ────────────────────────────
   async function submitRequest() {
-    if (isListening && recognition) recognition.stop();
+
 
     let message = document.getElementById('reqMessage').value.trim();
     const type  = document.getElementById('reqType').value;
@@ -1219,46 +1197,6 @@ footer a { color: var(--accent2); text-decoration: none; }
       clearFile();
       setTimeout(() => document.getElementById('reqSuccess').style.display = 'none', 8000);
     }
-  }
-
-  // ── VOICE INPUT ───────────────────────────────
-  let recognition = null;
-  let isListening = false;
-
-  function toggleMic() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      document.getElementById('micStatus').textContent = 'Microphone not supported in this browser. Try Chrome or Safari.';
-      return;
-    }
-    if (isListening) { recognition.stop(); return; }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onstart = () => {
-      isListening = true;
-      document.getElementById('micBtn').textContent = '🔴 Stop Recording';
-      document.getElementById('micBtn').style.background = 'rgba(239,68,68,0.1)';
-      document.getElementById('micBtn').style.borderColor = 'rgba(239,68,68,0.3)';
-      document.getElementById('micBtn').style.color = '#ef4444';
-      document.getElementById('micStatus').textContent = 'Listening...';
-    };
-    recognition.onresult = (e) => {
-      let transcript = '';
-      for (let i = 0; i < e.results.length; i++) transcript += e.results[i][0].transcript;
-      document.getElementById('reqMessage').value = transcript;
-    };
-    recognition.onend = () => {
-      isListening = false;
-      document.getElementById('micBtn').textContent = '🎤 Use Microphone';
-      document.getElementById('micBtn').style.background = 'rgba(99,102,241,0.1)';
-      document.getElementById('micBtn').style.borderColor = 'rgba(99,102,241,0.25)';
-      document.getElementById('micBtn').style.color = 'var(--accent2)';
-      document.getElementById('micStatus').textContent = 'Done — review your message above.';
-    };
-    recognition.start();
   }
 
   // ── SECTION NAV ───────────────────────────────
@@ -1486,65 +1424,6 @@ footer a { color: var(--accent2); text-decoration: none; }
     }
   }
 
-  // ── CHAT MIC ──────────────────────────────────────────────────
-  let chatRecognition = null;
-  let chatListening = false;
-
-  function toggleChatMic() {
-    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-      appendChatMsg("aiden", "Microphone isn't supported in this browser. Try Chrome or Safari.");
-      return;
-    }
-    if (chatListening) { chatRecognition.stop(); return; }
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    chatRecognition = new SR();
-    chatRecognition.continuous = true;
-    chatRecognition.interimResults = true;
-    chatRecognition.lang = "en-US";
-    const btn = document.getElementById("chatMicBtn");
-    const input = document.getElementById("chatInput");
-    chatRecognition.onstart = () => {
-      chatListening = true;
-      btn.classList.add("recording");
-      btn.textContent = "🔴";
-      btn.title = "Tap to stop";
-      input.placeholder = "Listening...";
-    };
-    chatRecognition.onresult = (e) => {
-      let transcript = "";
-      for (let i = 0; i < e.results.length; i++) transcript += e.results[i][0].transcript;
-      input.value = transcript;
-      autoResizeChat(input);
-    };
-    chatRecognition.onend = () => {
-      chatListening = false;
-      btn.classList.remove("recording");
-      btn.textContent = "🎤";
-      btn.title = "Speak your idea";
-      input.placeholder = "Tell me your idea...";
-    };
-    chatRecognition.onerror = (e) => {
-      chatListening = false;
-      btn.classList.remove("recording");
-      btn.textContent = "🎤";
-      input.placeholder = "Tell me your idea...";
-      const msgs = {
-        "not-allowed": "Microphone access was denied. Please allow mic access in your browser settings and try again.",
-        "no-speech": "No speech detected — tap the mic and try speaking again.",
-        "network": "Network error with microphone. Check your connection and try again.",
-      };
-      appendChatMsg("aiden", msgs[e.error] || "Microphone error: " + e.error + ". Try again.");
-    };
-    try {
-      chatRecognition.start();
-    } catch(e) {
-      chatListening = false;
-      btn.classList.remove("recording");
-      btn.textContent = "🎤";
-      appendChatMsg("aiden", "Could not start microphone: " + e.message);
-    }
-  }
-  // ───────────────────────────────────────────────────────────────
 </script>
 </body>
 </html>
