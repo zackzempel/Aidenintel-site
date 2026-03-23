@@ -1994,7 +1994,26 @@ footer a { color: var(--accent2); text-decoration: none; }
       btn.title = "Speak your idea";
       input.placeholder = "Tell me your idea...";
     };
-    chatRecognition.start();
+    chatRecognition.onerror = (e) => {
+      chatListening = false;
+      btn.classList.remove("recording");
+      btn.textContent = "🎤";
+      input.placeholder = "Tell me your idea...";
+      const msgs = {
+        "not-allowed": "Microphone access was denied. Please allow mic access in your browser settings and try again.",
+        "no-speech": "No speech detected — tap the mic and try speaking again.",
+        "network": "Network error with microphone. Check your connection and try again.",
+      };
+      appendChatMsg("aiden", msgs[e.error] || "Microphone error: " + e.error + ". Try again.");
+    };
+    try {
+      chatRecognition.start();
+    } catch(e) {
+      chatListening = false;
+      btn.classList.remove("recording");
+      btn.textContent = "🎤";
+      appendChatMsg("aiden", "Could not start microphone: " + e.message);
+    }
   }
   // ───────────────────────────────────────────────────────────────
 </script>
