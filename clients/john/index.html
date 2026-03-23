@@ -531,7 +531,66 @@ footer a { color: var(--accent); text-decoration: none; }
 #chatSendBtn:hover { background: var(--accent); }
 #chatSendBtn:disabled { background: rgba(0,0,0,0.15); cursor: not-allowed; }
 
+/* DARK THEME */
+[data-theme="dark"] {
+  --bg: #05070f;
+  --surface: #0a0d1a;
+  --surface2: #0f1222;
+  --border: #1a2035;
+  --border2: #252d45;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #475569;
+}
+[data-theme="dark"] nav {
+  background: rgba(5,7,15,0.85);
+}
+[data-theme="dark"] #section-nav {
+  background: rgba(5,7,15,0.92);
+}
+[data-theme="dark"] body {
+  background: var(--bg);
+}
+[data-theme="dark"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+[data-theme="dark"] .chat-msg.aiden .chat-bubble {
+  background: #0f1222;
+  border: 1px solid #1a2035;
+  color: #f1f5f9;
+}
+[data-theme="dark"] .chat-msg.user .chat-bubble {
+  background: #6366f1;
+}
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="password"] {
+  background: #0f1222 !important;
+  border-color: #252d45 !important;
+  color: #f1f5f9 !important;
+}
+
 </style>
+<script>
+(function(){
+  const t = localStorage.getItem('john_theme');
+  if (t === 'dark') { document.documentElement.setAttribute('data-theme','dark'); }
+})();
+</script>
 </head>
 <body>
 
@@ -554,7 +613,10 @@ footer a { color: var(--accent); text-decoration: none; }
 
   <nav>
     <div class="nav-logo">Aiden<em>Intel</em> · Client Portal</div>
-    <div class="nav-client">Logged in as <strong>John Reilly</strong></div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div class="nav-client">Logged in as <strong>John Reilly</strong></div>
+      <button id="themeToggle" onclick="toggleTheme()" style="background:transparent; border:none; cursor:pointer; font-size:1.2rem; padding:4px; border-radius:6px; transition:all 0.2s; color:var(--text2);" title="Toggle light/dark mode">🌙</button>
+    </div>
   </nav>
 
   <!-- RESPONSE BANNER -->
@@ -925,7 +987,27 @@ footer a { color: var(--accent); text-decoration: none; }
   function strToHex(str) {
     return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
   }
+  function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('john_theme', 'light');
+      document.getElementById('themeToggle').textContent = '🌙';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('john_theme', 'dark');
+      document.getElementById('themeToggle').textContent = '☀️';
+    }
+  }
+
+  function initThemeIcon() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  }
+
   function showPortal() {
+    initThemeIcon();
     loadPortalResponses();
     document.getElementById('lockscreen').style.display = 'none';
     document.getElementById('portal').style.display = 'block';
