@@ -390,7 +390,14 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending...';
 
-    const name = nameInput.value.trim() || 'Anonymous Prospect';
+    const rawName = nameInput.value.trim();
+    const name = rawName || 'Anonymous Prospect';
+
+    // Generate unique slug: first-name-4chars e.g. "bz-x7k2"
+    const firstName = (rawName.split(' ')[0] || 'guest').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const rand = Math.random().toString(36).substr(2, 4);
+    const slug = `${firstName}-${rand}`;
+    const intakeUrl = `https://aidenintel.com/intake/${slug}`;
 
     try {
       await fetch(`${SUPABASE_URL}/rest/v1/client_requests`, {
@@ -403,16 +410,27 @@
         },
         body: JSON.stringify({
           client_name: name,
-          client_id: 'prospect',
+          client_id: 'intake',
           request_type: 'New Business Inquiry',
           message,
-          status: 'new'
+          status: 'new',
+          audio_url: slug
         })
       });
 
+      // Update success screen with the link
+      const successEl = document.getElementById('ai-success');
+      const displayName = rawName ? rawName.split(' ')[0] : 'there';
+      successEl.innerHTML = `
+        <div class="check">✅</div>
+        <h3>Got it, ${displayName}!</h3>
+        <p style="margin-bottom:16px;">Aiden is reviewing your request right now.<br>Bookmark this link and check back in <strong>30 minutes</strong>:</p>
+        <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:12px 16px;margin-bottom:14px;word-break:break-all;font-size:0.8rem;color:#818cf8;font-family:monospace;">${intakeUrl}</div>
+        <button onclick="navigator.clipboard.writeText('${intakeUrl}').then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='Copy Link',2000)})" style="background:#6366f1;color:white;border:none;padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;width:100%;">Copy Link</button>
+      `;
+
       formContent.style.display = 'none';
       success.style.display = 'block';
-      setTimeout(closeModal, 4000);
     } catch (err) {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Send to Aiden →';
