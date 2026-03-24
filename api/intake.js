@@ -59,11 +59,62 @@ function renderPage({ name, request, status, responseText, createdAt, record }) 
     ? responseText.replace(/\n/g, '<br>').replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:#818cf8;font-weight:700;text-decoration:underline;">$1</a>')
     : '';
 
+  // Show reply form when response has questions but no delivery link
+  const hasQuestions = responseText && !isDelivery;
+  const replyForm = hasQuestions ? `
+    <div class="reply-form-card">
+      <div class="response-label">✏️ Your Answers</div>
+      <p style="font-size:0.825rem;color:#94a3b8;margin-bottom:14px;line-height:1.6;">Type your answers below and hit Send — Aiden will review and get back to you.</p>
+      <div id="reply-form-wrap">
+        <textarea id="reply-answers" placeholder="Type your answers here..." style="width:100%;background:#0f1222;border:1px solid #252d45;border-radius:10px;padding:12px 14px;color:#f1f5f9;font-size:0.875rem;font-family:'Inter',sans-serif;resize:vertical;min-height:140px;outline:none;margin-bottom:12px;transition:border-color 0.2s;"></textarea>
+        <button onclick="submitAnswers()" class="btn-reply-yes">Send My Answers →</button>
+      </div>
+      <div id="answers-sent" style="display:none;padding:14px 16px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#10b981;font-size:0.875rem;font-weight:600;line-height:1.6;">
+        ✅ Got it! Aiden will review your answers and follow up soon. Check back here for the next update.
+      </div>
+    </div>
+    <script>
+    const SLUG_R = '${slug}';
+    const SB_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
+    const SB_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
+    const ANS_KEY = 'intake_answered_' + SLUG_R;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem(ANS_KEY)) {
+        document.getElementById('reply-form-wrap').style.display = 'none';
+        document.getElementById('answers-sent').style.display = 'block';
+      }
+    });
+
+    async function submitAnswers() {
+      const text = document.getElementById('reply-answers').value.trim();
+      if (!text) { document.getElementById('reply-answers').style.borderColor='rgba(239,68,68,0.5)'; return; }
+      const btn = document.querySelector('.btn-reply-yes');
+      btn.textContent = 'Sending...'; btn.disabled = true;
+      await fetch(SB_URL + '/rest/v1/client_requests', {
+        method: 'POST',
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          client_name: '${displayName}',
+          client_id: 'intake-reply',
+          request_type: 'Intake Answers',
+          message: '[Answers from ${slug}]\\n' + text,
+          status: 'new',
+          audio_url: SLUG_R
+        })
+      });
+      localStorage.setItem(ANS_KEY, '1');
+      document.getElementById('reply-form-wrap').style.display = 'none';
+      document.getElementById('answers-sent').style.display = 'block';
+    }
+    </script>` : '';
+
   const responseSection = isResponded && responseText ? `
     <div class="response-card">
       <div class="response-label">💬 Aiden's Response</div>
       <div class="response-body">${formattedResponse}</div>
-    </div>` : isResponded ? `
+    </div>
+    ${replyForm}` : isResponded ? `
     <div class="response-card">
       <div class="response-label">💬 Aiden's Response</div>
       <div class="response-body">Your response is ready — Zack will be in touch shortly with next steps.</div>
@@ -243,6 +294,13 @@ body::before {
   transition: all 0.15s;
 }
 .btn-reload:hover { background: rgba(99,102,241,0.2); }
+.reply-form-card {
+  background: var(--surface);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 16px;
+}
 .btn-reply-yes {
   display: block;
   width: 100%;
