@@ -31,7 +31,6 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
-/* no grid pattern — clean Apple background */
 
 /* ── LOCK SCREEN ──────────────────────────────── */
 #lockscreen {
@@ -89,7 +88,6 @@ body {
   font-family: 'Inter', sans-serif;
   transition: background 0.2s;
 }
-.lock-btn:hover { background: var(--accent); }
 .lock-btn:hover { background: var(--accent2); }
 .lock-error { color: var(--red); font-size: 0.8rem; margin-top: 10px; display: none; }
 
@@ -255,31 +253,6 @@ nav {
 .progress-bar { height: 4px; background: rgba(0,0,0,0.08); border-radius: 999px; overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 999px; background: var(--accent); transition: width 1s ease; }
 
-/* ── DELIVERABLES ────────────────────────────── */
-.deliverables { display: flex; flex-direction: column; gap: 8px; }
-.deliverable {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  background: var(--surface2);
-  border-radius: 10px;
-  font-size: 0.875rem;
-}
-.deliverable .d-icon { font-size: 1rem; }
-.deliverable .d-name { flex: 1; color: var(--text); }
-.deliverable .d-link {
-  font-size: 0.78rem;
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 600;
-  padding: 4px 10px;
-  background: rgba(0,113,227,0.08);
-  border-radius: 6px;
-  transition: background 0.15s;
-}
-.deliverable .d-link:hover { background: rgba(0,113,227,0.15); }
-
 /* ── TIMELINE ────────────────────────────────── */
 .timeline { display: flex; flex-direction: column; gap: 0; }
 .timeline-item { display: flex; gap: 16px; padding-bottom: 24px; position: relative; }
@@ -351,19 +324,6 @@ nav {
 .intake-q textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
 .intake-q textarea::placeholder { color: var(--text3); }
 
-.scope-draft {
-  background: rgba(0,113,227,0.05);
-  border: 1px solid rgba(0,113,227,0.15);
-  border-left: 3px solid var(--accent);
-  border-radius: 10px;
-  padding: 16px 18px;
-  font-size: 0.875rem;
-  color: var(--text2);
-  line-height: 1.7;
-  margin-bottom: 24px;
-  font-style: italic;
-}
-
 .request-summary {
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -374,6 +334,20 @@ nav {
   line-height: 1.7;
   margin-bottom: 20px;
 }
+
+/* ── AIDEN RESPONSE BOX ──────────────────────── */
+.aiden-response-box {
+  background: rgba(52,199,89,0.05);
+  border: 1px solid rgba(52,199,89,0.15);
+  border-left: 3px solid var(--green);
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 0.875rem;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.aiden-response-box strong { color: var(--text); }
 
 /* ── FOOTER ──────────────────────────────────── */
 footer {
@@ -556,17 +530,6 @@ footer a { color: var(--accent); text-decoration: none; }
 [data-theme="dark"] body {
   background: var(--bg);
 }
-[data-theme="dark"] body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  pointer-events: none;
-  z-index: 0;
-}
 [data-theme="dark"] .chat-msg.aiden .chat-bubble {
   background: #0f1222;
   border: 1px solid #1a2035;
@@ -599,7 +562,7 @@ footer a { color: var(--accent); text-decoration: none; }
   <div class="lock-card">
     <div class="lock-logo">Aiden<em>Intel</em></div>
     <div class="lock-subtitle">Client Portal</div>
-    <div class="lock-icon">🔒</div>
+    <div class="lock-icon">🌱</div>
     <h2>Welcome, GiGi</h2>
     <p>Enter your access code to view your project dashboard.</p>
     <input class="lock-input" type="password" id="passInput" placeholder="••••••••" maxlength="10" onkeydown="if(event.key==='Enter')unlock()">
@@ -619,17 +582,6 @@ footer a { color: var(--accent); text-decoration: none; }
     </div>
   </nav>
 
-  <!-- RESPONSE BANNER -->
-  <div id="response-banner" style="display:none; background:rgba(255,159,10,0.10); border-bottom:1px solid rgba(255,159,10,0.20); padding:12px 40px; position:sticky; top:60px; z-index:89;">
-    <div style="max-width:1000px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span style="font-size:1rem;">🔔</span>
-        <span id="banner-text" style="font-size:0.875rem; font-weight:600; color:var(--yellow);">Aiden has a response waiting for you</span>
-      </div>
-      <button onclick="dismissBanner()" style="background:transparent; border:1px solid rgba(255,159,10,0.30); color:#b35a00; font-size:0.75rem; font-weight:700; padding:5px 12px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif;">Dismiss</button>
-    </div>
-  </div>
-
   <!-- SECTION NAV -->
   <div id="section-nav">
     <div class="section-nav-inner">
@@ -645,7 +597,7 @@ footer a { color: var(--accent); text-decoration: none; }
     <!-- HEADER -->
     <div class="portal-header">
       <div class="client-info">
-        <h1>👋 Hey GiGi! 🌱</h1>
+        <h1>👋 Hey GiGi!</h1>
         <p>Here's everything we're working on for you. Last updated: <strong>March 24, 2026</strong></p>
       </div>
       <div class="overall-status">
@@ -679,30 +631,35 @@ footer a { color: var(--accent); text-decoration: none; }
       <div class="section-title">⚡ Active Requests</div>
 
       <div class="project-card" style="border-color: rgba(255,159,10,0.30); border-left: 4px solid var(--yellow); background: linear-gradient(135deg, rgba(255,159,10,0.03) 0%, var(--surface) 60%);">
+        <!-- Request header -->
         <div class="project-header">
           <div>
             <div class="project-title">🌱 Sowing the Seeds of Love — Bedtime App</div>
-            <div style="font-size:0.78rem; color:var(--text3); margin-top:4px;">Request submitted March 24, 2026</div>
+            <div style="font-size:0.78rem; color:var(--text3); margin-top:4px;">Request #001 · Submitted March 24, 2026</div>
           </div>
-          <span id="intakeBadge" class="badge badge-blue">🔍 In Scope Review</span>
+          <span class="badge badge-blue">🔍 In Scope Review</span>
         </div>
 
-        <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Your Vision</div>
+        <!-- Original request -->
+        <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Your Request</div>
         <div class="request-summary">
-          "A calm, family-centered bedtime app for children ages 3–10. Nightly rhythm: Scripture → repetition → optional prayer → parent blessing. Peace over performance. Privacy-first, child-safe."
+          A calm, family-centered bedtime app for children ages 3–10. Nightly rhythm: Scripture → repetition → optional prayer → parent blessing. Peace over performance. Privacy-first, child-safe.
         </div>
 
-        <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; margin-top:16px;">💬 Aiden's Response</div>
-        <div style="background:rgba(52,199,89,0.06); border:1px solid rgba(52,199,89,0.2); border-radius:12px; padding:18px 20px; margin-bottom:20px; font-size:0.875rem; color:var(--text); line-height:1.75;">
-          GiGi, this is genuinely beautiful. The vision you've laid out — scripture, repetition, prayer, blessing, all in a calm 3-minute bedtime rhythm — is exactly the kind of thing that matters. Peace over performance. No streaks, no pressure. Just a family and their faith. We would be honored to build this with you.<br><br>
-          We read every word. Here's what we heard:<br><br>
-          A bedtime app for children ages 3–10 that guides families through a short nightly sequence: tonight's verse, say it together, memorization progression, an optional prayer, and a parent's blessing to close. <em>Simple. Sacred. Unhurried.</em>
+        <!-- Aiden's Response -->
+        <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">💬 Aiden's Response</div>
+        <div class="aiden-response-box">
+          <strong>GiGi, this is genuinely beautiful.</strong> The vision you've laid out — scripture, repetition, prayer, blessing, all in a calm 3-minute bedtime rhythm — is exactly the kind of thing that matters. Peace over performance. No streaks, no pressure. Just a family and their faith. We would be honored to build this with you.
+          <br><br>
+          We read every word. Here's what we heard:
+          <br><br>
+          A bedtime app for children ages 3–10 that guides families through a short nightly sequence: tonight's verse, say it together, memorization progression, an optional prayer, and a parent's blessing to close. Simple. Sacred. Unhurried.
         </div>
 
         <!-- Talk to Aiden nudge -->
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.15); border-radius:10px; margin-bottom:16px; flex-wrap:wrap;">
-          <div style="font-size:0.825rem; color:var(--text2); line-height:1.5;"><strong style="color:var(--text);">Not sure how to answer?</strong> Talk it through with Aiden — the chat is here to help.</div>
-          <button onclick="openChat('intake')" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; flex-shrink:0;">💬 Talk to Aiden about these questions →</button>
+          <div style="font-size:0.825rem; color:var(--text2); line-height:1.5;"><strong style="color:var(--text);">Not sure how to answer?</strong> Talk it through with Aiden first — use the chat to think out loud and Aiden will help you shape your answers.</div>
+          <button onclick="openChat('intake')" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; flex-shrink:0;">💬 Talk to Aiden →</button>
         </div>
 
         <!-- Intake questions -->
@@ -711,26 +668,26 @@ footer a { color: var(--accent); text-decoration: none; }
             <span style="font-size:1.1rem;">✏️</span>
             <div style="font-size:0.9rem; font-weight:800; color:var(--text);">Before We Begin — A Few Questions</div>
           </div>
-          <p style="font-size:0.825rem; color:var(--text2); margin-bottom:20px; line-height:1.6;">Your answers will help us build this exactly right. Fill these in and hit Submit — it only takes a few minutes.</p>
+          <p style="font-size:0.825rem; color:var(--text2); margin-bottom:20px; line-height:1.6;">Your answers will help us build this exactly right. Fill these in and hit Submit.</p>
 
           <div class="intake-q">
             <label><span class="q-num">1</span>Who is the primary parent using the app — you, Zack, or both?</label>
-            <textarea id="iq1" placeholder="e.g. Primarily me, but Zack will use it too..."></textarea>
+            <textarea id="iq1" placeholder="e.g. I'll be using it primarily with my great-grandchildren..."></textarea>
           </div>
 
           <div class="intake-q">
             <label><span class="q-num">2</span>Do you have a favorite scripture translation? (KJV is what you noted — is that your preference?)</label>
-            <textarea id="iq2" placeholder="e.g. Yes, KJV is perfect for us..."></textarea>
+            <textarea id="iq2" placeholder="e.g. Yes, KJV — the language feels sacred and timeless..."></textarea>
           </div>
 
           <div class="intake-q">
             <label><span class="q-num">3</span>Is there a specific verse or theme you'd like us to start with for the first version?</label>
-            <textarea id="iq3" placeholder="e.g. John 3:16, or maybe a theme around peace and sleep..."></textarea>
+            <textarea id="iq3" placeholder="e.g. Maybe John 3:16 or Psalm 23 — verses about being loved and cared for..."></textarea>
           </div>
 
           <div class="intake-q">
             <label><span class="q-num">4</span>Any families or children you'd want to test it with early?</label>
-            <textarea id="iq4" placeholder="e.g. Our grandchildren, or a few families from our church..."></textarea>
+            <textarea id="iq4" placeholder="e.g. My granddaughter's family would love to try it..."></textarea>
           </div>
 
           <button onclick="submitIntakeAnswers()" id="intakeBtn" style="background:var(--accent); color:white; border:none; padding:12px 28px; border-radius:10px; font-size:0.9rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:background 0.2s; display:flex; align-items:center; gap:8px;">
@@ -738,60 +695,755 @@ footer a { color: var(--accent); text-decoration: none; }
           </button>
 
           <div id="intakeSuccess" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(52,199,89,0.10); border:1px solid rgba(52,199,89,0.20); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
-            ✅ Answers received — Aiden will review and follow up with next steps soon. Nothing else needed from you right now.
+            ✅ Answers received — Aiden will review and follow up with next steps soon.
           </div>
           <div id="intakeError" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(255,59,48,0.10); border:1px solid rgba(255,59,48,0.20); border-radius:10px; color:var(--red); font-size:0.875rem;">
             Something went wrong. Please try again or email hello@aidenintel.com
           </div>
         </div>
 
-        <div style="display:flex; align-items:flex-start; gap:10px; padding:14px 16px; background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.12); border-radius:10px; font-size:0.825rem; color:var(--text2); line-height:1.6;">
-          <span style="font-size:1rem; flex-shrink:0;">💡</span>
-          <span><strong style="color:var(--text);">What happens next:</strong> Once you submit your answers, Aiden will follow up with a full scope document and next steps for bringing Sowing the Seeds of Love to life.</span>
-        </div>
       </div>
     </div>
 
     <!-- ── PROJECTS ──────────────────────────── -->
     <div id="active-projects" style="margin-bottom: 40px;">
       <div class="section-title">🗂 Projects</div>
+
       <div class="project-card">
         <div class="project-header">
           <div class="project-title">🌱 Sowing the Seeds of Love — Bedtime App</div>
           <span class="badge badge-blue">🔄 In Progress</span>
         </div>
         <div class="project-desc">A calm, faith-centered bedtime Progressive Web App for families with children ages 3–10. Nightly rhythm: scripture verse, say it together, memorization progression, optional prayer recording, and parent blessing.</div>
+
         <div class="progress-wrap">
           <div class="progress-label"><span>Progress</span><strong>10%</strong></div>
           <div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
         </div>
-        <div class="timeline" style="margin-top:16px;">
-          <div class="timeline-item">
-            <div class="tl-dot-wrap"><div class="tl-dot done"></div><div class="tl-line"></div></div>
-            <div class="tl-content"><div class="tl-title">✅ Initial vision submitted</div><div class="tl-date">March 24, 2026</div></div>
-          </div>
-          <div class="timeline-item">
-            <div class="tl-dot-wrap"><div class="tl-dot active"></div><div class="tl-line"></div></div>
-            <div class="tl-content"><div class="tl-title">⏳ Discovery & intake questions</div><div class="tl-date">In progress</div></div>
-          </div>
-          <div class="timeline-item">
-            <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
-            <div class="tl-content"><div class="tl-title">Architecture & design</div><div class="tl-date">Upcoming</div></div>
-          </div>
-          <div class="timeline-item">
-            <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
-            <div class="tl-content"><div class="tl-title">Build phase</div><div class="tl-date">Upcoming</div></div>
-          </div>
-          <div class="timeline-item">
-            <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
-            <div class="tl-content"><div class="tl-title">Beta testing with families</div><div class="tl-date">Upcoming</div></div>
-          </div>
-          <div class="timeline-item">
-            <div class="tl-dot-wrap"><div class="tl-dot pending"></div></div>
-            <div class="tl-content"><div class="tl-title">Launch 🌱</div><div class="tl-date">Upcoming</div></div>
+
+        <div style="margin-top: 20px;">
+          <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px;">Timeline</div>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="tl-dot-wrap"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+              <div class="tl-content">
+                <div class="tl-title">✅ Initial vision submitted</div>
+                <div class="tl-date">Mar 24, 2026</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-dot-wrap"><div class="tl-dot active"></div><div class="tl-line"></div></div>
+              <div class="tl-content">
+                <div class="tl-title">⏳ Discovery &amp; intake questions</div>
+                <div class="tl-date">In progress</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
+              <div class="tl-content">
+                <div class="tl-title">Architecture &amp; design</div>
+                <div class="tl-date">Pending</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
+              <div class="tl-content">
+                <div class="tl-title">Build phase</div>
+                <div class="tl-date">Pending</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
+              <div class="tl-content">
+                <div class="tl-title">Beta testing with families</div>
+                <div class="tl-date">Pending</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-dot-wrap"><div class="tl-dot pending"></div></div>
+              <div class="tl-content">
+                <div class="tl-title">Launch</div>
+                <div class="tl-date">Pending</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    
+    <!-- ── SUBMIT A REQUEST ──────────────────── -->
+    <div id="submit-request" style="margin-bottom: 40px;">
+      <div class="section-title">📬 Submit a New Request</div>
+
+      <div class="project-card">
+        <div style="margin-bottom:20px;">
+          <button onclick="toggleHowToModal()" style="background:rgba(0,113,227,0.10); border:1px solid rgba(0,113,227,0.25); color:var(--accent); font-size:0.78rem; font-weight:700; padding:8px 12px; border-radius:8px; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:5px; transition:all 0.2s; margin-bottom:12px;">ℹ️ How to submit a great request →</button>
+          <p style="font-size:0.9rem; color:var(--text2); line-height:1.7;">Have a new idea, question, or follow-up? <strong style="color:var(--text);">Use the dropdown to categorize your request</strong> — this helps Aiden track and prioritize your work. For best results, use <strong style="color:var(--text);">💬 Talk to Aiden</strong> to vet your idea first, save it as a Word doc, and upload it below. Aiden will review it, assess what's possible, and get back to you.</p>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Request Type</label>
+          <select id="reqType" style="width:100%; background:#f2f2f7; border:1.5px solid transparent; border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; appearance:none; -webkit-appearance:none; cursor:pointer;">
+            <option>App feature request</option>
+            <option>Design feedback</option>
+            <option>Content/scripture</option>
+            <option>General question</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:16px; position:relative;">
+          <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">Your Request</label>
+          <textarea id="reqMessage" placeholder="Describe what you need... or use the mic, or upload a doc below." style="width:100%; background:#f2f2f7; border:1.5px solid transparent; border-radius:10px; padding:12px 16px; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:100px; transition:border-color 0.2s, box-shadow 0.2s;"></textarea>
+        </div>
+
+        <!-- DRAG & DROP UPLOAD -->
+        <div style="margin-bottom:20px;">
+          <label style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+            📎 Attach Document
+            <span style="font-size:0.72rem; color:var(--text3); font-weight:400; text-transform:none; letter-spacing:0;">(Word, PDF — optional)</span>
+          </label>
+          <div id="dropZone"
+            onclick="document.getElementById('reqFileInput').click()"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event)"
+            style="border:2px dashed var(--border2); border-radius:12px; padding:28px 20px; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(0,0,0,0.02);">
+            <div style="font-size:2rem; margin-bottom:8px;">📄</div>
+            <div style="font-size:0.875rem; color:var(--text2); font-weight:500; margin-bottom:4px;">Drag &amp; drop your doc here, or click to browse</div>
+            <div style="font-size:0.75rem; color:var(--text3);">.docx, .doc, .pdf — max 10MB</div>
+            <input type="file" id="reqFileInput" accept=".doc,.docx,.pdf" style="display:none;" onchange="handleFileSelect(event)">
+          </div>
+          <div id="filePreview" style="display:none; margin-top:10px; padding:10px 14px; background:#f2f2f7; border:1px solid var(--border); border-radius:10px; align-items:center; gap:10px;">
+            <span style="font-size:1.2rem;">📎</span>
+            <span id="fileName" style="font-size:0.875rem; color:var(--text); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+            <button onclick="clearFile()" style="background:transparent; border:none; color:var(--text3); font-size:1rem; cursor:pointer; padding:2px 6px; border-radius:4px;" title="Remove file">✕</button>
+          </div>
+          <div id="uploadProgress" style="display:none; margin-top:8px; font-size:0.8rem; color:var(--text2); padding:8px 12px; background:rgba(0,113,227,0.07); border-radius:8px; border:1px solid rgba(0,113,227,0.20);">
+            ⏳ Uploading document...
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+          <button id="micBtn" onclick="toggleMic()" style="display:flex; align-items:center; gap:8px; background:rgba(0,113,227,0.10); border:1px solid rgba(0,113,227,0.20); color:var(--accent); padding:10px 20px; border-radius:10px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
+            🎤 Use Microphone
+          </button>
+          <span id="micStatus" style="font-size:0.8rem; color:var(--text3);"></span>
+        </div>
+
+        <button onclick="submitRequest()" id="submitBtn" style="background:var(--accent); color:white; border:none; padding:13px 28px; border-radius:10px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s;">
+          Send Request →
+        </button>
+
+        <div id="reqSuccess" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(52,199,89,0.10); border:1px solid rgba(52,199,89,0.20); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
+          ✅ Request submitted! Aiden is reviewing it — you'll hear back soon.
+        </div>
+        <div id="reqError" style="display:none; margin-top:16px; padding:14px 20px; background:rgba(255,59,48,0.10); border:1px solid rgba(255,59,48,0.20); border-radius:10px; color:var(--red); font-size:0.875rem;">
+          Something went wrong. Please try again or email hello@aidenintel.com
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW-TO MODAL -->
+    <div id="howToModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; align-items:center; justify-content:center; padding:24px;">
+      <div style="background:var(--surface); border:1px solid var(--border2); border-radius:20px; padding:36px; max-width:540px; width:100%; position:relative; max-height:90vh; overflow-y:auto;">
+        <button onclick="toggleHowToModal()" style="position:absolute; top:16px; right:16px; background:#f2f2f7; border:1px solid var(--border); color:var(--text2); width:32px; height:32px; border-radius:50%; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+        <div style="font-size:1.5rem; margin-bottom:12px;">💡</div>
+        <h2 style="font-size:1.15rem; font-weight:800; margin-bottom:8px;">How to Submit a Great Request</h2>
+        <p style="font-size:0.875rem; color:var(--text2); line-height:1.7; margin-bottom:24px;">Before hitting submit, take 10 minutes to think through your idea properly. A well-documented request gets built faster and gets built right.</p>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(0,113,227,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent); font-size:0.85rem;">1</div>
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">Talk it through with Aiden</div>
+              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Click <strong style="color:var(--text);">💬 Talk to Aiden</strong> and describe your idea. Aiden will ask the right questions, shape it into a clear request, and generate the document for you automatically. Then just review and hit Submit — done.</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(0,113,227,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent); font-size:0.85rem;">2</div>
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">OR write it up yourself</div>
+              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Already know exactly what you want? Write a short doc — <strong style="color:var(--text);">what</strong> you want, <strong style="color:var(--text);">why</strong> it matters, and <strong style="color:var(--text);">what success looks like</strong>. Screenshots or links are helpful.</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="flex-shrink:0; width:28px; height:28px; background:rgba(0,113,227,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent); font-size:0.85rem;">3</div>
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">Upload &amp; submit</div>
+              <div style="font-size:0.825rem; color:var(--text2); line-height:1.6;">Drag your doc into the upload zone, pick a category from the dropdown, and hit Send. Aiden will review it and respond with next steps.</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:24px; padding:14px 16px; background:rgba(52,199,89,0.08); border:1px solid rgba(52,199,89,0.20); border-radius:10px; font-size:0.825rem; color:#1a7f3c; line-height:1.6;">
+          <strong>Pro tip:</strong> The more specific you are, the faster we can build it. Vague requests take longer because we have to ask follow-up questions. Specific requests ship faster.
+        </div>
+        <button onclick="toggleHowToModal()" style="margin-top:20px; width:100%; background:var(--accent); color:white; border:none; padding:12px; border-radius:10px; font-size:0.9rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;">Got it →</button>
+      </div>
+    </div>
+
+    <!-- ── RECENT UPDATES ─────────────────────── -->
+    <div id="recent-updates" style="margin-bottom: 40px;">
+      <div class="section-title">🕐 Recent Updates</div>
+
+      <div class="project-card">
+        <div class="update-item">
+          <div class="update-date">Mar 24</div>
+          <div class="update-text"><strong>Aiden reviewed your vision for Sowing the Seeds of Love.</strong> Intake questions sent — awaiting your answers to begin scoping.</div>
+        </div>
+        <div class="update-item">
+          <div class="update-date">Mar 24</div>
+          <div class="update-text"><strong>Portal created.</strong> Welcome to Aiden Intel, GiGi! 🌱</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /portal-wrap -->
+
+  <footer>
+    <p>Aiden Intel Client Portal · <a href="https://aidenintel.com">aidenintel.com</a> · Built for GiGi</p>
+  </footer>
+
+  <!-- CHAT FAB -->
+  <button id="chat-fab" onclick="toggleChat()">💬 Talk to Aiden</button>
+
+  <!-- CHAT PANEL -->
+  <div id="chat-panel">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-header-text">
+          <div class="name">Aiden</div>
+          <div class="status">● Online</div>
+        </div>
+      </div>
+      <button class="chat-clear-btn" onclick="clearChat()">Clear</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <button class="chat-generate-btn" id="generateBtn" onclick="generateRequest()">
+      ✨ Looks good — Generate Request →
+    </button>
+    <div class="chat-input-row">
+      <textarea id="chatInput" rows="1" placeholder="Tell me your idea..." onkeydown="chatKeydown(event)" oninput="autoResizeChat(this)"></textarea>
+      <button id="chatSendBtn" onclick="sendChat()">↑</button>
+    </div>
+  </div>
+
+</div><!-- /portal -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ── SUPABASE INIT ─────────────────────────────
+  const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
+  let supabaseClient = null;
+  window.addEventListener('load', () => {
+    try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.warn('Supabase init failed', e); }
+  });
+
+  // ── PASSWORD LOCK ─────────────────────────────
+  const HASH = '4749474932303236'; // GIGI2026
+  const SESSION_KEY = 'gigi_portal_auth';
+
+  function strToHex(str) {
+    return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
+  }
+  function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('gigi_theme', 'light');
+      document.getElementById('themeToggle').textContent = '🌙';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('gigi_theme', 'dark');
+      document.getElementById('themeToggle').textContent = '☀️';
+    }
+  }
+
+  function initThemeIcon() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  }
+
+  function showPortal() {
+    initThemeIcon();
+    document.getElementById('lockscreen').style.display = 'none';
+    document.getElementById('portal').style.display = 'block';
+  }
+  function unlock() {
+    const input = document.getElementById('passInput').value.toUpperCase();
+    if (strToHex(input) === HASH) {
+      localStorage.setItem(SESSION_KEY, '1');
+      showPortal();
+    } else {
+      document.getElementById('lockError').style.display = 'block';
+      document.getElementById('passInput').value = '';
+      document.getElementById('passInput').focus();
+    }
+  }
+  if (localStorage.getItem(SESSION_KEY) === '1') { showPortal(); }
+
+  // ── INTAKE QUESTIONS SUBMIT ───────────────────
+  async function submitIntakeAnswers() {
+    const q1 = document.getElementById('iq1').value.trim();
+    const q2 = document.getElementById('iq2').value.trim();
+    const q3 = document.getElementById('iq3').value.trim();
+    const q4 = document.getElementById('iq4').value.trim();
+
+    if (!q1 && !q2 && !q3 && !q4) {
+      document.getElementById('iq1').focus();
+      document.getElementById('iq1').style.borderColor = 'rgba(255,59,48,0.50)';
+      setTimeout(() => document.getElementById('iq1').style.borderColor = '', 2000);
+      return;
+    }
+
+    const btn = document.getElementById('intakeBtn');
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
+    const message = [
+      'SCOPE INTAKE RESPONSE — Sowing the Seeds of Love',
+      '',
+      'Q1: Who is the primary parent using the app — you, Zack, or both?',
+      q1 || '(not answered)',
+      '',
+      'Q2: Do you have a favorite scripture translation? (KJV is what you noted — is that your preference?)',
+      q2 || '(not answered)',
+      '',
+      'Q3: Is there a specific verse or theme you\'d like us to start with for the first version?',
+      q3 || '(not answered)',
+      '',
+      'Q4: Any families or children you\'d want to test it with early?',
+      q4 || '(not answered)',
+    ].join('\n');
+
+    try {
+      const { error } = await supabaseClient.from('client_requests').insert({
+        client_name: 'GiGi',
+        client_id: 'gigi',
+        request_type: 'Scope intake response',
+        message: message,
+        status: 'new'
+      });
+
+      btn.textContent = '✅ Submit My Answers →';
+      btn.disabled = false;
+
+      if (error) {
+        document.getElementById('intakeError').style.display = 'block';
+      } else {
+        document.getElementById('intakeSuccess').style.display = 'block';
+        document.getElementById('intakeError').style.display = 'none';
+        setTimeout(() => {
+          ['iq1','iq2','iq3','iq4'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.closest('.intake-q').style.transition = 'opacity 0.4s'; el.closest('.intake-q').style.opacity = '0'; }
+          });
+          btn.style.display = 'none';
+          setTimeout(() => {
+            ['iq1','iq2','iq3','iq4'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.closest('.intake-q').style.display = 'none';
+            });
+            const card = document.querySelector('#active-requests .project-card');
+            if (card) {
+              card.style.borderColor = 'rgba(52,199,89,0.30)';
+              card.style.borderLeft = '4px solid var(--green)';
+              card.style.background = 'linear-gradient(135deg, rgba(52,199,89,0.03) 0%, var(--surface) 60%)';
+            }
+            const badge = document.querySelector('#active-requests .badge-blue');
+            if (badge) { badge.className = 'badge badge-green'; badge.textContent = '✓ Intake Complete'; }
+          }, 450);
+        }, 800);
+      }
+    } catch(e) {
+      btn.textContent = '✅ Submit My Answers →';
+      btn.disabled = false;
+      document.getElementById('intakeError').style.display = 'block';
+      document.getElementById('intakeError').textContent = 'Connection error: ' + e.message;
+    }
+  }
+
+  // ── HOW-TO MODAL ──────────────────────────────
+  function toggleHowToModal() {
+    const modal = document.getElementById('howToModal');
+    const isOpen = modal.style.display === 'flex';
+    modal.style.display = isOpen ? 'none' : 'flex';
+  }
+  document.addEventListener('click', (e) => {
+    const modal = document.getElementById('howToModal');
+    if (modal && e.target === modal) modal.style.display = 'none';
+  });
+
+  // ── DRAG & DROP FILE HANDLING ─────────────────
+  let pendingFile = null;
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    const zone = document.getElementById('dropZone');
+    zone.style.borderColor = 'var(--accent)';
+    zone.style.background  = 'rgba(0,113,227,0.07)';
+  }
+  function handleDragLeave(e) {
+    const zone = document.getElementById('dropZone');
+    zone.style.borderColor = 'var(--border2)';
+    zone.style.background  = 'rgba(0,0,0,0.02)';
+  }
+  function handleDrop(e) {
+    e.preventDefault();
+    handleDragLeave(e);
+    const file = e.dataTransfer.files[0];
+    if (file) setFile(file);
+  }
+  function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) setFile(file);
+  }
+  function setFile(file) {
+    const allowed = ['.doc','.docx','.pdf'];
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!allowed.includes(ext)) { alert('Please upload a .doc, .docx, or .pdf file.'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('File too large. Max size is 10MB.'); return; }
+    pendingFile = file;
+    document.getElementById('fileName').textContent = file.name;
+    const preview = document.getElementById('filePreview');
+    preview.style.display = 'flex';
+  }
+  function clearFile() {
+    pendingFile = null;
+    document.getElementById('filePreview').style.display = 'none';
+    document.getElementById('reqFileInput').value = '';
+  }
+
+  async function uploadRequestFile(file) {
+    const filename = `gigi/requests/${Date.now()}-${file.name.replace(/[^a-z0-9._-]/gi,'_')}`;
+    document.getElementById('uploadProgress').style.display = 'block';
+    try {
+      const response = await fetch(`${SUPABASE_URL}/storage/v1/object/client-assets/${filename}`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': file.type || 'application/octet-stream'
+        },
+        body: file
+      });
+      document.getElementById('uploadProgress').style.display = 'none';
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || err.error || 'Upload failed');
+      }
+      return `${SUPABASE_URL}/storage/v1/object/public/client-assets/${filename}`;
+    } catch(e) {
+      document.getElementById('uploadProgress').style.display = 'none';
+      throw e;
+    }
+  }
+
+  // ── SUBMIT REQUEST ────────────────────────────
+  async function submitRequest() {
+    let message = document.getElementById('reqMessage').value.trim();
+    const type  = document.getElementById('reqType').value;
+
+    if (!message && !pendingFile) {
+      document.getElementById('reqMessage').focus();
+      document.getElementById('reqMessage').style.borderColor = 'rgba(255,59,48,0.50)';
+      setTimeout(() => document.getElementById('reqMessage').style.borderColor = '', 2000);
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    let fileUrl = null;
+    if (pendingFile) {
+      try {
+        fileUrl = await uploadRequestFile(pendingFile);
+      } catch(e) {
+        const errEl = document.getElementById('reqError');
+        errEl.textContent = `File upload failed: ${e.message}`;
+        errEl.style.display = 'block';
+        btn.textContent = 'Send Request →';
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    if (fileUrl) message = (message ? message + '\n\n' : '') + `[attached-doc: ${fileUrl}]`;
+    if (!message) message = '(No additional notes — see attached document)';
+
+    const { error } = await supabaseClient.from('client_requests').insert({
+      client_name: 'GiGi',
+      client_id: 'gigi',
+      request_type: type,
+      message: message,
+      status: 'new'
+    });
+
+    btn.textContent = 'Send Request →';
+    btn.disabled = false;
+
+    if (error) {
+      document.getElementById('reqError').style.display = 'block';
+    } else {
+      document.getElementById('reqSuccess').style.display = 'block';
+      document.getElementById('reqError').style.display = 'none';
+      document.getElementById('reqMessage').value = '';
+      clearFile();
+      setTimeout(() => document.getElementById('reqSuccess').style.display = 'none', 8000);
+    }
+  }
+
+  // ── VOICE INPUT ───────────────────────────────────────────────
+  let recognition = null;
+  let isListening = false;
+
+  function toggleMic() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      document.getElementById('micStatus').textContent = 'Not supported in this browser. Try Chrome.';
+      return;
+    }
+    if (isListening) { recognition.stop(); return; }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognition.onstart = () => {
+      isListening = true;
+      document.getElementById('micBtn').innerHTML = '🔴 Stop Recording';
+      document.getElementById('micBtn').style.cssText += 'background:rgba(255,59,48,0.10);border-color:rgba(255,59,48,0.30);color:var(--red);';
+      document.getElementById('micStatus').textContent = 'Listening...';
+    };
+    recognition.onresult = (e) => {
+      let t = '';
+      for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+      document.getElementById('reqMessage').value = t;
+    };
+    recognition.onend = () => {
+      isListening = false;
+      document.getElementById('micBtn').innerHTML = '🎤 Use Microphone';
+      document.getElementById('micBtn').style.cssText += 'background:rgba(0,113,227,0.10);border-color:rgba(0,113,227,0.20);color:var(--accent);';
+      document.getElementById('micStatus').textContent = 'Done — review your message above.';
+    };
+    recognition.start();
+  }
+
+  // ── SECTION NAV ───────────────────────────────
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const offset = 60 + 44 + 12;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+
+  function updateActiveSnavBtn() {
+    const sections = [
+      { id: 'active-requests',  btn: 0 },
+      { id: 'active-projects',  btn: 1 },
+      { id: 'submit-request',   btn: 2 },
+      { id: 'recent-updates',   btn: 3 },
+    ];
+    const offset = 60 + 44 + 60;
+    const scrollY = window.scrollY + offset;
+    let active = 0;
+    sections.forEach((s, i) => {
+      const el = document.getElementById(s.id);
+      if (el && el.offsetTop <= scrollY) active = i;
+    });
+    document.querySelectorAll('.snav-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i === active);
+    });
+  }
+  window.addEventListener('scroll', updateActiveSnavBtn, { passive: true });
+
+  // ── CHAT WITH AIDEN ───────────────────────────
+  const CHAT_LIMIT = 20;
+  let chatHistory = [];
+  let chatOpen = false;
+  let chatBusy = false;
+  let chatContext = 'general';
+
+  function toggleChat() { openChat('general'); }
+
+  function openChat(context) {
+    context = context || 'general';
+    const alreadyOpenInContext = chatOpen && chatContext === context;
+    if (alreadyOpenInContext) {
+      chatOpen = false;
+      document.getElementById('chat-panel').classList.remove('visible');
+      document.getElementById('chat-fab').classList.remove('open');
+      document.getElementById('chat-fab').textContent = '💬 Talk to Aiden';
+      return;
+    }
+    if (chatOpen && chatContext !== context) {
+      chatHistory = [];
+      document.getElementById('chatMessages').innerHTML = '';
+      document.getElementById('generateBtn').classList.remove('visible');
+    }
+    chatContext = context;
+    chatOpen = true;
+    const panel = document.getElementById('chat-panel');
+    const fab   = document.getElementById('chat-fab');
+    panel.classList.add('visible');
+    fab.classList.add('open');
+    fab.textContent = '✕ Close';
+
+    const genBtn = document.getElementById('generateBtn');
+    if (context === 'intake') {
+      genBtn.innerHTML = '✅ Fill In My Intake Answers →';
+    } else {
+      genBtn.innerHTML = '✨ Looks good — Generate Request →';
+    }
+
+    if (chatHistory.length === 0) {
+      const greeting = context === 'intake'
+        ? "Hey GiGi! Let's work through these intake questions together. Tell me what you know — I'll help you shape your answers to each one. We can start with whichever feels easiest."
+        : "Hey GiGi! What's on your mind? Tell me about Sowing the Seeds of Love and what you're trying to build — I'll help shape it into something we can execute.";
+      appendChatMsg('aiden', greeting);
+    }
+    setTimeout(() => document.getElementById('chatInput').focus(), 100);
+  }
+
+  function clearChat() {
+    chatHistory = [];
+    chatContext = 'general';
+    document.getElementById('chatMessages').innerHTML = '';
+    document.getElementById('generateBtn').classList.remove('visible');
+    document.getElementById('generateBtn').innerHTML = '✨ Looks good — Generate Request →';
+    appendChatMsg('aiden', "Hey GiGi! What's on your mind? Tell me about Sowing the Seeds of Love and what you're trying to build — I'll help shape it into something we can execute.");
+  }
+
+  function appendChatMsg(role, text, isTyping = false) {
+    const feed = document.getElementById('chatMessages');
+    const wrap = document.createElement('div');
+    wrap.className = `chat-msg ${role}`;
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble' + (isTyping ? ' typing' : '');
+    bubble.textContent = text;
+    wrap.appendChild(bubble);
+    feed.appendChild(wrap);
+    feed.scrollTop = feed.scrollHeight;
+    return bubble;
+  }
+
+  function autoResizeChat(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  }
+
+  function chatKeydown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  }
+
+  async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const text  = input.value.trim();
+    if (!text || chatBusy) return;
+    if (chatHistory.filter(m => m.role === 'user').length >= CHAT_LIMIT) {
+      appendChatMsg('aiden', "We've hit the session limit. Click \"Generate Request →\" to turn this into a submission, or clear the chat to start fresh.");
+      document.getElementById('generateBtn').classList.add('visible');
+      return;
+    }
+
+    input.value = '';
+    input.style.height = 'auto';
+    appendChatMsg('user', text);
+    chatHistory.push({ role: 'user', content: text });
+
+    chatBusy = true;
+    document.getElementById('chatSendBtn').disabled = true;
+    const typingBubble = appendChatMsg('aiden', 'Aiden is typing…', true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: chatHistory, mode: 'chat', clientId: 'gigi' })
+      });
+      const data = await res.json();
+      const reply = data.text || 'Something went wrong — try again.';
+
+      typingBubble.classList.remove('typing');
+      typingBubble.textContent = reply;
+      document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+      chatHistory.push({ role: 'assistant', content: reply });
+
+      if (chatHistory.filter(m => m.role === 'user').length >= 3) {
+        document.getElementById('generateBtn').classList.add('visible');
+      }
+    } catch(e) {
+      typingBubble.textContent = 'Connection error — try again.';
+    }
+
+    chatBusy = false;
+    document.getElementById('chatSendBtn').disabled = false;
+    document.getElementById('chatInput').focus();
+  }
+
+  async function generateRequest() {
+    const btn = document.getElementById('generateBtn');
+    const isIntake = chatContext === 'intake';
+    btn.textContent = '⏳ Generating…';
+    btn.style.pointerEvents = 'none';
+
+    const summarizeMode = isIntake ? 'summarize-intake' : 'summarize';
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: chatHistory, mode: summarizeMode, clientId: 'gigi' })
+      });
+      const data = await res.json();
+      const summary = data.text || '';
+
+      chatOpen = false;
+      document.getElementById('chat-panel').classList.remove('visible');
+      document.getElementById('chat-fab').classList.remove('open');
+      document.getElementById('chat-fab').textContent = '💬 Talk to Aiden';
+
+      if (isIntake) {
+        scrollToSection('active-requests');
+        setTimeout(() => {
+          const lines = summary.split(/\n+/);
+          const answers = ['', '', '', ''];
+          let current = -1;
+          lines.forEach(line => {
+            const match = line.match(/^Q?([1-4])[:.]/i);
+            if (match) { current = parseInt(match[1]) - 1; answers[current] = line.replace(/^Q?[1-4][:.]\s*/i,'').trim(); }
+            else if (current >= 0 && line.trim()) { answers[current] += (answers[current] ? ' ' : '') + line.trim(); }
+          });
+          if (answers.every(a => !a)) answers[0] = summary;
+          ['iq1','iq2','iq3','iq4'].forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (el && answers[i]) {
+              el.value = answers[i];
+              el.style.borderColor = 'rgba(0,113,227,0.50)';
+              setTimeout(() => el.style.borderColor = '', 2000);
+            }
+          });
+          const intakeBox = document.querySelector('#active-requests .project-card');
+          if (intakeBox) { intakeBox.style.boxShadow = '0 0 0 3px rgba(0,113,227,0.25)'; setTimeout(() => intakeBox.style.boxShadow = '', 2000); }
+        }, 500);
+      } else {
+        scrollToSection('submit-request');
+        setTimeout(() => {
+          document.getElementById('reqMessage').value = summary;
+          document.getElementById('reqMessage').style.borderColor = 'rgba(0,113,227,0.50)';
+          setTimeout(() => document.getElementById('reqMessage').style.borderColor = '', 2000);
+          document.getElementById('reqType').value = 'App feature request';
+        }, 600);
+      }
+    } catch(e) {
+      btn.textContent = isIntake ? '✅ Fill In My Intake Answers →' : '✨ Looks good — Generate Request →';
+      btn.style.pointerEvents = '';
+    }
+  }
+
+</script>
+</body>
+</html>
