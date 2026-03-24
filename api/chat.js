@@ -75,6 +75,18 @@ About this client — John Reilly:
 - Practical, gets to the point, thinks at a business/portfolio level`;
     }
 
+    if (clientId === 'gigi') {
+      return base + `
+
+About this client — GiGi:
+- Grandmother of Zack Zempel (founder of Aiden Intel)
+- Building "Sowing the Seeds of Love" — a calm, faith-centered bedtime app for children ages 3–10
+- Nightly rhythm: scripture verse → say it together → memorization progression → optional prayer → parent blessing
+- Core principles: peace over performance, no gamification, prayer is invited never required, privacy-first, child-safe
+- Discovery phase — intake questions pending
+- Warm, thoughtful person. Treat her with extra care and patience. This project is personal and meaningful.`;
+    }
+
     // Default: Jon Severson
     return base + `
 
