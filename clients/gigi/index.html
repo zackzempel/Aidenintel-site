@@ -970,6 +970,44 @@ footer a { color: var(--accent); text-decoration: none; }
     initThemeIcon();
     document.getElementById('lockscreen').style.display = 'none';
     document.getElementById('portal').style.display = 'block';
+    checkIntakeSubmitted();
+    loadPortalResponses();
+  }
+
+  // Check Supabase — if intake already submitted, collapse the form
+  async function checkIntakeSubmitted() {
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/client_requests?client_id=eq.gigi&request_type=eq.Scope intake response&select=id&limit=1`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+      );
+      const rows = await res.json();
+      if (rows && rows.length > 0) collapseIntakeForm();
+    } catch(e) { /* silent */ }
+  }
+
+  function collapseIntakeForm() {
+    // Hide all intake question rows
+    ['iq1','iq2','iq3','iq4'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { const wrap = el.closest('.intake-q'); if (wrap) wrap.style.display = 'none'; }
+    });
+    // Hide submit button
+    const btn = document.getElementById('intakeBtn');
+    if (btn) btn.style.display = 'none';
+    // Show success message
+    const success = document.getElementById('intakeSuccess');
+    if (success) success.style.display = 'block';
+    // Flip card to green
+    const card = document.querySelector('#active-requests .project-card');
+    if (card) {
+      card.style.borderColor = 'rgba(52,199,89,0.35)';
+      card.style.borderLeft = '4px solid var(--green)';
+      card.style.background = 'linear-gradient(135deg, rgba(52,199,89,0.03) 0%, var(--surface) 60%)';
+    }
+    // Flip badge
+    const badge = document.getElementById('intakeBadge');
+    if (badge) { badge.className = 'badge badge-green'; badge.textContent = '✓ Intake Complete'; }
   }
   function unlock() {
     const input = document.getElementById('passInput').value.toUpperCase();
