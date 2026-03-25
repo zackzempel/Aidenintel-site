@@ -1463,6 +1463,15 @@ footer a { color: var(--accent); text-decoration: none; }
     appendChatMsg('user', text);
     chatHistory.push({ role: 'user', content: text });
 
+    // Save client message to project_threads
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/project_threads`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ project_id: 'a1b2c3d4-0000-0000-0000-000000000001', client_id: 'gigi', author: 'client', message: text })
+      });
+    } catch(e) { /* silent */ }
+
     chatBusy = true;
     document.getElementById('chatSendBtn').disabled = true;
     const typingBubble = appendChatMsg('aiden', 'Aiden is typing…', true);
@@ -1480,6 +1489,15 @@ footer a { color: var(--accent); text-decoration: none; }
       typingBubble.textContent = reply;
       document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
       chatHistory.push({ role: 'assistant', content: reply });
+
+      // Save Aiden reply to project_threads
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/project_threads`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ project_id: 'a1b2c3d4-0000-0000-0000-000000000001', client_id: 'gigi', author: 'aiden', message: reply })
+        });
+      } catch(e) { /* silent */ }
 
       if (chatHistory.filter(m => m.role === 'user').length >= 3) {
         document.getElementById('generateBtn').classList.add('visible');
