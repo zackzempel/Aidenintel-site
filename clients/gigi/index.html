@@ -199,6 +199,9 @@ nav {
   gap: 14px;
   margin-bottom: 28px;
 }
+@media (max-width: 600px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -598,7 +601,7 @@ footer a { color: var(--accent); text-decoration: none; }
     <div class="portal-header">
       <div class="client-info">
         <h1>👋 Hey GiGi!</h1>
-        <p>Here's everything we're working on for you. Last updated: <strong>March 24, 2026</strong></p>
+        <p>Here's everything we're working on for you. Last updated: <strong id="lastUpdatedDate">—</strong></p>
       </div>
       <div class="overall-status">
         <div class="status-dot"></div>
@@ -1047,6 +1050,12 @@ footer a { color: var(--accent); text-decoration: none; }
     const container = document.querySelector('#recent-updates .project-card');
     if (!container) return;
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    // Set last updated date from most recent update
+    if (updates.length) {
+      const d = new Date(updates[0].created_at);
+      const dateEl = document.getElementById('lastUpdatedDate');
+      if (dateEl) dateEl.textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
     container.innerHTML = updates.map(u => {
       const d = new Date(u.created_at);
       const dateStr = months[d.getMonth()] + ' ' + d.getDate();
