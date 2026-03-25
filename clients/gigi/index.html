@@ -630,76 +630,77 @@ footer a { color: var(--accent); text-decoration: none; }
     <div id="active-requests" style="margin-bottom: 40px;">
       <div class="section-title">⚡ Active Requests</div>
 
-      <div class="project-card" style="border-color: rgba(255,159,10,0.30); border-left: 4px solid var(--yellow); background: linear-gradient(135deg, rgba(255,159,10,0.03) 0%, var(--surface) 60%);">
+      <div class="project-card" style="border-color: rgba(0,113,227,0.30); border-left: 4px solid var(--accent); background: linear-gradient(135deg, rgba(0,113,227,0.03) 0%, var(--surface) 60%);">
         <!-- Request header -->
         <div class="project-header">
           <div>
             <div class="project-title">🌱 Sowing the Seeds of Love — Bedtime App</div>
             <div style="font-size:0.78rem; color:var(--text3); margin-top:4px;">Request #001 · Submitted March 24, 2026</div>
           </div>
-          <span class="badge badge-blue">🔍 In Scope Review</span>
+          <span class="badge badge-green">💬 Aiden Responded</span>
         </div>
 
         <!-- Original request -->
-        <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Your Request</div>
+        <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Your Vision</div>
         <div class="request-summary">
-          A calm, family-centered bedtime app for children ages 3–10. Nightly rhythm: Scripture → repetition → optional prayer → parent blessing. Peace over performance. Privacy-first, child-safe.
+          A calm, family-centered bedtime app for children ages 3–10. Nightly rhythm: Scripture → repetition → optional prayer → parent blessing. Peace over performance. Privacy-first, child-safe. <em>Vision: eventually offer this to all parents.</em>
         </div>
 
-        <!-- Aiden's Response -->
-        <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">💬 Aiden's Response</div>
+        <!-- GiGi's intake answers -->
+        <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin:16px 0 10px;">✅ Your Answers</div>
+        <div style="background:rgba(52,199,89,0.05); border:1px solid rgba(52,199,89,0.20); border-radius:12px; padding:20px; margin-bottom:20px;">
+          <div style="margin-bottom:14px;">
+            <div style="font-size:0.78rem; font-weight:700; color:var(--text2); margin-bottom:4px;">Who is this for?</div>
+            <div style="font-size:0.875rem; color:var(--text); line-height:1.6;">This is an application we want to develop with Aiden Intel to one day offer to all parents for use.</div>
+          </div>
+          <div style="margin-bottom:14px;">
+            <div style="font-size:0.78rem; font-weight:700; color:var(--text2); margin-bottom:4px;">Bible translation preference</div>
+            <div style="font-size:0.875rem; color:var(--text); line-height:1.6;">Parent-selectable — use Bible Gateway as reference. Research free APIs for commercial use.</div>
+          </div>
+          <div style="margin-bottom:14px;">
+            <div style="font-size:0.78rem; font-weight:700; color:var(--text2); margin-bottom:4px;">Verse selection</div>
+            <div style="font-size:0.875rem; color:var(--text); line-height:1.6;">Theme-based reference suggestions + ability for parents to look up and choose verses themselves.</div>
+          </div>
+          <div>
+            <div style="font-size:0.78rem; font-weight:700; color:var(--text2); margin-bottom:4px;">Beta testers</div>
+            <div style="font-size:0.875rem; color:var(--text); line-height:1.6;">Extended family — testing internally first.</div>
+          </div>
+        </div>
+
+        <!-- Aiden's Discovery Response -->
+        <div style="font-size:0.78rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">💬 Aiden's Response — March 25, 2026</div>
         <div class="aiden-response-box">
-          <strong>GiGi, this is genuinely beautiful.</strong> The vision you've laid out — scripture, repetition, prayer, blessing, all in a calm 3-minute bedtime rhythm — is exactly the kind of thing that matters. Peace over performance. No streaks, no pressure. Just a family and their faith. We would be honored to build this with you.
+          <strong>GiGi — we've done our homework, and this is more buildable than you might think.</strong>
           <br><br>
-          We read every word. Here's what we heard:
+          Here's what we found on the Bible API front. There's a service called <strong>API.Bible</strong> (run by the American Bible Society) that gives free developer access to over 1,500 Bible versions across 1,000+ languages — including KJV, WEB (World English Bible), and many others. For an app meant to serve all parents, this is the right foundation. Some popular modern translations (like NIV) require commercial licensing, but there are excellent, widely-loved options available at no cost. We'll build the parent selection experience around those.
           <br><br>
-          A bedtime app for children ages 3–10 that guides families through a short nightly sequence: tonight's verse, say it together, memorization progression, an optional prayer, and a parent's blessing to close. Simple. Sacred. Unhurried.
+          We also found <strong>bible-api.com</strong> — a simple open-source API that's fully free and great for early prototyping. We'll use that to get the first version running fast, then graduate to API.Bible as the product scales.
+          <br><br>
+          Before we start building, we'd love to understand a few more things about your vision:
+          <br><br>
+          <strong style="color:var(--text);">A few questions from Aiden:</strong>
+          <br><br>
+          <strong>1. The bigger vision — free or paid?</strong><br>
+          When you imagine this reaching all parents someday, do you see it as a free gift to families, a paid app (like $1.99 in the App Store), or something supported by donations or a church/ministry? There's no wrong answer — it just shapes how we build from the start.
+          <br><br>
+          <strong>2. Where do families use it?</strong><br>
+          Are you thinking of this primarily on a phone, a tablet by the bedside, or both? Should it work offline (no internet needed at bedtime)? This affects whether we build a website app or a native iOS/Android app.
+          <br><br>
+          <strong>3. What themes matter most for Version 1?</strong><br>
+          If a parent opens the app for the first time and browses "themes," what would you want them to find? Things like: <em>God's Love, Courage, Peace, Forgiveness, Gratitude, Strength</em>? What feels most essential for young children?
+          <br><br>
+          <strong>4. How personal should it feel?</strong><br>
+          Should the app know the child's name and use it ("Tonight's verse is for you, Emma...")? Or do you prefer it feel universal and not require any personal information — keeping it simple and private?
+          <br><br>
+          Take your time with these. And if it's easier to just talk it through, hit the chat button below — that works too.
+          <br><br>
+          <em>— Aiden</em>
         </div>
 
         <!-- Talk to Aiden nudge -->
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.15); border-radius:10px; margin-bottom:16px; flex-wrap:wrap;">
-          <div style="font-size:0.825rem; color:var(--text2); line-height:1.5;"><strong style="color:var(--text);">Not sure how to answer?</strong> Talk it through with Aiden first — use the chat to think out loud and Aiden will help you shape your answers.</div>
-          <button onclick="openChat('intake')" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; flex-shrink:0;">💬 Talk to Aiden →</button>
-        </div>
-
-        <!-- Intake questions -->
-        <div style="background:rgba(255,159,10,0.05); border:1px solid rgba(255,159,10,0.15); border-radius:14px; padding:24px; margin-bottom:24px;">
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
-            <span style="font-size:1.1rem;">✏️</span>
-            <div style="font-size:0.9rem; font-weight:800; color:var(--text);">Before We Begin — A Few Questions</div>
-          </div>
-          <p style="font-size:0.825rem; color:var(--text2); margin-bottom:20px; line-height:1.6;">Your answers will help us build this exactly right. Fill these in and hit Submit.</p>
-
-          <div class="intake-q">
-            <label><span class="q-num">1</span>Who is the primary parent using the app — you, Zack, or both?</label>
-            <textarea id="iq1" placeholder="e.g. I'll be using it primarily with my great-grandchildren..."></textarea>
-          </div>
-
-          <div class="intake-q">
-            <label><span class="q-num">2</span>Do you have a favorite scripture translation? (KJV is what you noted — is that your preference?)</label>
-            <textarea id="iq2" placeholder="e.g. Yes, KJV — the language feels sacred and timeless..."></textarea>
-          </div>
-
-          <div class="intake-q">
-            <label><span class="q-num">3</span>Is there a specific verse or theme you'd like us to start with for the first version?</label>
-            <textarea id="iq3" placeholder="e.g. Maybe John 3:16 or Psalm 23 — verses about being loved and cared for..."></textarea>
-          </div>
-
-          <div class="intake-q">
-            <label><span class="q-num">4</span>Any families or children you'd want to test it with early?</label>
-            <textarea id="iq4" placeholder="e.g. My granddaughter's family would love to try it..."></textarea>
-          </div>
-
-          <button onclick="submitIntakeAnswers()" id="intakeBtn" style="background:var(--accent); color:white; border:none; padding:12px 28px; border-radius:10px; font-size:0.9rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:background 0.2s; display:flex; align-items:center; gap:8px;">
-            ✅ Submit My Answers →
-          </button>
-
-          <div id="intakeSuccess" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(52,199,89,0.10); border:1px solid rgba(52,199,89,0.20); border-radius:10px; color:var(--green); font-size:0.875rem; font-weight:600;">
-            ✅ Answers received — Aiden will review and follow up with next steps soon.
-          </div>
-          <div id="intakeError" style="display:none; margin-top:14px; padding:14px 18px; background:rgba(255,59,48,0.10); border:1px solid rgba(255,59,48,0.20); border-radius:10px; color:var(--red); font-size:0.875rem;">
-            Something went wrong. Please try again or email hello@aidenintel.com
-          </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.15); border-radius:10px; margin-top:16px; flex-wrap:wrap;">
+          <div style="font-size:0.825rem; color:var(--text2); line-height:1.5;"><strong style="color:var(--text);">Prefer to think out loud?</strong> Chat with Aiden directly — it's an easy way to work through any of these questions together.</div>
+          <button onclick="openChat('general')" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; flex-shrink:0;">💬 Talk to Aiden →</button>
         </div>
 
       </div>
