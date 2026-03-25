@@ -1840,7 +1840,7 @@ footer a { color: var(--accent2); text-decoration: none; }
   }
   // ───────────────────────────────────────────────────────────────
 
-  // ── PORTAL PROJECTS (dynamic) ─────────────────────────────────
+  // ── PORTAL PROJECTS (Supabase-driven) ────────────────────────
   async function loadPortalProjects() {
     try {
       const res = await fetch('/clients/jon/portal-projects.json?t=' + Date.now());
@@ -1881,31 +1881,42 @@ footer a { color: var(--accent2); text-decoration: none; }
   }
   // ───────────────────────────────────────────────────────────────
 
-  // ── PORTAL UPDATES (dynamic) ──────────────────────────────────
+  // ── PORTAL UPDATES (Supabase-driven) ─────────────────────────
   async function loadPortalUpdates() {
+    const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     try {
-      const res = await fetch('/clients/jon/portal-updates.json?t=' + Date.now());
-      const data = await res.json();
-      const updates = data.updates || [];
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/portal_updates?client_id=eq.jon&order=created_at.desc&limit=10`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+      );
+      const updates = await res.json();
       if (!updates.length) return;
 
       // Set "Last updated" from most recent entry
       const dateEl = document.getElementById('lastUpdatedDate');
-      if (dateEl) dateEl.textContent = updates[0].date;
+      if (dateEl) {
+        const d = new Date(updates[0].created_at);
+        dateEl.textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+      }
 
       // Render updates feed
       const feed = document.getElementById('updates-feed');
       if (feed) {
-        feed.innerHTML = updates.map(u => `
-          <div class="update-item">
-            <div class="update-date">${u.date.replace(', 2026','').replace(', 2025','')}</div>
-            <div class="update-text"><strong>${u.title}</strong>${u.body ? ' ' + u.body : ''}</div>
-          </div>`).join('');
+        feed.innerHTML = updates.map(u => {
+          const d = new Date(u.created_at);
+          const dateStr = months[d.getMonth()] + ' ' + d.getDate();
+          return `<div class="update-item">
+            <div class="update-date">${dateStr}</div>
+            <div class="update-text">${u.text}</div>
+          </div>`;
+        }).join('');
       }
     } catch(e) {
-      console.warn('Could not load portal updates:', e);
+      console.warn('Could not load portal updates from Supabase:', e);
       const dateEl = document.getElementById('lastUpdatedDate');
-      if (dateEl) dateEl.textContent = 'March 22, 2026';
+      if (dateEl) dateEl.textContent = 'March 23, 2026';
     }
   }
   // ───────────────────────────────────────────────────────────────
