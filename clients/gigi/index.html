@@ -885,15 +885,10 @@ footer a { color: var(--accent); text-decoration: none; }
     <!-- ── RECENT UPDATES ─────────────────────── -->
     <div id="recent-updates" style="margin-bottom: 40px;">
       <div class="section-title">🕐 Recent Updates</div>
-
       <div class="project-card">
         <div class="update-item">
-          <div class="update-date">Mar 24</div>
-          <div class="update-text"><strong>Aiden reviewed your vision for Sowing the Seeds of Love.</strong> Intake questions sent — awaiting your answers to begin scoping.</div>
-        </div>
-        <div class="update-item">
-          <div class="update-date">Mar 24</div>
-          <div class="update-text"><strong>Portal created.</strong> Welcome to Aiden Intel, GiGi! 🌱</div>
+          <div class="update-date">—</div>
+          <div class="update-text" style="color:var(--text3);">Loading updates...</div>
         </div>
       </div>
     </div>
@@ -971,20 +966,86 @@ footer a { color: var(--accent); text-decoration: none; }
     initThemeIcon();
     document.getElementById('lockscreen').style.display = 'none';
     document.getElementById('portal').style.display = 'block';
-    checkIntakeSubmitted();
-    loadPortalResponses();
+    loadProjectData();
   }
 
-  // Check Supabase — if intake already submitted, collapse the form
-  async function checkIntakeSubmitted() {
+  // ── LOAD ALL PROJECT DATA FROM SUPABASE DB ────
+  async function loadProjectData() {
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/client_requests?client_id=eq.gigi&request_type=eq.Scope intake response&select=id&limit=1`,
-        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-      );
-      const rows = await res.json();
-      if (rows && rows.length > 0) collapseIntakeForm();
-    } catch(e) { /* silent */ }
+      const headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+
+      // Load project
+      const projRes = await fetch(`${SUPABASE_URL}/rest/v1/client_projects?client_id=eq.gigi&select=*&limit=1`, { headers });
+      const projects = await projRes.json();
+      const project = projects[0];
+      if (project) renderProject(project);
+
+      // Load milestones
+      const msRes = await fetch(`${SUPABASE_URL}/rest/v1/project_milestones?client_id=eq.gigi&order=sort_order.asc`, { headers });
+      const milestones = await msRes.json();
+      if (milestones.length) renderMilestones(milestones);
+
+      // Load threads (public — internal=false)
+      const threadRes = await fetch(`${SUPABASE_URL}/rest/v1/project_threads?client_id=eq.gigi&order=created_at.asc`, { headers });
+      const threads = await threadRes.json();
+      if (threads.length) renderThreads(threads);
+
+      // Load portal updates
+      const updRes = await fetch(`${SUPABASE_URL}/rest/v1/portal_updates?client_id=eq.gigi&order=created_at.desc&limit=10`, { headers });
+      const updates = await updRes.json();
+      if (updates.length) renderPortalUpdates(updates);
+
+    } catch(e) { console.warn('DB load failed:', e); }
+  }
+
+  function renderProject(p) {
+    // Update progress bar
+    const fill = document.querySelector('.progress-fill');
+    const pctLabel = document.querySelector('.progress-label strong');
+    if (fill) fill.style.width = p.progress_pct + '%';
+    if (pctLabel) pctLabel.textContent = p.progress_pct + '%';
+  }
+
+  function renderMilestones(milestones) {
+    const container = document.querySelector('.timeline');
+    if (!container) return;
+    container.innerHTML = milestones.map((m, i) => {
+      const isLast = i === milestones.length - 1;
+      const dotClass = m.status === 'complete' ? 'done' : m.status === 'active' ? 'active' : 'pending';
+      const icon = m.status === 'complete' ? '✅ ' : m.status === 'active' ? '⏳ ' : '';
+      const date = m.completed_at ? new Date(m.completed_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+                 : m.target_date ? new Date(m.target_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+                 : m.status === 'active' ? 'In progress' : 'Pending';
+      return `<div class="timeline-item">
+        <div class="tl-dot-wrap"><div class="tl-dot ${dotClass}"></div>${!isLast ? '<div class="tl-line"></div>' : ''}</div>
+        <div class="tl-content">
+          <div class="tl-title">${icon}${m.title}</div>
+          <div class="tl-date">${date}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderThreads(threads) {
+    // Find the last aiden message for the active request card
+    const aidenMsgs = threads.filter(t => t.author === 'aiden');
+    if (!aidenMsgs.length) return;
+    // Thread display is already hardcoded in the active requests card for now
+    // Future: render full thread dynamically
+  }
+
+  function renderPortalUpdates(updates) {
+    const container = document.querySelector('#recent-updates .project-card');
+    if (!container) return;
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    container.innerHTML = updates.map(u => {
+      const d = new Date(u.created_at);
+      const dateStr = months[d.getMonth()] + ' ' + d.getDate();
+      return `<div class="update-item">
+        <div class="update-date">${dateStr}</div>
+        <div class="update-text">${u.text}</div>
+      </div>`;
+    }).join('');
   }
 
   function collapseIntakeForm() {
