@@ -572,7 +572,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     <div class="section-nav-inner">
       <button class="snav-btn" onclick="scrollToSection('action-needed')">⚡ Action Needed</button>
       <button class="snav-btn" onclick="scrollToSection('active-projects')">🗂 Projects</button>
-      <button class="snav-btn" onclick="scrollToSection('social-captions')">📱 Social Captions</button>
+      <button class="snav-btn" onclick="scrollToSection('social-captions')">📱 Social</button>
       <button class="snav-btn" onclick="scrollToSection('your-assets')">📁 Assets</button>
       <button class="snav-btn" onclick="scrollToSection('submit-request')">📬 Submit a New Request</button>
       <button class="snav-btn" onclick="scrollToSection('recent-updates')">🕐 Updates</button>
@@ -683,6 +683,14 @@ footer a { color: var(--accent2); text-decoration: none; }
             <div class="tl-content"><div class="tl-title">SEO copy & optimization</div><div class="tl-date">Upcoming</div></div>
           </div>
           <div class="timeline-item">
+            <div class="tl-dot-wrap"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-title">✅ Social distribution pipeline built</div><div class="tl-date">March 29, 2026</div></div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot-wrap"><div class="tl-dot active"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-title">⏳ Jon connects 4 social accounts</div><div class="tl-date">Action needed</div></div>
+          </div>
+          <div class="timeline-item">
             <div class="tl-dot-wrap"><div class="tl-dot pending"></div></div>
             <div class="tl-content"><div class="tl-title">Launch & go live</div><div class="tl-date">Upcoming</div></div>
           </div>
@@ -725,8 +733,8 @@ footer a { color: var(--accent2); text-decoration: none; }
           </div>
           <div class="deliverable">
             <span class="d-icon">📱</span>
-            <span class="d-name">Instagram Reels — 2 ready for review</span>
-            <a class="d-link" href="https://jon-severson-mockup.vercel.app/social.html#reel1" target="_blank">Review →</a>
+            <span class="d-name">Social Distribution — auto-post to 4 platforms</span>
+            <a class="d-link" href="/clients/jon/social-connect.html" target="_blank">Set Up →</a>
           </div>
           <div class="deliverable">
             <span class="d-icon">🌐</span>
@@ -776,18 +784,18 @@ footer a { color: var(--accent2); text-decoration: none; }
       </div>
 
       <div class="project-card">
-        <p style="font-size:0.9rem; color:var(--text2); margin-bottom:24px; line-height:1.7;">Submit a new listing below. Aiden writes the captions <em>and</em> posts to all 4 platforms once your accounts are connected.</p>
+        <p style="font-size:0.9rem; color:var(--text2); margin-bottom:24px; line-height:1.7;">Drop in your listing address and AGNT Media video URL. Aiden writes platform-perfect captions and posts to all 4 accounts automatically — once your accounts are connected above.</p>
 
         <!-- Submit new listing form -->
         <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:20px;margin-bottom:24px;">
-          <div style="font-size:0.78rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">New Listing — Generate Captions</div>
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">New Listing — Submit for Auto-Post</div>
           <input id="listingAddress" placeholder="Listing address (e.g. 123 Main St, Minneapolis MN)" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;color:var(--text);font-size:0.875rem;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px;">
           <input id="videoUrl" placeholder="AGNT Media video URL" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;color:var(--text);font-size:0.875rem;font-family:'Inter',sans-serif;outline:none;margin-bottom:14px;">
           <button onclick="submitSocialRequest()" id="socialBtn" style="background:var(--accent);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
-            Generate Captions →
+            Submit for Auto-Post →
           </button>
           <div id="socialSuccess" style="display:none;margin-top:12px;padding:12px 16px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#10b981;font-size:0.85rem;font-weight:600;">
-            ✅ Submitted! Aiden is writing your captions — check back in a few minutes.
+            ✅ Submitted! Aiden is writing captions and will post to all 4 platforms automatically.
           </div>
         </div>
 
