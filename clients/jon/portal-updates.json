@@ -1,6 +1,11 @@
 {
   "updates": [
     {
+      "date": "Mar 29, 2026",
+      "title": "Auto-post pipeline is built and ready to activate.",
+      "body": "The social distribution system is live. Submit a listing once and Aiden posts your video to Instagram, TikTok, Facebook, and YouTube automatically — with platform-perfect captions for each. One last step: connect your 4 social accounts using the new button in the Social section. Takes about 20 minutes and you'll never have to do it again."
+    },
+    {
       "date": "Mar 23, 2026",
       "title": "Request #37 received and reviewed — here's Aiden's assessment.",
       "body": "Thanks for submitting these Jon! Here's where we land on both: (1) Video Aspect Ratio Control — this is very doable. We'll add a toggle to preserve original ratio per platform so your horizontal videos don't get cropped on platforms that don't need it. Queued up for our next build session. (2) Social Auto-Post Integration — love the vision. Connecting Instagram, TikTok, YouTube, and Gmail for automatic posting is a bigger build that requires API approvals from Meta and TikTok. This is a Phase 2 project — we'll scope it properly and get you a timeline before we start. Stay tuned!"

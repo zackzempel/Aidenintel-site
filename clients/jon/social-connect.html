@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Distribution Setup — Jon Severson | Aiden Intel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #05070f;
+  --surface: #0a0d1a;
+  --surface2: #0f1222;
+  --border: #1a2035;
+  --border2: #252d45;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #475569;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* LOCK SCREEN */
+#lockscreen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.lock-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+.lock-logo { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.lock-logo em { color: var(--accent); font-style: normal; }
+.lock-subtitle { font-size: 0.85rem; color: var(--text3); margin-bottom: 32px; }
+.lock-icon { font-size: 2.5rem; margin-bottom: 20px; }
+.lock-card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+.lock-card p { font-size: 0.875rem; color: var(--text2); margin-bottom: 28px; }
+.lock-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 13px 16px;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  letter-spacing: 4px;
+  margin-bottom: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.lock-input:focus { border-color: var(--accent); }
+.lock-btn {
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 13px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.lock-btn:hover { opacity: 0.85; }
+.lock-error {
+  margin-top: 12px;
+  color: var(--red);
+  font-size: 0.8rem;
+  display: none;
+}
+
+/* NAV */
+#main-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  background: rgba(5,7,15,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 20px;
+}
+.nav-logo { font-size: 0.95rem; font-weight: 800; }
+.nav-logo em { color: var(--accent); font-style: normal; }
+.nav-back {
+  margin-left: auto;
+  color: var(--text2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s;
+}
+.nav-back:hover { color: var(--text); }
+
+/* PAGE */
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 100px 24px 80px;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  margin-bottom: 60px;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(99,102,241,0.1);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+.hero h1 span { color: var(--accent2); }
+.hero p {
+  font-size: 1.05rem;
+  color: var(--text2);
+  max-width: 580px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* HOW IT WORKS */
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text3);
+  margin-bottom: 20px;
+}
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 60px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+}
+.flow-step:last-child { border-bottom: none; }
+.step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--accent2);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-content h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.step-content p {
+  font-size: 0.85rem;
+  color: var(--text2);
+  line-height: 1.6;
+}
+.step-auto {
+  display: inline-block;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.2);
+  color: var(--green);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-left: 8px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* CONNECT CARDS */
+.connect-section { margin-bottom: 60px; }
+.connect-section h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.connect-section .sub {
+  font-size: 0.875rem;
+  color: var(--text2);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+.platform-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 540px) { .platform-grid { grid-template-columns: 1fr; } }
+
+.platform-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: border-color 0.2s;
+}
+.platform-card:hover { border-color: var(--accent); }
+.platform-card.connected { border-color: rgba(16,185,129,0.35); }
+
+.platform-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.platform-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.platform-icon.instagram { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+.platform-icon.tiktok    { background: #010101; border: 1px solid #333; }
+.platform-icon.facebook  { background: #1877f2; }
+.platform-icon.youtube   { background: #ff0000; }
+
+.platform-name { font-size: 1rem; font-weight: 700; }
+.platform-desc { font-size: 0.78rem; color: var(--text2); margin-top: 2px; }
+
+.platform-status {
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text3);
+}
+.status-dot.connected { background: var(--green); }
+
+.connect-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+}
+.connect-btn.primary {
+  background: var(--accent);
+  color: white;
+}
+.connect-btn.primary:hover { opacity: 0.85; }
+.connect-btn.done {
+  background: rgba(16,185,129,0.1);
+  color: var(--green);
+  border: 1px solid rgba(16,185,129,0.2);
+  cursor: default;
+}
+
+/* WHAT POSTS */
+.what-posts {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 60px;
+}
+.what-posts h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.caption-platform {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.caption-platform:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.caption-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text2);
+}
+.caption-label .dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.caption-text {
+  font-size: 0.82rem;
+  color: var(--text2);
+  line-height: 1.6;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-style: italic;
+}
+
+/* AFTER CONNECTED */
+.after-connected {
+  background: rgba(99,102,241,0.05);
+  border: 1px solid rgba(99,102,241,0.15);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+}
+.after-connected h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.after-connected p {
+  font-size: 0.85rem;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.portal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.portal-link:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lockscreen">
+  <div class="lock-card">
+    <div class="lock-logo">Aiden <em>Intel</em></div>
+    <div class="lock-subtitle">Client Portal</div>
+    <div class="lock-icon">🔒</div>
+    <h2>Welcome, Jon</h2>
+    <p>Enter your access code to continue.</p>
+    <input class="lock-input" type="password" id="lockInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') unlock()" />
+    <button class="lock-btn" onclick="unlock()">Access Portal</button>
+    <div class="lock-error" id="lockError">Incorrect access code. Try again.</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="nav-logo">Aiden <em>Intel</em></div>
+  <a href="/clients/jon/" class="nav-back">← Back to Portal</a>
+</nav>
+
+<!-- PAGE -->
+<div class="page-wrap" id="pageContent" style="display:none;">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">🤖 Automated Pipeline</div>
+    <h1>Your Social Media<br><span>Runs Itself</span></h1>
+    <p>Submit a listing once. Aiden generates platform-perfect captions and posts your video to Instagram, TikTok, Facebook, and YouTube — automatically, every time.</p>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section-label">How It Works</div>
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>You submit a listing</h3>
+        <p>Drop the listing address and AGNT Media video URL into your portal. That's the only thing you ever do.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Aiden writes the captions <span class="step-auto">Auto</span></h3>
+        <p>Platform-optimized captions are generated for each channel — Instagram hooks + hashtags, punchy TikTok copy, conversational Facebook, SEO-rich YouTube descriptions. All tailored to real estate and your brand.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Your video posts to all 4 platforms <span class="step-auto">Auto</span></h3>
+        <p>Instagram, TikTok, Facebook, and YouTube get the video and caption simultaneously. No copy-pasting, no logging into multiple apps, no forgetting a platform.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>You get a confirmation text</h3>
+        <p>A quick Telegram notification confirms everything went through. You can verify the posts or just move on — they're already live.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAMPLE CAPTIONS -->
+  <div class="section-label">What Gets Posted</div>
+  <div class="what-posts">
+    <h2>Here's a real example — 11240 Crocus St NW, Coon Rapids</h2>
+    <div class="caption-platform">
+      <div class="caption-label"><div class="dot" style="background:#e1306c;"></div> Instagram</div>
+      <div class="caption-text">✨ Stunning new listing in Coon Rapids! 11240 Crocus St NW — your dream home awaits. 🔑 Link in bio to tour. #MinneapolisHomes #TwinCitiesRealEstate #HomesForSale #RealEstateMN #DreamHome #MNRealtor #JonSeverson</div>
+    </div>
+    <div class="caption-platform">
+      <div class="caption-label"><div class="dot" style="background:#010101;border:1px solid #555;"></div> TikTok</div>
+      <div class="caption-text">🏠 New listing alert! 11240 Crocus St NW, Coon Rapids. This one won't last — come take a look! 🔑 #RealEstate #HomesForSale #TwinCities #NewListing #HomeTour #RealEstateTok</div>
+    </div>
+    <div class="caption-platform">
+      <div class="caption-label"><div class="dot" style="background:#1877f2;"></div> Facebook</div>
+      <div class="caption-text">Check out this gorgeous new listing at 11240 Crocus St NW in Coon Rapids! Want a private showing? Reach out to Jon Severson — call 763-639-3763 or DM for more details!</div>
+    </div>
+    <div class="caption-platform">
+      <div class="caption-label"><div class="dot" style="background:#ff0000;"></div> YouTube</div>
+      <div class="caption-text">Tour the stunning new listing at 11240 Crocus St NW, Coon Rapids, Minnesota! This beautifully maintained home is now on the market. Contact Jon Severson at 763-639-3763 or jon@seversonre.com to schedule a showing.</div>
+    </div>
+  </div>
+
+  <!-- CONNECT ACCOUNTS -->
+  <div class="connect-section">
+    <div class="section-label">One-Time Setup</div>
+    <h2>Connect Your Social Accounts</h2>
+    <p class="sub">Click each button below to authorize Aiden to post on your behalf. You'll be taken to each platform's official login page — Aiden never sees your password. This is a one-time setup. Once connected, everything runs automatically.</p>
+
+    <div class="platform-grid">
+
+      <!-- Instagram -->
+      <div class="platform-card" id="card-instagram">
+        <div class="platform-header">
+          <div class="platform-icon instagram">📸</div>
+          <div>
+            <div class="platform-name">Instagram</div>
+            <div class="platform-desc">Reels + caption + hashtags</div>
+          </div>
+        </div>
+        <div class="platform-status">
+          <div class="status-dot" id="dot-instagram"></div>
+          <span id="status-instagram">Not connected</span>
+        </div>
+        <a class="connect-btn primary" id="btn-instagram" href="/api/zernio-connect?platform=instagram" target="_blank" onclick="handleConnect('instagram')">
+          Connect Instagram →
+        </a>
+      </div>
+
+      <!-- TikTok -->
+      <div class="platform-card" id="card-tiktok">
+        <div class="platform-header">
+          <div class="platform-icon tiktok">🎵</div>
+          <div>
+            <div class="platform-name">TikTok</div>
+            <div class="platform-desc">Video + punchy caption</div>
+          </div>
+        </div>
+        <div class="platform-status">
+          <div class="status-dot" id="dot-tiktok"></div>
+          <span id="status-tiktok">Not connected</span>
+        </div>
+        <a class="connect-btn primary" id="btn-tiktok" href="/api/zernio-connect?platform=tiktok" target="_blank" onclick="handleConnect('tiktok')">
+          Connect TikTok →
+        </a>
+      </div>
+
+      <!-- Facebook -->
+      <div class="platform-card" id="card-facebook">
+        <div class="platform-header">
+          <div class="platform-icon facebook">📘</div>
+          <div>
+            <div class="platform-name">Facebook</div>
+            <div class="platform-desc">Page post + CTA</div>
+          </div>
+        </div>
+        <div class="platform-status">
+          <div class="status-dot" id="dot-facebook"></div>
+          <span id="status-facebook">Not connected</span>
+        </div>
+        <a class="connect-btn primary" id="btn-facebook" href="/api/zernio-connect?platform=facebook" target="_blank" onclick="handleConnect('facebook')">
+          Connect Facebook →
+        </a>
+      </div>
+
+      <!-- YouTube -->
+      <div class="platform-card" id="card-youtube">
+        <div class="platform-header">
+          <div class="platform-icon youtube">▶️</div>
+          <div>
+            <div class="platform-name">YouTube</div>
+            <div class="platform-desc">Full video + SEO description</div>
+          </div>
+        </div>
+        <div class="platform-status">
+          <div class="status-dot" id="dot-youtube"></div>
+          <span id="status-youtube">Not connected</span>
+        </div>
+        <a class="connect-btn primary" id="btn-youtube" href="/api/zernio-connect?platform=youtube" target="_blank" onclick="handleConnect('youtube')">
+          Connect YouTube →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- AFTER CONNECTED -->
+  <div class="after-connected">
+    <h2>🎉 Once all 4 are connected</h2>
+    <p>Aiden activates the pipeline on the backend. The next listing you submit through your portal will automatically post to all 4 platforms — no extra steps from you. Head back to the portal and submit a listing to test it out.</p>
+    <a href="/clients/jon/" class="portal-link">Go to Portal →</a>
+  </div>
+
+</div>
+
+<script>
+// ─── Auth ──────────────────────────────────────────────────────────────────
+const SESSION_KEY = 'jon_portal_auth_v2';
+const PASS_HASH   = '4a4f4e323032365a'; // hex-encoded "JON2026Z" → decode to check
+
+function hexDecode(h) {
+  let s = '';
+  for (let i = 0; i < h.length; i += 2) s += String.fromCharCode(parseInt(h.substr(i, 2), 16));
+  return s;
+}
+const CORRECT = hexDecode('4a4f4e32303236'); // JON2026
+
+function unlock() {
+  const val = document.getElementById('lockInput').value.trim().toUpperCase();
+  if (val === CORRECT) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('lockscreen').style.display = 'none';
+    document.getElementById('pageContent').style.display = 'block';
+    loadConnectionStatus();
+  } else {
+    document.getElementById('lockError').style.display = 'block';
+    document.getElementById('lockInput').value = '';
+  }
+}
+
+// Auto-unlock if already authenticated this session
+if (sessionStorage.getItem(SESSION_KEY) === '1') {
+  document.getElementById('lockscreen').style.display = 'none';
+  document.getElementById('pageContent').style.display = 'block';
+}
+
+// ─── Connection status ─────────────────────────────────────────────────────
+// Store which platforms were clicked this session (optimistic UI only — real
+// status is confirmed by Aiden after he pulls account IDs from Zernio)
+const CONNECTED_KEY = 'jon_zernio_connected';
+
+function getConnected() {
+  try { return JSON.parse(localStorage.getItem(CONNECTED_KEY) || '[]'); } catch { return []; }
+}
+function saveConnected(platforms) {
+  localStorage.setItem(CONNECTED_KEY, JSON.stringify(platforms));
+}
+
+function loadConnectionStatus() {
+  const connected = getConnected();
+  for (const platform of connected) markConnected(platform);
+}
+
+function markConnected(platform) {
+  const dot  = document.getElementById(`dot-${platform}`);
+  const stat = document.getElementById(`status-${platform}`);
+  const btn  = document.getElementById(`btn-${platform}`);
+  const card = document.getElementById(`card-${platform}`);
+  if (!dot) return;
+  dot.classList.add('connected');
+  stat.textContent = 'Authorization sent ✓';
+  btn.textContent  = 'Connected ✓';
+  btn.className    = 'connect-btn done';
+  btn.removeAttribute('href');
+  card.classList.add('connected');
+}
+
+function handleConnect(platform) {
+  // Optimistically mark as pending after click
+  setTimeout(() => {
+    const connected = getConnected();
+    if (!connected.includes(platform)) {
+      connected.push(platform);
+      saveConnected(connected);
+      markConnected(platform);
+    }
+  }, 1500);
+}
+
+// Init on page load if already unlocked
+if (sessionStorage.getItem(SESSION_KEY) === '1') loadConnectionStatus();
+</script>
+</body>
+</html>
