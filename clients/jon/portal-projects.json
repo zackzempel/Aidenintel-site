@@ -15,44 +15,20 @@
       ]
     },
     {
-      "id": "social-content",
+      "id": "social-distribution",
       "icon": "📱",
-      "title": "Social Content — Instagram Reels",
+      "title": "Social Distribution — Auto-Post Pipeline",
       "badge": "yellow",
-      "badgeText": "⏳ Awaiting Your Review",
-      "desc": "Aiden generated two Instagram Reels from your 6798 153rd Ln NW listing video. Watch them, download whichever you like, and post directly to Instagram. Once you approve the quality, we'll wire up one-click posting so future reels go live automatically.",
-      "progress": 50,
+      "badgeText": "⏳ Action Needed From You",
+      "desc": "The pipeline is built. Submit a listing once and Aiden automatically posts your video to Instagram, TikTok, Facebook, and YouTube — with platform-perfect captions for each. One last step: connect your 4 social accounts.",
+      "progress": 75,
       "deliverables": [
-        { "icon": "🎬", "name": "Reel #1 — \"Just Listed\" · 30 sec", "link": "https://jon-severson-mockup.vercel.app/social.html#reel1", "linkText": "Review →" },
-        { "icon": "✨", "name": "Reel #2 — \"Dream Home\" · 30 sec", "link": "https://jon-severson-mockup.vercel.app/social.html#reel2", "linkText": "Review →" },
-        { "icon": "🤖", "name": "Auto-posting to Instagram — pending your approval", "badge": "gray", "badgeText": "Coming Soon" }
-      ]
-    },
-    {
-      "id": "video-ratio",
-      "icon": "🎬",
-      "title": "Video Aspect Ratio Control",
-      "badge": "blue",
-      "badgeText": "🔄 Queued",
-      "desc": "Add per-platform aspect ratio control so horizontal videos can preserve their original ratio instead of always cropping to 9x16. You'll be able to choose the best format for each platform — vertical for Instagram/TikTok, original for YouTube/Facebook.",
-      "progress": 5,
-      "deliverables": [
-        { "icon": "⚙️", "name": "Ratio toggle per platform in Social Captions tool", "badge": "blue", "badgeText": "Coming Soon" }
-      ]
-    },
-    {
-      "id": "auto-post",
-      "icon": "🚀",
-      "title": "Social Auto-Post Integration",
-      "badge": "gray",
-      "badgeText": "📋 Phase 2 — Scoping",
-      "desc": "Connect Instagram, TikTok, YouTube, and Gmail so generated content posts automatically — no manual download/upload. This requires API approvals from Meta and TikTok. We're scoping the timeline and will update you before we start.",
-      "progress": 0,
-      "deliverables": [
-        { "icon": "📋", "name": "Scope document + timeline", "badge": "blue", "badgeText": "In Progress" },
-        { "icon": "📸", "name": "Instagram auto-post", "badge": "gray", "badgeText": "Pending API Approval" },
-        { "icon": "🎵", "name": "TikTok auto-post", "badge": "gray", "badgeText": "Pending API Approval" },
-        { "icon": "▶️", "name": "YouTube auto-post", "badge": "gray", "badgeText": "Queued" }
+        { "icon": "✅", "name": "Pipeline built — captions + auto-post engine live", "badge": "green", "badgeText": "Done" },
+        { "icon": "🔗", "name": "Connect your 4 social accounts — takes ~20 min", "link": "/clients/jon/social-connect.html", "linkText": "Connect Now →" },
+        { "icon": "📸", "name": "Instagram", "badge": "yellow", "badgeText": "Awaiting Connection" },
+        { "icon": "🎵", "name": "TikTok", "badge": "yellow", "badgeText": "Awaiting Connection" },
+        { "icon": "📘", "name": "Facebook", "badge": "yellow", "badgeText": "Awaiting Connection" },
+        { "icon": "▶️", "name": "YouTube", "badge": "yellow", "badgeText": "Awaiting Connection" }
       ]
     },
     {
