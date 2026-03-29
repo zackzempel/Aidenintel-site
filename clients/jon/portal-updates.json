@@ -7,8 +7,8 @@
     },
     {
       "date": "Mar 23, 2026",
-      "title": "Request #37 received and reviewed — here's Aiden's assessment.",
-      "body": "Thanks for submitting these Jon! Here's where we land on both: (1) Video Aspect Ratio Control — this is very doable. We'll add a toggle to preserve original ratio per platform so your horizontal videos don't get cropped on platforms that don't need it. Queued up for our next build session. (2) Social Auto-Post Integration — love the vision. Connecting Instagram, TikTok, YouTube, and Gmail for automatic posting is a bigger build that requires API approvals from Meta and TikTok. This is a Phase 2 project — we'll scope it properly and get you a timeline before we start. Stay tuned!"
+      "title": "Request #37 received — social auto-post is now live, ahead of schedule.",
+      "body": "You asked for social auto-posting and we delivered it faster than expected — no Meta/TikTok API approvals needed. The full pipeline (Instagram, TikTok, Facebook, YouTube) is built and ready. Connect your accounts in the Social section to activate it."
     },
     {
       "date": "Mar 22, 2026",
