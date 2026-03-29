@@ -552,22 +552,22 @@ body::before {
         </a>
       </div>
 
-      <!-- Facebook -->
-      <div class="platform-card" id="card-facebook">
+      <!-- Facebook — handled by Instagram auto-sync -->
+      <div class="platform-card" style="border-color: rgba(16,185,129,0.35);">
         <div class="platform-header">
           <div class="platform-icon facebook">📘</div>
           <div>
             <div class="platform-name">Facebook</div>
-            <div class="platform-desc">Page post + CTA</div>
+            <div class="platform-desc">Auto-synced from Instagram</div>
           </div>
         </div>
         <div class="platform-status">
-          <div class="status-dot" id="dot-facebook"></div>
-          <span id="status-facebook">Not connected</span>
+          <div class="status-dot connected"></div>
+          <span>Covered by Instagram ✓</span>
         </div>
-        <a class="connect-btn primary" id="btn-facebook" href="/api/zernio-connect?platform=facebook" target="_blank" onclick="handleConnect('facebook')">
-          Connect Facebook →
-        </a>
+        <div style="font-size:0.78rem; color:var(--text2); line-height:1.6; padding:8px 0;">
+          Your current Instagram → Facebook auto-sync handles this. When Aiden posts to Instagram, Facebook updates automatically — just like it does today. No extra connection needed.
+        </div>
       </div>
 
       <!-- YouTube -->
