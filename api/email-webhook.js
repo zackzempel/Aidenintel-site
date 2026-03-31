@@ -23,14 +23,25 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, skipped: true });
     }
 
-    const msg = payload.message;
+    // AgentMail uses Svix — message is in payload.data
+    const msg = payload.data || payload.message || payload;
     if (!msg) return res.status(400).json({ error: 'No message in payload' });
 
-    const fromAddress = msg.from?.[0]?.email || 'unknown';
-    const fromName = msg.from?.[0]?.name || fromAddress;
-    const toAddress = msg.to?.[0]?.email || msg.inbox_id || 'unknown';
+    // from can be a string "Name <email>" or array of objects
+    let fromAddress = 'unknown';
+    let fromName = 'unknown';
+    if (typeof msg.from === 'string') {
+      const match = msg.from.match(/^(.*?)\s*<(.+)>$/);
+      fromAddress = match ? match[2] : msg.from;
+      fromName = match ? match[1].trim() : msg.from;
+    } else if (Array.isArray(msg.from) && msg.from[0]) {
+      fromAddress = msg.from[0].email || msg.from[0];
+      fromName = msg.from[0].name || fromAddress;
+    }
+
+    const toAddress = Array.isArray(msg.to) ? (msg.to[0]?.email || msg.to[0]) : (msg.to || msg.inbox_id || 'unknown');
     const subject = msg.subject || '(no subject)';
-    const bodyText = msg.text || msg.html || '';
+    const bodyText = msg.text || msg.extracted_text || msg.html || '';
     const messageId = msg.message_id || msg.id;
     const inboxId = msg.inbox_id || payload.inbox_id;
 
@@ -76,7 +87,7 @@ export default async function handler(req, res) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             chat_id: chatId,
-            text: `📬 New email to ${toAddress}\n\nFrom: ${fromName} <${fromAddress}>\nSubject: ${subject}\n\nI'll handle it shortly.`,
+            text: `📬 New email to ${toAddress}\n\nFrom: ${fromName} &lt;${fromAddress}&gt;\nSubject: ${subject}\n\nI'll handle it shortly.`,
             parse_mode: 'HTML'
           })
         });
