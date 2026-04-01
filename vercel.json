@@ -5,6 +5,10 @@
       "destination": "/demo.html"
     },
     {
+      "source": "/bz",
+      "destination": "/bz.html"
+    },
+    {
       "source": "/intake/:slug",
       "destination": "/api/intake?slug=:slug"
     },
