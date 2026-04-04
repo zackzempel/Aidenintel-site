@@ -436,7 +436,22 @@
     window.location.href = `/clients/jon#social-captions`;
   }
 
+  // Migrate any old aidenintel.com/workshop-videos URLs to Supabase Storage
+  function migrateLibraryUrls() {
+    let changed = false;
+    videoLibrary = videoLibrary.map(v => {
+      if (v.videoUrl && v.videoUrl.includes('aidenintel.com/workshop-videos')) {
+        const fname = v.videoUrl.split('/').pop().split('?')[0];
+        v.videoUrl = `https://oftrlapeiqvokgnsscxa.supabase.co/storage/v1/object/public/workshop-videos/${fname}`;
+        changed = true;
+      }
+      return v;
+    });
+    if (changed) localStorage.setItem('jon_workshop_videos', JSON.stringify(videoLibrary));
+  }
+
   // Init
+  migrateLibraryUrls();
   renderLibrary();
   fillCrocus(); // pre-fill with Crocus as default example
 </script>
