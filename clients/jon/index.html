@@ -1011,7 +1011,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     }
   }
   // Auto-unlock if already authenticated
-  if (localStorage.getItem(SESSION_KEY) === '1') showPortal();
+  showPortal(); // lock temporarily disabled
   // Auto-unlock via URL param for dev/testing
   if (new URLSearchParams(window.location.search).get('unlock') === 'go') {
     localStorage.setItem(SESSION_KEY, '1');
