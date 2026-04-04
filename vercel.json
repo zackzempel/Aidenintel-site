@@ -16,5 +16,14 @@
       "source": "/tetris/:slug",
       "destination": "/tetris/:slug.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/workshop-videos/(.*)",
+      "headers": [
+        { "key": "Content-Type", "value": "video/mp4" },
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
+    }
   ]
 }
