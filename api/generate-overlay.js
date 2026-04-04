@@ -85,17 +85,18 @@ function buildTimeline({ videoUrl, address, city, banner, price, contact, preset
     }]
   });
 
-  // Track 1: dark bottom bar overlay (if needed)
+  // Track 1: dark bottom bar using html overlay
   if (p.bgOverlay && (address || contact)) {
     tracks.push({
       clips: [{
         asset: {
-          type: 'luma',
-          src: 'https://templates.shotstack.io/basic/asset/video/luma/fade-in-out.mp4',
+          type: 'html',
+          html: '<div style="width:1080px;height:320px;background:linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.0) 100%);"></div>',
+          width: 1080,
+          height: 320,
         },
         start: 0,
         length: 44,
-        opacity: 0.6,
         position: 'bottom',
         offset: { x: 0, y: 0 },
       }]
