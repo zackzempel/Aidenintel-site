@@ -414,8 +414,8 @@
           <div class="video-meta">${v.city || ''} · ${new Date(v.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
           <div class="video-style">${v.preset}</div>
           <div class="video-actions">
-            <a href="${v.videoUrl}" target="_blank" class="vbtn">▶ Watch</a>
-            <a href="${v.videoUrl}" download class="vbtn">⬇ Save</a>
+            <a href="${v.videoUrl}?v=${v.id}" target="_blank" class="vbtn">▶ Watch</a>
+            <a href="${v.videoUrl}?v=${v.id}" download class="vbtn">⬇ Save</a>
             <button class="vbtn vbtn-green" onclick="approveFromWorkshop('${v.id}','${v.address}','${v.videoUrl}')">🚀 Post</button>
             <button class="vbtn" onclick="deleteVideo(${v.id})" style="color:var(--red);border-color:rgba(239,68,68,0.2);">✕</button>
           </div>
