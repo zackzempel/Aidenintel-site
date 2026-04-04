@@ -6,8 +6,8 @@
 const SHOTSTACK_KEY = process.env.SHOTSTACK_API_KEY;
 const SHOTSTACK_ENV = process.env.SHOTSTACK_ENV || 'sandbox';
 const BASE_URL = SHOTSTACK_ENV === 'production'
-  ? 'https://api.shotstack.io/v1'
-  : 'https://api.shotstack.io/stage';
+  ? 'https://api.shotstack.io/edit/v1'
+  : 'https://api.shotstack.io/edit/stage';
 
 const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -81,7 +81,7 @@ function buildTimeline({ videoUrl, address, city, banner, price, contact, preset
     clips: [{
       asset: { type: 'video', src: videoUrl },
       start: 0,
-      length: 44, // full video length
+      length: 60, // max length, video ends naturally
     }]
   });
 
@@ -96,7 +96,7 @@ function buildTimeline({ videoUrl, address, city, banner, price, contact, preset
           height: 320,
         },
         start: 0,
-        length: 44,
+        length: 60,
         position: 'bottom',
         offset: { x: 0, y: 0 },
       }]
@@ -112,11 +112,10 @@ function buildTimeline({ videoUrl, address, city, banner, price, contact, preset
           text: banner,
           style: p.bannerStyle,
           color: p.bannerColor,
-          size: 'x-large',
-          background: 'transparent',
+          size: 'x-large'
         },
         start: 0.5,
-        length: 43.5,
+        length: 59.5,
         position: 'top',
         offset: { x: 0, y: -0.05 },
         transition: { in: transition },
@@ -133,11 +132,10 @@ function buildTimeline({ videoUrl, address, city, banner, price, contact, preset
           text: address,
           style: 'minimal',
           color: p.addressColor,
-          size: 'medium',
-          background: 'transparent',
+          size: 'medium'
         },
         start: 1,
-        length: 43,
+        length: 59,
         position: 'bottom',
         offset: { x: 0, y: price ? 0.22 : 0.16 },
         transition: { in: transition },
@@ -154,11 +152,10 @@ function buildTimeline({ videoUrl, address, city, banner, price, contact, preset
           text: city,
           style: 'minimal',
           color: p.cityColor,
-          size: 'small',
-          background: 'transparent',
+          size: 'small'
         },
         start: 1.2,
-        length: 42.8,
+        length: 58.8,
         position: 'bottom',
         offset: { x: 0, y: price ? 0.14 : 0.09 },
         transition: { in: transition },
@@ -175,11 +172,10 @@ function buildTimeline({ videoUrl, address, city, banner, price, contact, preset
           text: price,
           style: 'minimal',
           color: p.priceColor,
-          size: 'medium',
-          background: 'transparent',
+          size: 'medium'
         },
         start: 1.4,
-        length: 42.6,
+        length: 58.6,
         position: 'bottom',
         offset: { x: 0, y: 0.06 },
         transition: { in: transition },
@@ -196,11 +192,10 @@ function buildTimeline({ videoUrl, address, city, banner, price, contact, preset
           text: contact,
           style: 'minimal',
           color: p.contactColor,
-          size: 'x-small',
-          background: 'transparent',
+          size: 'x-small'
         },
         start: 1.6,
-        length: 42.4,
+        length: 58.4,
         position: 'bottom',
         offset: { x: 0, y: 0.02 },
         transition: { in: transition },
