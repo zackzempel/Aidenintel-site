@@ -1524,6 +1524,68 @@ footer a { color: var(--accent2); text-decoration: none; }
   }
   // ───────────────────────────────────────────────────────────────
 
+  // Approve & Post — sends to selected platforms via /api/approve-post
+  async function approveAndPost(captionId) {
+    const btn = document.getElementById(`approve-btn-${captionId}`);
+    const statusEl = document.getElementById(`approve-status-${captionId}`);
+
+    // Collect selected accounts
+    const accountIds = ['fishtrap','main','personal','tiktok','youtube'];
+    const approvedAccounts = accountIds
+      .filter(a => document.getElementById(`acct-${a}-${captionId}`)?.checked)
+      .map(a => a === 'fishtrap' ? 'instagram_fishtrap' : a === 'main' ? 'instagram_main' : a === 'personal' ? 'instagram_personal' : a);
+
+    if (!approvedAccounts.length) {
+      alert('Select at least one platform to post to.');
+      return;
+    }
+
+    // Collect collab tags
+    const collabRaw = document.getElementById(`collab-tags-${captionId}`)?.value || '';
+    const collabTags = collabRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+    // Confirm
+    const platformLabels = {instagram_fishtrap:'@fishtrap',instagram_main:'@main',instagram_personal:'@personal',tiktok:'TikTok',youtube:'YouTube'};
+    const platformList = approvedAccounts.map(a => platformLabels[a] || a).join(', ');
+    if (!confirm(`Post to: ${platformList}?${collabTags.length ? '\n\nCollab tags: ' + collabTags.join(', ') : ''}\n\nThis will go live immediately.`)) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Posting...';
+    statusEl.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/approve-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ captionId, approvedAccounts, collabTags })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        const postedList = data.posted.join(', ');
+        statusEl.style.background = 'rgba(16,185,129,0.08)';
+        statusEl.style.border = '1px solid rgba(16,185,129,0.25)';
+        statusEl.style.color = '#10b981';
+        statusEl.innerHTML = `✅ Posted to ${postedList}!${data.failed?.length ? '<br>⚠️ Failed: ' + data.failed.join(', ') : ''}<br><span style="font-weight:400;font-size:0.8rem;opacity:0.8;">Jon notified via email. Posts visible within a few minutes.</span>`;
+        statusEl.style.display = 'block';
+        btn.innerHTML = '✅ Posted!';
+        btn.style.background = 'rgba(16,185,129,0.15)';
+        btn.style.color = '#10b981';
+        btn.style.border = '1px solid rgba(16,185,129,0.3)';
+      } else {
+        throw new Error(data.error || 'Unknown error');
+      }
+    } catch (err) {
+      statusEl.style.background = 'rgba(239,68,68,0.08)';
+      statusEl.style.border = '1px solid rgba(239,68,68,0.2)';
+      statusEl.style.color = '#ef4444';
+      statusEl.innerHTML = `⚠️ Error: ${err.message}`;
+      statusEl.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = '🚀 Approve & Post';
+    }
+  }
+
   // Submit social caption request
   async function submitSocialRequest() {
     const address = document.getElementById('listingAddress').value.trim();
@@ -1618,13 +1680,66 @@ footer a { color: var(--accent2); text-decoration: none; }
           </div>` : ''}
 
           <!-- Captions -->
-          <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Ready-to-Post Captions</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Review &amp; Edit Captions</div>
           ${captionBlock('📸 Instagram', c.instagram_caption,   c.id, 'instagram_caption')}
           ${captionBlock('🎵 TikTok',    c.tiktok_caption,     c.id, 'tiktok_caption')}
           ${captionBlock('👥 Facebook',  c.facebook_caption,   c.id, 'facebook_caption')}
           ${captionBlock('▶️ YouTube',   c.youtube_description, c.id, 'youtube_description')}
+
+          <!-- Approval Panel -->
+          ${c.status === 'posted' ? \`
+          <div style="margin-top:20px;padding:14px 18px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.2rem;">✅</span>
+            <div>
+              <div style="font-size:0.875rem;font-weight:700;color:#10b981;">Posted</div>
+              <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">\${c.approved_at ? 'Posted ' + new Date(c.approved_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''}</div>
+            </div>
+          </div>\` : \`
+          <div id="approval-panel-\${c.id}" style="margin-top:24px;padding:20px;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:14px;">
+            <div style="font-size:0.8rem;font-weight:700;color:var(--text);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;">📤 Approve &amp; Post</div>
+
+            <!-- Account selection -->
+            <div style="margin-bottom:16px;">
+              <div style="font-size:0.75rem;color:var(--text3);font-weight:600;margin-bottom:10px;">POST TO:</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:0.8rem;color:var(--text);">
+                  <input type="checkbox" id="acct-fishtrap-\${c.id}" value="instagram_fishtrap" checked style="accent-color:var(--accent);width:15px;height:15px;">
+                  📸 @seversonrealestatefishtrap
+                </label>
+                <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:0.8rem;color:var(--text);">
+                  <input type="checkbox" id="acct-main-\${c.id}" value="instagram_main" style="accent-color:var(--accent);width:15px;height:15px;">
+                  📸 @seversonrealestate
+                </label>
+                <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:0.8rem;color:var(--text);">
+                  <input type="checkbox" id="acct-personal-\${c.id}" value="instagram_personal" style="accent-color:var(--accent);width:15px;height:15px;">
+                  📸 @realjonserverson
+                </label>
+                <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:0.8rem;color:var(--text);">
+                  <input type="checkbox" id="acct-tiktok-\${c.id}" value="tiktok" checked style="accent-color:var(--accent);width:15px;height:15px;">
+                  🎵 TikTok
+                </label>
+                <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:0.8rem;color:var(--text);">
+                  <input type="checkbox" id="acct-youtube-\${c.id}" value="youtube" checked style="accent-color:var(--accent);width:15px;height:15px;">
+                  ▶️ YouTube
+                </label>
+              </div>
+            </div>
+
+            <!-- Collab tags -->
+            <div style="margin-bottom:18px;">
+              <div style="font-size:0.75rem;color:var(--text3);font-weight:600;margin-bottom:8px;">🤝 INSTAGRAM COLLABORATORS <span style="font-weight:400;opacity:0.6;">(optional, up to 5)</span></div>
+              <input type="text" id="collab-tags-\${c.id}" placeholder="@calebcarlson, @partner2 ..." style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:0.85rem;color:var(--text);font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;">
+              <div style="font-size:0.72rem;color:var(--text3);margin-top:5px;">They'll get a notification to accept — video lives on both profiles when accepted.</div>
+            </div>
+
+            <!-- Approve button -->
+            <button id="approve-btn-\${c.id}" onclick="approveAndPost(\${c.id})" style="width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;padding:14px 24px;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+              🚀 Approve &amp; Post
+            </button>
+            <div id="approve-status-\${c.id}" style="display:none;margin-top:12px;padding:12px 16px;border-radius:10px;font-size:0.85rem;font-weight:600;line-height:1.5;"></div>
+          </div>\`}
         </div>
-      `).join('');
+      \`).join('');
       // Init trimmers after DOM renders
       setTimeout(() => initAllTrimmers(captions), 150);
     } catch(e) {
