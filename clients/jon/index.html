@@ -1012,6 +1012,11 @@ footer a { color: var(--accent2); text-decoration: none; }
   }
   // Auto-unlock if already authenticated
   if (localStorage.getItem(SESSION_KEY) === '1') showPortal();
+  // Auto-unlock via URL param for dev/testing
+  if (new URLSearchParams(window.location.search).get('unlock') === 'go') {
+    localStorage.setItem(SESSION_KEY, '1');
+    showPortal();
+  }
 
   // Upload asset to Supabase Storage (direct fetch — more reliable than JS SDK for anon uploads)
   async function uploadAsset(input, assetType) {
