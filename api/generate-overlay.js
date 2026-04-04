@@ -1,6 +1,7 @@
 /**
  * generate-overlay.js — Shotstack-powered video overlay generator
  * POST /api/generate-overlay
+ * Uses HTML asset for pixel-perfect overlay positioning
  */
 
 const SHOTSTACK_KEY = process.env.SHOTSTACK_API_KEY;
@@ -13,197 +14,50 @@ const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_BUCKET = 'workshop-videos';
 
-// Style presets
 const PRESETS = {
-  classic: {
-    bannerStyle: 'blockbuster',
-    bannerColor: '#ffffff',
-    addressColor: '#ffffff',
-    cityColor: '#dddddd',
-    contactColor: '#aaaaaa',
-    priceColor: '#10b981',
-    bgOverlay: true,
-  },
-  bold: {
-    bannerStyle: 'blockbuster',
-    bannerColor: '#ff6b35',
-    addressColor: '#ffffff',
-    cityColor: '#ffddcc',
-    contactColor: '#ffaa88',
-    priceColor: '#ff6b35',
-    bgOverlay: true,
-  },
-  luxury: {
-    bannerStyle: 'future',
-    bannerColor: '#d4af37',
-    addressColor: '#f5e6c8',
-    cityColor: '#e8d5a8',
-    contactColor: '#c8b888',
-    priceColor: '#d4af37',
-    bgOverlay: true,
-  },
-  minimal: {
-    bannerStyle: 'minimal',
-    bannerColor: '#eeeeee',
-    addressColor: '#eeeeee',
-    cityColor: '#cccccc',
-    contactColor: '#999999',
-    priceColor: '#ffffff',
-    bgOverlay: false,
-  },
-  aiden: {
-    bannerStyle: 'future',
-    bannerColor: '#818cf8',
-    addressColor: '#ffffff',
-    cityColor: '#e8e8ff',
-    contactColor: '#aaaacc',
-    priceColor: '#818cf8',
-    bgOverlay: true,
-  },
-  custom: {
-    bannerStyle: 'blockbuster',
-    bannerColor: '#ffffff',
-    addressColor: '#ffffff',
-    cityColor: '#dddddd',
-    contactColor: '#aaaaaa',
-    priceColor: '#10b981',
-    bgOverlay: true,
-  },
+  classic: { banner: '#ffffff', address: '#ffffff', city: '#dddddd', price: '#10b981', contact: '#aaaaaa' },
+  bold:    { banner: '#ff6b35', address: '#ffffff', city: '#ffddcc', price: '#ff6b35', contact: '#ffaa88' },
+  luxury:  { banner: '#d4af37', address: '#f5e6c8', city: '#e8d5a8', price: '#d4af37', contact: '#c8b888' },
+  minimal: { banner: '#eeeeee', address: '#eeeeee', city: '#cccccc', price: '#ffffff', contact: '#999999' },
+  aiden:   { banner: '#818cf8', address: '#ffffff', city: '#e8e8ff', price: '#818cf8', contact: '#aaaacc' },
+  custom:  { banner: '#ffffff', address: '#ffffff', city: '#dddddd', price: '#10b981', contact: '#aaaaaa' },
 };
 
-function buildTimeline({ videoUrl, address, city, banner, price, contact, preset, fadeIn }) {
-  const p = PRESETS[preset] || PRESETS.classic;
-  const transition = fadeIn ? 'fade' : 'none';
-  const tracks = [];
+function buildHtmlOverlay({ banner, address, city, price, contact, preset }) {
+  const c = PRESETS[preset] || PRESETS.classic;
+  const esc = s => s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : '';
 
-  // Track 0: source video
-  tracks.push({
-    clips: [{
-      asset: { type: 'video', src: videoUrl },
-      start: 0,
-      length: 60, // max length, video ends naturally
-    }]
-  });
+  let html = `<div style="width:1080px;height:1920px;position:relative;font-family:Arial,Helvetica,sans-serif;">`;
 
-  // Track 1: dark bottom bar using html overlay
-  if (p.bgOverlay && (address || contact)) {
-    tracks.push({
-      clips: [{
-        asset: {
-          type: 'html',
-          html: '<div style="width:1080px;height:320px;background:linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.0) 100%);"></div>',
-          width: 1080,
-          height: 320,
-        },
-        start: 0,
-        length: 60,
-        position: 'bottom',
-        offset: { x: 0, y: 0 },
-      }]
-    });
-  }
-
-  // Track 2: top banner "JUST LISTED"
+  // Top banner
   if (banner) {
-    tracks.push({
-      clips: [{
-        asset: {
-          type: 'title',
-          text: banner,
-          style: p.bannerStyle,
-          color: p.bannerColor,
-          size: 'x-large'
-        },
-        start: 0.5,
-        length: 59.5,
-        position: 'top',
-        offset: { x: 0, y: -0.05 },
-        transition: { in: transition },
-      }]
-    });
+    html += `<div style="position:absolute;top:70px;left:0;right:0;text-align:center;font-size:82px;font-weight:900;color:${c.banner};text-shadow:3px 3px 10px rgba(0,0,0,0.9);letter-spacing:5px;">${esc(banner)}</div>`;
   }
 
-  // Track 3: address
-  if (address) {
-    tracks.push({
-      clips: [{
-        asset: {
-          type: 'title',
-          text: address,
-          style: 'minimal',
-          color: p.addressColor,
-          size: 'medium'
-        },
-        start: 1,
-        length: 59,
-        position: 'bottom',
-        offset: { x: 0, y: price ? 0.22 : 0.16 },
-        transition: { in: transition },
-      }]
-    });
-  }
+  // Bottom gradient
+  html += `<div style="position:absolute;bottom:0;left:0;right:0;height:440px;background:linear-gradient(to top,rgba(0,0,0,0.88) 0%,rgba(0,0,0,0.0) 100%);"></div>`;
 
-  // Track 4: city
-  if (city) {
-    tracks.push({
-      clips: [{
-        asset: {
-          type: 'title',
-          text: city,
-          style: 'minimal',
-          color: p.cityColor,
-          size: 'small'
-        },
-        start: 1.2,
-        length: 58.8,
-        position: 'bottom',
-        offset: { x: 0, y: price ? 0.14 : 0.09 },
-        transition: { in: transition },
-      }]
-    });
-  }
+  // Bottom text stack — build from bottom up
+  let bottom = 75;
 
-  // Track 5: price
-  if (price) {
-    tracks.push({
-      clips: [{
-        asset: {
-          type: 'title',
-          text: price,
-          style: 'minimal',
-          color: p.priceColor,
-          size: 'medium'
-        },
-        start: 1.4,
-        length: 58.6,
-        position: 'bottom',
-        offset: { x: 0, y: 0.06 },
-        transition: { in: transition },
-      }]
-    });
-  }
-
-  // Track 6: contact
   if (contact) {
-    tracks.push({
-      clips: [{
-        asset: {
-          type: 'title',
-          text: contact,
-          style: 'minimal',
-          color: p.contactColor,
-          size: 'x-small'
-        },
-        start: 1.6,
-        length: 58.4,
-        position: 'bottom',
-        offset: { x: 0, y: 0.02 },
-        transition: { in: transition },
-      }]
-    });
+    html += `<div style="position:absolute;bottom:${bottom}px;left:0;right:0;text-align:center;font-size:33px;color:${c.contact};text-shadow:1px 1px 4px rgba(0,0,0,1);">${esc(contact)}</div>`;
+    bottom += 58;
+  }
+  if (price) {
+    html += `<div style="position:absolute;bottom:${bottom}px;left:0;right:0;text-align:center;font-size:50px;font-weight:700;color:${c.price};text-shadow:2px 2px 6px rgba(0,0,0,1);">${esc(price)}</div>`;
+    bottom += 68;
+  }
+  if (city) {
+    html += `<div style="position:absolute;bottom:${bottom}px;left:0;right:0;text-align:center;font-size:40px;color:${c.city};text-shadow:2px 2px 5px rgba(0,0,0,1);">${esc(city)}</div>`;
+    bottom += 62;
+  }
+  if (address) {
+    html += `<div style="position:absolute;bottom:${bottom}px;left:0;right:0;text-align:center;font-size:54px;font-weight:700;color:${c.address};text-shadow:3px 3px 8px rgba(0,0,0,1);">${esc(address)}</div>`;
   }
 
-  return { tracks };
+  html += `</div>`;
+  return html;
 }
 
 async function pollRender(renderId, maxWaitMs = 120000) {
@@ -216,18 +70,16 @@ async function pollRender(renderId, maxWaitMs = 120000) {
     const data = await res.json();
     const status = data?.response?.status;
     if (status === 'done') return data.response.url;
-    if (status === 'failed') throw new Error('Shotstack render failed');
+    if (status === 'failed') throw new Error(`Render failed: ${data?.response?.error || 'unknown'}`);
   }
-  throw new Error('Render timed out');
+  throw new Error('Render timed out after 2 minutes');
 }
 
 async function uploadToSupabase(videoUrl, fileName) {
-  // Download from Shotstack
   const videoRes = await fetch(videoUrl);
-  if (!videoRes.ok) throw new Error('Failed to fetch rendered video');
+  if (!videoRes.ok) throw new Error('Failed to fetch rendered video from Shotstack');
   const buf = await videoRes.arrayBuffer();
 
-  // Upload to Supabase
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${SUPABASE_BUCKET}/${fileName}`, {
     method: 'POST',
     headers: {
@@ -254,16 +106,34 @@ export default async function handler(req, res) {
   if (!address) return res.status(400).json({ error: 'address required' });
 
   try {
-    // Build Shotstack timeline
-    const timeline = buildTimeline({ videoUrl, address, city, banner, price, contact, preset, fadeIn });
+    const overlayHtml = buildHtmlOverlay({ banner, address, city, price, contact, preset });
+
+    const timeline = {
+      tracks: [
+        // Track 0 = top layer: HTML overlay with all text
+        {
+          clips: [{
+            asset: { type: 'html', html: overlayHtml, width: 1080, height: 1920 },
+            start: fadeIn ? 1 : 0,
+            length: 59,
+            position: 'center',
+          }]
+        },
+        // Track 1 = bottom layer: source video
+        {
+          clips: [{
+            asset: { type: 'video', src: videoUrl },
+            start: 0,
+            length: 60,
+          }]
+        }
+      ]
+    };
 
     // Submit render
     const renderRes = await fetch(`${BASE_URL}/render`, {
       method: 'POST',
-      headers: {
-        'x-api-key': SHOTSTACK_KEY,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'x-api-key': SHOTSTACK_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         timeline,
         output: { format: 'mp4', resolution: 'hd', aspectRatio: '9:16' }
@@ -272,15 +142,13 @@ export default async function handler(req, res) {
 
     const renderData = await renderRes.json();
     if (!renderRes.ok || !renderData.success) {
-      throw new Error(renderData?.response?.message || 'Shotstack render failed to queue');
+      throw new Error(renderData?.response?.message || JSON.stringify(renderData));
     }
 
     const renderId = renderData.response.id;
-
-    // Poll for completion
     const shotstackUrl = await pollRender(renderId);
 
-    // Upload to Supabase Storage for permanent hosting
+    // Upload to Supabase for permanent hosting
     const ts = Date.now();
     const slug = address.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase().substring(0, 30);
     const fileName = `${slug}-${preset}-${ts}.mp4`;
