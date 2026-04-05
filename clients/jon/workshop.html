@@ -753,6 +753,10 @@
   }
 
   async function requestWChatSettings() {
+    if (!wchatHistory.length) {
+      appendWChatMsg('assistant', 'Tell me a bit about the property first — then hit this button and I\'ll set everything up.');
+      return;
+    }
     const sendBtn = document.getElementById('wchat-send');
     sendBtn.disabled = true;
 
@@ -791,15 +795,14 @@
     sendBtn.disabled = false;
   }
 
-  // Greet Jon on load
+  // Greet Jon on load — display only, don't push to history (Anthropic requires first msg = user)
   function initWChat() {
     const listing = getListingContext();
     const hasListing = listing.address || listing.videoUrl;
     const greeting = hasListing
       ? `Hey Jon! I see you've got ${listing.address || 'a listing'} loaded. Tell me about the property — what's the vibe? Who's the buyer? I'll build the right look for it.`
       : `Hey Jon! Drop a video URL above, then come back here and tell me about the property. What kind of feel are you going for?`;
-    wchatHistory.push({ role: 'assistant', content: greeting });
-    appendWChatMsg('assistant', greeting);
+    appendWChatMsg('assistant', greeting); // display only — not stored in history
   }
 
   // Theme toggle
