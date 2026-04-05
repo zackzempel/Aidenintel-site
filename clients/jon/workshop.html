@@ -79,6 +79,30 @@
     .field-group input:focus, .field-group select:focus, .field-group textarea:focus { border-color: var(--accent); }
     .field-group select option { background: #1c1c26; }
 
+    /* Aiden Creative Chat */
+    .aiden-chat-panel { background: var(--surface); border: 1px solid rgba(167,139,250,0.3); border-radius: 16px; padding: 0; margin-bottom: 28px; overflow: hidden; }
+    .aiden-chat-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
+    .aiden-chat-header-left { display: flex; align-items: center; gap: 10px; }
+    .aiden-chat-avatar { width: 32px; height: 32px; background: linear-gradient(135deg,#7c3aed,#6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+    .aiden-chat-title { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+    .aiden-chat-sub { font-size: 0.75rem; color: var(--text3); margin-top: 1px; }
+    .aiden-chat-toggle { font-size: 0.8rem; color: var(--text3); transition: transform 0.2s; }
+    .aiden-chat-toggle.open { transform: rotate(180deg); }
+    .aiden-chat-body { display: none; flex-direction: column; height: 320px; }
+    .aiden-chat-body.open { display: flex; }
+    .aiden-chat-messages { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .aiden-chat-messages::-webkit-scrollbar { width: 4px; } .aiden-chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+    .wchat-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 0.85rem; line-height: 1.5; }
+    .wchat-msg.aiden { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.2); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .wchat-msg.jon { background: var(--surface2); border: 1px solid var(--border2); color: var(--text); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .aiden-chat-input-row { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); }
+    .aiden-chat-input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 14px; font-size: 0.875rem; color: var(--text); font-family: 'Inter', sans-serif; outline: none; resize: none; height: 42px; max-height: 120px; overflow-y: auto; transition: border 0.15s; }
+    .aiden-chat-input:focus { border-color: var(--accent); }
+    .aiden-chat-send { background: var(--accent); color: white; border: none; border-radius: 10px; padding: 10px 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; flex-shrink: 0; transition: opacity 0.15s; }
+    .aiden-chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+    .wchat-apply-btn { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg,rgba(99,102,241,0.2),rgba(139,92,246,0.2)); border: 1px solid rgba(99,102,241,0.4); color: var(--accent2); padding: 7px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .wchat-apply-btn:hover { background: linear-gradient(135deg,rgba(99,102,241,0.3),rgba(139,92,246,0.3)); }
+
     /* Style presets */
     .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
     .preset-chip {
@@ -197,7 +221,29 @@
     <button class="btn-aiden" id="aiden-pick-btn" onclick="generateAidenPick()" style="display:none;">✨ Generate Aiden's Pick</button>
   </div>
 
-  <!-- Generator -->
+  <!-- Aiden Creative Chat -->
+  <div class="section-label">🎨 Creative Brief</div>
+  <div class="aiden-chat-panel" id="wchat-panel">
+    <div class="aiden-chat-header" onclick="toggleWChat()">
+      <div class="aiden-chat-header-left">
+        <div class="aiden-chat-avatar">🎯</div>
+        <div>
+          <div class="aiden-chat-title">Talk to Aiden</div>
+          <div class="aiden-chat-sub">Describe your vision — I'll set it up for you</div>
+        </div>
+      </div>
+      <div class="aiden-chat-toggle" id="wchat-toggle">▼</div>
+    </div>
+    <div class="aiden-chat-body open" id="wchat-body">
+      <div class="aiden-chat-messages" id="wchat-messages"></div>
+      <div class="aiden-chat-input-row">
+        <textarea class="aiden-chat-input" id="wchat-input" placeholder="e.g. &quot;Make it feel luxury, this is a high-end lakefront property&quot;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendWChat();}"></textarea>
+        <button class="aiden-chat-send" id="wchat-send" onclick="sendWChat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Generator -->
   <div class="section-label">⚙️ Build Your Video</div>
   <div class="generator">
 
@@ -581,6 +627,137 @@
   renderLibrary();
   fillCrocus();
   loadAidensPick();
+  initWChat();
+
+  // ── Aiden Creative Chat ────────────────────────────────────────────────────
+  let wchatHistory = [];
+  let pendingSettings = null;
+
+  function toggleWChat() {
+    const body = document.getElementById('wchat-body');
+    const toggle = document.getElementById('wchat-toggle');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    toggle.classList.toggle('open', !isOpen);
+  }
+
+  function getListingContext() {
+    return {
+      videoUrl: document.getElementById('gen-video-url')?.value?.trim() || '',
+      address:  document.getElementById('gen-address')?.value?.trim() || '',
+      city:     document.getElementById('gen-city')?.value?.trim() || '',
+      price:    document.getElementById('gen-price')?.value?.trim() || '',
+    };
+  }
+
+  function appendWChatMsg(role, text, settings = null) {
+    const container = document.getElementById('wchat-messages');
+    const div = document.createElement('div');
+    div.className = `wchat-msg ${role === 'assistant' ? 'aiden' : 'jon'}`;
+    div.textContent = text;
+
+    if (settings && settings.readyToApply) {
+      pendingSettings = settings;
+      const btn = document.createElement('button');
+      btn.className = 'wchat-apply-btn';
+      btn.innerHTML = '✨ Apply These Settings →';
+      btn.onclick = applyWChatSettings;
+      const wrapper = document.createElement('div');
+      wrapper.appendChild(div);
+      wrapper.appendChild(btn);
+      container.appendChild(wrapper);
+    } else {
+      container.appendChild(div);
+    }
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function applyWChatSettings() {
+    if (!pendingSettings) return;
+    const s = pendingSettings;
+
+    // Apply preset
+    if (s.preset) {
+      const chip = document.querySelector(`.preset-chip[data-preset="${s.preset}"]`);
+      if (chip) selectPreset(chip, s.preset);
+    }
+    // Apply individual fields
+    if (s.banner !== undefined) document.getElementById('gen-banner').value = s.banner;
+    if (s.price  !== undefined) document.getElementById('gen-price').value  = s.price;
+    if (s.showPrice !== undefined) document.getElementById('tog-price').checked  = s.showPrice;
+    if (s.showBanner !== undefined) document.getElementById('tog-banner').checked = s.showBanner;
+
+    // Flash the generator section
+    const gen = document.querySelector('.generator');
+    if (gen) {
+      gen.style.borderColor = 'var(--accent)';
+      gen.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.15)';
+      gen.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => { gen.style.borderColor = ''; gen.style.boxShadow = ''; }, 2000);
+    }
+
+    appendWChatMsg('assistant', '✅ Settings applied! Scroll down and hit Generate when you\'re ready.');
+    pendingSettings = null;
+  }
+
+  async function sendWChat() {
+    const input = document.getElementById('wchat-input');
+    const sendBtn = document.getElementById('wchat-send');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    appendWChatMsg('user', text);
+    wchatHistory.push({ role: 'user', content: text });
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = '...';
+
+    // Typing indicator
+    const typingEl = document.createElement('div');
+    typingEl.className = 'wchat-msg aiden';
+    typingEl.textContent = 'Aiden is thinking...';
+    typingEl.style.opacity = '0.5';
+    typingEl.style.fontStyle = 'italic';
+    typingEl.id = 'wchat-typing';
+    document.getElementById('wchat-messages').appendChild(typingEl);
+    document.getElementById('wchat-messages').scrollTop = 99999;
+
+    try {
+      const res = await fetch('/api/workshop-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: wchatHistory, listing: getListingContext() }),
+      });
+      const data = await res.json();
+      document.getElementById('wchat-typing')?.remove();
+
+      if (data.error) {
+        appendWChatMsg('assistant', '⚠️ Something went wrong — try again.');
+      } else {
+        wchatHistory.push({ role: 'assistant', content: data.text });
+        appendWChatMsg('assistant', data.text, data.settings);
+      }
+    } catch (e) {
+      document.getElementById('wchat-typing')?.remove();
+      appendWChatMsg('assistant', '⚠️ Connection error — try again.');
+    }
+
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send';
+    input.focus();
+  }
+
+  // Greet Jon on load
+  function initWChat() {
+    const listing = getListingContext();
+    const hasListing = listing.address || listing.videoUrl;
+    const greeting = hasListing
+      ? `Hey Jon! I see you've got ${listing.address || 'a listing'} loaded. Tell me about the property — what's the vibe? Who's the buyer? I'll build the right look for it.`
+      : `Hey Jon! Drop a video URL above, then come back here and tell me about the property. What kind of feel are you going for?`;
+    wchatHistory.push({ role: 'assistant', content: greeting });
+    appendWChatMsg('assistant', greeting);
+  }
 
   // Theme toggle
   function toggleTheme() {
