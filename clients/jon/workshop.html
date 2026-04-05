@@ -414,6 +414,7 @@
           <div class="video-title">${v.address}</div>
           <div class="video-meta">${v.city || ''} · ${new Date(v.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
           <div class="video-style">${v.preset}</div>
+          ${v.reasoning ? `<div style="font-size:0.7rem;color:var(--text3);margin-bottom:8px;line-height:1.4;font-style:italic;">"${v.reasoning}"</div>` : ''}
           <div class="video-actions">
             <a href="${v.videoUrl}?v=${v.id}" target="_blank" class="vbtn">▶ Watch</a>
             <a href="${v.videoUrl}?v=${v.id}" download class="vbtn">⬇ Save</a>
@@ -481,7 +482,7 @@
       if (data.aidens_pick) {
         const pick = data.aidens_pick;
         document.getElementById('aiden-pick-btn').style.display = 'flex';
-        document.getElementById('aiden-pick-btn').innerHTML = `✨ Generate Aiden's Pick — "${pick.format_name}"`;
+        document.getElementById('aiden-pick-btn').innerHTML = `✨ Generate Aiden's Pick — Both Versions`;
         document.getElementById('aiden-pick-btn').title = pick.reasoning || '';
         // Store pick data for generation
         window._aidensPick = pick;
@@ -494,12 +495,66 @@
   async function generateAidenPick() {
     const pick = window._aidensPick;
     if (!pick) { alert('Loading... try again in a moment.'); return; }
-    document.getElementById('gen-banner').value = pick.banner_text || 'JUST LISTED';
-    selectPreset(document.querySelector('[data-preset="' + (pick.video_style || 'classic') + '"]'), pick.video_style || 'classic');
-    document.getElementById('tog-banner').checked = true;
-    document.getElementById('tog-bottom-bar').checked = true;
-    document.getElementById('tog-fade').checked = true;
-    await generateVideo(true);
+
+    const btn = document.getElementById('aiden-pick-btn');
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Building both versions...';
+
+    const videoUrl = document.getElementById('gen-video-url').value.trim();
+    const address = document.getElementById('gen-address').value.trim();
+    const city = document.getElementById('gen-city').value.trim();
+    const contact = document.getElementById('gen-contact').value.trim();
+
+    if (!videoUrl || !address) {
+      alert('Fill in a video URL and address first.');
+      btn.disabled = false;
+      btn.innerHTML = '✨ Generate Aiden\'s Pick — Both Versions';
+      return;
+    }
+
+    // Generate both in parallel
+    const [sigResult, pickResult] = await Promise.allSettled([
+      // Version 1: Signature cinematic (5-phase)
+      fetch('/api/generate-signature', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ videoUrl, address, city, contact, price: document.getElementById('gen-price').value.trim() })
+      }).then(r => r.json()),
+
+      // Version 2: Aiden's data-driven pick
+      fetch('/api/generate-overlay', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          videoUrl, address, city, contact,
+          banner: pick.banner_text || 'MARKET INSIGHT',
+          preset: pick.video_style || 'classic',
+          fadeIn: true,
+          isAidenPick: true
+        })
+      }).then(r => r.json())
+    ]);
+
+    // Add both to library
+    const ts = Date.now();
+    if (sigResult.status === 'fulfilled' && sigResult.value.outputUrl) {
+      const sig = sigResult.value;
+      const entry = { id: ts, address, city, preset: '✨ Signature', videoUrl: sig.outputUrl, sourceUrl: videoUrl, createdAt: new Date().toISOString(), isAidenPick: true, aidenVersion: 'signature' };
+      videoLibrary.unshift(entry);
+    }
+    if (pickResult.status === 'fulfilled' && pickResult.value.outputUrl) {
+      const p = pickResult.value;
+      const entry = { id: ts+1, address, city, preset: '🎯 ' + (pick.format_name || "Aiden's Pick"), videoUrl: p.outputUrl, sourceUrl: videoUrl, createdAt: new Date().toISOString(), isAidenPick: true, aidenVersion: 'data-driven', reasoning: pick.reasoning };
+      videoLibrary.unshift(entry);
+    }
+    localStorage.setItem('jon_workshop_videos', JSON.stringify(videoLibrary));
+    renderLibrary();
+
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generate Aiden\'s Pick — Both Versions';
+
+    // Scroll to library
+    document.getElementById('video-grid').scrollIntoView({behavior:'smooth'});
   }
 
   // Init
