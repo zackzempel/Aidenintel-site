@@ -172,9 +172,10 @@
       </div>
     </div>
     <div class="aiden-insight" id="aiden-insight">
-      <strong>What's working in Anoka County right now:</strong> Videos with a clean address reveal in the first 2 seconds and a visible phone number at the bottom are getting 40–60% more saves than plain footage. Buyers are screenshot-ing contact info directly from the video. I'd keep the bottom bar on every listing and add a price reveal if you're allowed to show it. I'll generate my recommended version alongside yours so you can compare before deciding.
+      <div id="aiden-loading" style="color:var(--text3);font-size:0.875rem;">Loading your personalized intelligence brief...</div>
+      <div id="aiden-content" style="display:none;"></div>
     </div>
-    <button class="btn-aiden" onclick="generateAidenPick()">✨ Generate Aiden's Pick for Latest Listing</button>
+    <button class="btn-aiden" id="aiden-pick-btn" onclick="generateAidenPick()" style="display:none;">✨ Generate Aiden's Pick</button>
   </div>
 
   <!-- Generator -->
@@ -450,10 +451,62 @@
     if (changed) localStorage.setItem('jon_workshop_videos', JSON.stringify(videoLibrary));
   }
 
+  // Load Aiden's Pick from real data
+  async function loadAidensPick() {
+    try {
+      const res = await fetch('/api/aidens-pick');
+      const data = await res.json();
+      document.getElementById('aiden-loading').style.display = 'none';
+      const content = document.getElementById('aiden-content');
+      content.style.display = 'block';
+
+      if (data.error || !data.week_summary) {
+        content.innerHTML = '<span style="color:var(--text3);">Connect your accounts in Metricool to unlock personalized insights.</span>';
+        return;
+      }
+
+      content.innerHTML = `
+        <div style="margin-bottom:14px;">
+          <strong>📊 Your numbers (${data.stats?.totalReels || 0} reels):</strong>
+          Avg ${data.stats?.avgEngagement || '?'}% engagement · ${data.stats?.avgViews?.toLocaleString() || '?'} avg views
+        </div>
+        <div style="margin-bottom:14px;">${data.week_summary}</div>
+        <div style="margin-bottom:10px;padding:10px 14px;background:rgba(167,139,250,0.08);border-radius:8px;border-left:3px solid var(--aiden);">
+          <strong style="color:var(--aiden);">Key insight:</strong> ${data.top_insight}
+        </div>
+        ${data.avoid ? `<div style="font-size:0.8rem;color:var(--text3);margin-top:8px;">⚠️ Avoid: ${data.avoid}</div>` : ''}
+      `;
+
+      // Pre-fill the generator with Aiden's Pick settings
+      if (data.aidens_pick) {
+        const pick = data.aidens_pick;
+        document.getElementById('aiden-pick-btn').style.display = 'flex';
+        document.getElementById('aiden-pick-btn').innerHTML = `✨ Generate Aiden's Pick — "${pick.format_name}"`;
+        document.getElementById('aiden-pick-btn').title = pick.reasoning || '';
+        // Store pick data for generation
+        window._aidensPick = pick;
+      }
+    } catch(e) {
+      document.getElementById('aiden-loading').textContent = 'Could not load intelligence brief.';
+    }
+  }
+
+  async function generateAidenPick() {
+    const pick = window._aidensPick;
+    if (!pick) { alert('Loading... try again in a moment.'); return; }
+    document.getElementById('gen-banner').value = pick.banner_text || 'JUST LISTED';
+    selectPreset(document.querySelector('[data-preset="' + (pick.video_style || 'classic') + '"]'), pick.video_style || 'classic');
+    document.getElementById('tog-banner').checked = true;
+    document.getElementById('tog-bottom-bar').checked = true;
+    document.getElementById('tog-fade').checked = true;
+    await generateVideo(true);
+  }
+
   // Init
   migrateLibraryUrls();
   renderLibrary();
-  fillCrocus(); // pre-fill with Crocus as default example
+  fillCrocus();
+  loadAidensPick();
 </script>
 </body>
 </html>
