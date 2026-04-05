@@ -27,10 +27,26 @@
       --aiden: #a78bfa;
     }
 
+    [data-theme="light"] {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --surface2: #f0f0f5;
+      --surface3: #e8e8f0;
+      --border: rgba(0,0,0,0.08);
+      --border2: rgba(0,0,0,0.14);
+      --text: #1a1a2e;
+      --text2: #555570;
+      --text3: #9090a8;
+      --aiden: #7c3aed;
+    }
+
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 
     /* Nav */
     .nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    [data-theme="light"] .nav { background: rgba(245,245,247,0.95); }
+    .theme-toggle { background: none; border: 1px solid var(--border2); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 1rem; color: var(--text2); transition: all 0.15s; line-height: 1; }
+    .theme-toggle:hover { color: var(--text); background: var(--surface2); }
     .nav-logo { font-size: 0.95rem; font-weight: 800; color: var(--text); }
     .nav-logo em { color: var(--accent2); font-style: normal; }
     .nav-back { font-size: 0.8rem; color: var(--text2); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
@@ -150,7 +166,10 @@
 <!-- Nav -->
 <nav class="nav">
   <div class="nav-logo">Aiden<em>Intel</em></div>
-  <a href="/clients/jon" class="nav-back">← Back to Portal</a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Toggle light/dark">🌙</button>
+    <a href="/clients/jon" class="nav-back">← Back to Portal</a>
+  </div>
 </nav>
 
 <!-- Header -->
@@ -562,6 +581,18 @@
   renderLibrary();
   fillCrocus();
   loadAidensPick();
+
+  // Theme toggle
+  function toggleTheme() {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+    document.getElementById('themeBtn').textContent = isLight ? '\uD83C\uDF19' : '\u2600\uFE0F';
+    localStorage.setItem('workshop_theme', isLight ? 'dark' : 'light');
+  }
+  // Restore saved theme
+  const savedTheme = localStorage.getItem('workshop_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.getElementById('themeBtn').textContent = savedTheme === 'light' ? '\u2600\uFE0F' : '\uD83C\uDF19';
 </script>
 </body>
 </html>
