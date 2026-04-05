@@ -1695,6 +1695,14 @@ footer a { color: var(--accent2); text-decoration: none; }
             <div id="dl-status-${c.id}" style="display:none;font-size:0.78rem;margin-top:8px;padding:8px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;line-height:1.5;"></div>
           </div>` : ''}
 
+          <!-- Build Video CTA -->
+          ${c.video_url && c.status !== 'posted' ? `
+          <div style="margin-bottom:20px;">
+            <a href="/clients/jon/workshop.html?video=${encodeURIComponent(c.video_url)}&address=${encodeURIComponent(c.listing_address || '')}" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(139,92,246,0.15));border:1px solid rgba(99,102,241,0.4);color:var(--accent2);padding:10px 18px;border-radius:10px;font-size:0.85rem;font-weight:700;text-decoration:none;transition:all 0.15s;" onmouseover="this.style.background='linear-gradient(135deg,rgba(99,102,241,0.25),rgba(139,92,246,0.25))'" onmouseout="this.style.background='linear-gradient(135deg,rgba(99,102,241,0.15),rgba(139,92,246,0.15))'">
+              🎬 Build Video in Workshop →
+            </a>
+          </div>` : ''}
+
           <!-- Captions -->
           <div style="font-size:0.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Review &amp; Edit Captions</div>
           ${captionBlock('📸 Instagram', c.instagram_caption,   c.id, 'instagram_caption')}

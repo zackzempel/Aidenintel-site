@@ -593,6 +593,34 @@
   const savedTheme = localStorage.getItem('workshop_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
   document.getElementById('themeBtn').textContent = savedTheme === 'light' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+
+  // Auto-fill from portal deep link (?video=...&address=...)
+  (function prefillFromPortal() {
+    const params = new URLSearchParams(window.location.search);
+    const video = params.get('video');
+    const address = params.get('address');
+    if (video) {
+      document.getElementById('gen-video-url').value = video;
+      // Try to parse city from address (last part after last comma)
+      if (address) {
+        document.getElementById('gen-address').value = address;
+        const parts = address.split(',');
+        if (parts.length >= 2) {
+          document.getElementById('gen-city').value = parts.slice(-2).join(',').trim();
+        }
+      }
+      // Scroll to the generator and flash the field
+      document.getElementById('gen-video-url').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('gen-video-url').style.borderColor = 'var(--accent)';
+      setTimeout(() => { document.getElementById('gen-video-url').style.borderColor = ''; }, 2000);
+      // Show a banner
+      const banner = document.createElement('div');
+      banner.textContent = '✅ Listing loaded from portal — pick a style and hit Generate!';
+      banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(99,102,241,0.95);color:white;padding:10px 20px;border-radius:10px;font-size:0.85rem;font-weight:700;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
+      document.body.appendChild(banner);
+      setTimeout(() => banner.remove(), 4000);
+    }
+  })();
 </script>
 </body>
 </html>
