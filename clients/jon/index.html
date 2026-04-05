@@ -533,7 +533,7 @@ footer a { color: var(--accent2); text-decoration: none; }
 <body>
 
 <!-- LOCK SCREEN -->
-<div id="lockscreen" style="display:none">
+<div id="lockscreen">
   <div class="lock-card">
     <div class="lock-logo">Aiden<em>Intel</em></div>
     <div class="lock-subtitle">Client Portal</div>
@@ -1021,7 +1021,7 @@ footer a { color: var(--accent2); text-decoration: none; }
     }
   }
   // Auto-unlock if already authenticated
-  showPortal(); // lock temporarily disabled
+  if (localStorage.getItem(SESSION_KEY) === '1') showPortal();
   // Auto-unlock via URL param for dev/testing
   if (new URLSearchParams(window.location.search).get('unlock') === 'go') {
     localStorage.setItem(SESSION_KEY, '1');
