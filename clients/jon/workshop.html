@@ -240,6 +240,9 @@
         <textarea class="aiden-chat-input" id="wchat-input" placeholder="e.g. &quot;Make it feel luxury, this is a high-end lakefront property&quot;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendWChat();}"></textarea>
         <button class="aiden-chat-send" id="wchat-send" onclick="sendWChat()">Send</button>
       </div>
+      <div style="padding:8px 16px 12px;display:flex;justify-content:flex-end;">
+        <button onclick="requestWChatSettings()" style="font-size:0.75rem;color:var(--accent2);background:none;border:1px solid rgba(99,102,241,0.3);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit;font-weight:600;">✨ Generate Settings from conversation</button>
+      </div>
     </div>
   </div>
 
@@ -747,6 +750,45 @@
     sendBtn.disabled = false;
     sendBtn.textContent = 'Send';
     input.focus();
+  }
+
+  async function requestWChatSettings() {
+    const sendBtn = document.getElementById('wchat-send');
+    sendBtn.disabled = true;
+
+    // Push a hidden instruction to force a settings recommendation
+    const forceMsg = { role: 'user', content: 'Based on everything we\'ve discussed, please give me your best recommendation now and include the settings block.' };
+    const historyWithForce = [...wchatHistory, forceMsg];
+
+    const typingEl = document.createElement('div');
+    typingEl.className = 'wchat-msg aiden';
+    typingEl.textContent = 'Building your settings...';
+    typingEl.style.opacity = '0.5';
+    typingEl.style.fontStyle = 'italic';
+    typingEl.id = 'wchat-typing';
+    document.getElementById('wchat-messages').appendChild(typingEl);
+    document.getElementById('wchat-messages').scrollTop = 99999;
+
+    try {
+      const res = await fetch('/api/workshop-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: historyWithForce, listing: getListingContext() }),
+      });
+      const data = await res.json();
+      document.getElementById('wchat-typing')?.remove();
+      if (data.error) {
+        appendWChatMsg('assistant', '⚠️ Could not generate settings — try sending another message.');
+      } else {
+        wchatHistory.push(forceMsg);
+        wchatHistory.push({ role: 'assistant', content: data.text });
+        appendWChatMsg('assistant', data.text, data.settings);
+      }
+    } catch(e) {
+      document.getElementById('wchat-typing')?.remove();
+      appendWChatMsg('assistant', '⚠️ Connection error — try again.');
+    }
+    sendBtn.disabled = false;
   }
 
   // Greet Jon on load
