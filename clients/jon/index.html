@@ -2203,9 +2203,14 @@ footer a { color: var(--accent2); text-decoration: none; }
       const allVideos = (brief.raw_data || []).flatMap(q => (q.videos || []).map(v => ({...v, query: q.query})));
       const reVideos = allVideos.filter(v => {
         const t = (v.title + ' ' + v.description + ' ' + v.channel).toLowerCase();
-        const skipChannels = ['fox 9', 'cnn', 'kare', 'white house', 'forbes breaking', 'livenow', 'don lemon', 'national desk', 'qctv', 'aceit', 'jetblue'];
+        // Skip known non-real-estate channels and content types
+        const skipChannels = ['fox 9', 'cnn', 'kare', 'white house', 'forbes breaking', 'livenow', 'don lemon', 'national desk', 'qctv', 'aceit', 'jetblue', 'reuters', 'ap news', 'nbc news', 'abc news', 'nytimes', 'washington post', 'the hill', 'msnbc', 'tim walz', 'jonathan goforth', 'prep agent', 'dee kumar'];
         if (skipChannels.some(s => t.includes(s))) return false;
-        const reKeywords = ['home', 'house', 'listing', 'realtor', 'real estate', 'property', 'builder', 'neighborhood', 'selling', 'buying', 'tour', 'parade', 'market update', 'just listed', 'new construction'];
+        // Skip exam/licensing/news/political content by title keywords
+        const skipTitles = ['exam', 'licensing', 'test question', 'ice detained', 'ice agents', 'ice raid', 'fraud', 'protest', 'hearing', 'testify', 'recount', 'voting', 'homicide', 'killing', 'strike', 'levy', 'budget', 'plane spotting', 'podcast episode', 'granite bank', 'loan officer', 'vance', 'walz', 'ellison', 'oversight committee'];
+        if (skipTitles.some(s => (v.title || '').toLowerCase().includes(s))) return false;
+        // Must contain real estate buying/selling intent keywords
+        const reKeywords = ['home for sale', 'house for sale', 'just listed', 'listing', 'realtor', 'real estate agent', 'property', 'home tour', 'house tour', 'new construction', 'open house', 'homes for sale', 'market update', 'parade of homes', 'home prices', 'selling your home', 'buying a home', 'builder'];
         return reKeywords.some(k => t.includes(k));
       }).sort((a,b) => b.views - a.views).slice(0,6);
 
