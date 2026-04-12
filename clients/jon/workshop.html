@@ -568,7 +568,9 @@
       // Pre-fill the generator with Aiden's Pick settings
       if (data.aidens_pick) {
         const pick = data.aidens_pick;
-        document.getElementById('aiden-pick-btn').style.display = 'flex';
+        // Button hidden until Jon is ready to explore — keep data but don't show
+        // document.getElementById('aiden-pick-btn').style.display = 'flex';
+        document.getElementById('aiden-pick-btn').style.display = 'none';
         document.getElementById('aiden-pick-btn').innerHTML = `✨ Generate Aiden's Pick — Both Versions`;
         document.getElementById('aiden-pick-btn').title = pick.reasoning || '';
         // Store pick data for generation
