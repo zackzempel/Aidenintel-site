@@ -2237,7 +2237,7 @@ footer a { color: var(--accent2); text-decoration: none; }
           ${pick.caption_hook ? `<div style="background:rgba(99,102,241,0.08);border-left:3px solid var(--accent);padding:10px 14px;border-radius:0 8px 8px 0;font-size:0.82rem;color:var(--text);font-style:italic;margin-bottom:10px;">“${pick.caption_hook}”</div>` : ''}
           ${pick.hashtags?.length ? `<div style="font-size:0.75rem;color:var(--accent2);flex-wrap:wrap;display:flex;gap:4px;">${(pick.hashtags||[]).slice(0,8).map(h => `<span style="background:rgba(99,102,241,0.1);padding:2px 8px;border-radius:20px;">${h}</span>`).join('')}</div>` : ''}
           <div style="margin-top:14px;">
-            <a href="/clients/jon/workshop.html?pick=1&preset=${encodeURIComponent(pick.shotstack_preset||'bold')}&format=${encodeURIComponent(pick.format_name||'')}&why=${encodeURIComponent((pick.why||'').substring(0,300))}&hook=${encodeURIComponent(pick.caption_hook||'')}" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:9px 16px;border-radius:8px;font-size:0.82rem;font-weight:700;text-decoration:none;">🎬 Build This in Workshop →</a>
+<!-- Build This in Workshop button hidden until Jon is ready -->
           </div>
         </div>` : ''}
 

@@ -218,12 +218,14 @@
       <div id="aiden-loading" style="color:var(--text3);font-size:0.875rem;">Loading your personalized intelligence brief...</div>
       <div id="aiden-content" style="display:none;"></div>
     </div>
-    <button class="btn-aiden" id="aiden-pick-btn" onclick="generateAidenPick()" style="display:none;">✨ Generate Aiden's Pick</button>
+    <!-- Generate Aiden's Pick button hidden until Jon is ready -->
+    <button class="btn-aiden" id="aiden-pick-btn" onclick="generateAidenPick()" style="display:none !important;">✨ Generate Aiden's Pick</button>
   </div>
 
   <!-- Aiden Creative Chat -->
-  <div class="section-label">🎨 Creative Brief</div>
-  <div class="aiden-chat-panel" id="wchat-panel">
+  <!-- Creative Brief hidden until Jon is ready to explore it -->
+  <div class="section-label" style="display:none;">🎨 Creative Brief</div>
+  <div class="aiden-chat-panel" id="wchat-panel" style="display:none;">
     <div class="aiden-chat-header" onclick="toggleWChat()">
       <div class="aiden-chat-header-left">
         <div class="aiden-chat-avatar">🎯</div>
