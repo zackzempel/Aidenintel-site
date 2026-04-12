@@ -842,8 +842,25 @@
       banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(99,102,241,0.95);color:white;padding:10px 20px;border-radius:10px;font-size:0.85rem;font-weight:700;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
       document.body.appendChild(banner);
       setTimeout(() => banner.remove(), 4000);
+      wLog('portal_deeplink', address, video);
     }
   })();
+
+  // ── Workshop Activity Logger ──────────────────────────────────────────────
+  function wLog(event_type, listing_address, video_url, preset, error_message) {
+    fetch('/api/workshop-log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_type,
+        listing_address: listing_address || document.getElementById('gen-address')?.value?.trim() || null,
+        video_url: video_url || null,
+        preset: preset || null,
+        error_message: error_message || null,
+        status: error_message ? 'error' : 'ok',
+      }),
+    }).catch(() => {}); // fire and forget — never block the UI
+  }
 </script>
 </body>
 </html>
