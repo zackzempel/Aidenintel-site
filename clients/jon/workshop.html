@@ -966,6 +966,31 @@
   // Load listings on page init
   refreshListingPicker();
 
+  // Auto-apply Aiden's Pick params from portal (?pick=1&preset=bold&format=...&why=...&hook=...)
+  (function applyPickFromPortal() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.get('pick')) return;
+    const preset  = params.get('preset')  || 'bold';
+    const format  = params.get('format')  || "Aiden's Pick";
+    const why     = params.get('why')     || '';
+    const hook    = params.get('hook')    || '';
+
+    // Apply preset
+    const chip = document.querySelector(`.preset-chip[data-preset="${preset}"]`);
+    if (chip) selectPreset(chip, preset);
+
+    // Pre-populate chat with the pick context
+    const msg = `Aiden's Pick this week is "${format}". Here's why it works: ${why}${hook ? ' Suggested hook: "' + hook + '"' : ''}. Help me build this video for my current listing.`;
+    document.getElementById('wchat-input').value = msg;
+
+    // Show a banner
+    const banner = document.createElement('div');
+    banner.innerHTML = `✨ <strong>Aiden's Pick loaded:</strong> ${format} — ${preset} preset selected. Add your listing above, then chat with Aiden to build it!`;
+    banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:12px 20px;border-radius:10px;font-size:0.82rem;font-weight:600;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.4);max-width:90vw;text-align:center;';
+    document.body.appendChild(banner);
+    setTimeout(() => banner.remove(), 5000);
+  })();
+
   // ── Workshop Activity Logger ──────────────────────────────────────────────
   function wLog(event_type, listing_address, video_url, preset, error_message) {
     fetch('/api/workshop-log', {
