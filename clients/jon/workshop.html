@@ -277,8 +277,12 @@
     <!-- Input fields -->
     <div class="gen-grid">
       <div class="field-group">
-        <label>Video URL (MP4)</label>
-        <input type="url" id="gen-video-url" placeholder="https://videos.aryeo.com/..." />
+        <label>Video URL <span style="font-weight:400;text-transform:none;letter-spacing:0;">(MP4 or Aryeo link)</span></label>
+        <div style="display:flex;gap:6px;">
+          <input type="url" id="gen-video-url" placeholder="https://videos.aryeo.com/... or agnt-media.aryeo.com/..." style="flex:1;" oninput="checkAryeoUrl()" />
+          <button id="resolve-btn" onclick="resolveAryeoUrl()" style="display:none;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.4);color:var(--accent2);border-radius:8px;padding:8px 12px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">🔍 Find MP4</button>
+        </div>
+        <div id="resolve-status" style="display:none;font-size:0.75rem;margin-top:4px;"></div>
       </div>
       <div class="field-group">
         <label>Listing Address</label>
@@ -857,6 +861,53 @@
       wLog('portal_deeplink', address, video);
     }
   })();
+
+  // ── Aryeo URL Resolver ──────────────────────────────────────────────
+  function checkAryeoUrl() {
+    const val = document.getElementById('gen-video-url').value.trim();
+    const btn = document.getElementById('resolve-btn');
+    const status = document.getElementById('resolve-status');
+    // Show the button if it looks like an Aryeo viewer URL (not already .mp4)
+    const isViewer = val.includes('aryeo.com') && !val.endsWith('.mp4');
+    btn.style.display = isViewer ? 'block' : 'none';
+    if (!isViewer) { status.style.display = 'none'; }
+  }
+
+  async function resolveAryeoUrl() {
+    const btn = document.getElementById('resolve-btn');
+    const status = document.getElementById('resolve-status');
+    const urlField = document.getElementById('gen-video-url');
+    const viewerUrl = urlField.value.trim();
+
+    btn.textContent = '⌛ Searching...';
+    btn.disabled = true;
+    status.style.display = 'block';
+    status.style.color = 'var(--text3)';
+    status.textContent = 'Looking for the direct video file...';
+
+    try {
+      const res = await fetch(`/api/resolve-video?url=${encodeURIComponent(viewerUrl)}`);
+      const data = await res.json();
+
+      if (data.error) {
+        status.style.color = '#ef4444';
+        status.textContent = '⚠️ ' + data.error;
+      } else {
+        urlField.value = data.mp4;
+        urlField.style.borderColor = 'var(--green)';
+        setTimeout(() => { urlField.style.borderColor = ''; }, 2000);
+        status.style.color = 'var(--green)';
+        status.textContent = '✅ Found! Direct MP4 loaded.';
+        btn.style.display = 'none';
+      }
+    } catch(e) {
+      status.style.color = '#ef4444';
+      status.textContent = '⚠️ Connection error — try again.';
+    }
+
+    btn.textContent = '🔍 Find MP4';
+    btn.disabled = false;
+  }
 
   // ── Listing Picker ───────────────────────────────────────────────────
   let listingPickerData = [];
