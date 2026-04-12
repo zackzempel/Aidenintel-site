@@ -130,7 +130,8 @@ export default async function handler(req, res) {
     const ts = Date.now();
     const slug = address.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase().substring(0, 30);
     const fileName = `${slug}-${preset}-${ts}.mp4`;
-    const outputUrl = await uploadToSupabase(shotstackUrl, fileName);
+    // Use Shotstack CDN URL directly — skip Supabase re-upload (avoids 413 on large files)
+    const outputUrl = shotstackUrl;
 
     return res.status(200).json({ outputUrl, fileName, renderId: renderData.response.id });
 
