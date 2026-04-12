@@ -250,6 +250,18 @@
   <div class="section-label">⚙️ Build Your Video</div>
   <div class="generator">
 
+    <!-- Listing Picker -->
+    <div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);">
+      <div style="font-size:0.75rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">📋 Load a Listing</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="listing-picker" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:0.875rem;color:var(--text);font-family:'Inter',sans-serif;outline:none;" onchange="loadListingFromPicker()">
+          <option value="">— Select a listing —</option>
+        </select>
+        <button onclick="refreshListingPicker()" style="background:none;border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text3);cursor:pointer;font-size:0.85rem;" title="Refresh listings">🔄</button>
+      </div>
+      <div style="font-size:0.72rem;color:var(--text3);margin-top:6px;">Listings come from your portal. Or paste a video URL manually below.</div>
+    </div>
+
     <!-- Style presets -->
     <div style="margin-bottom:16px;">
       <div style="font-size:0.75rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Style Preset</div>
@@ -845,6 +857,63 @@
       wLog('portal_deeplink', address, video);
     }
   })();
+
+  // ── Listing Picker ───────────────────────────────────────────────────
+  let listingPickerData = [];
+
+  async function refreshListingPicker() {
+    const sel = document.getElementById('listing-picker');
+    sel.innerHTML = '<option value="">Loading...</option>';
+    try {
+      const res = await fetch('https://oftrlapeiqvokgnsscxa.supabase.co/rest/v1/social_captions?client_id=eq.jon&order=created_at.desc&select=id,listing_address,video_url,created_at', {
+        headers: {
+          'apikey': 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB',
+          'Authorization': 'Bearer sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB',
+        }
+      });
+      const data = await res.json();
+      listingPickerData = data.filter(d => d.video_url);
+      sel.innerHTML = '<option value="">— Select a listing —</option>';
+      listingPickerData.forEach(d => {
+        const date = new Date(d.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = `${d.listing_address} (${date})`;
+        sel.appendChild(opt);
+      });
+      if (!listingPickerData.length) sel.innerHTML = '<option value="">No listings found — submit one via portal</option>';
+    } catch(e) {
+      sel.innerHTML = '<option value="">Error loading listings</option>';
+    }
+  }
+
+  function loadListingFromPicker() {
+    const sel = document.getElementById('listing-picker');
+    const id = parseInt(sel.value);
+    if (!id) return;
+    const listing = listingPickerData.find(d => d.id === id);
+    if (!listing) return;
+
+    document.getElementById('gen-video-url').value = listing.video_url || '';
+    document.getElementById('gen-address').value = listing.listing_address || '';
+
+    // Try to parse city from address
+    const parts = (listing.listing_address || '').split(',');
+    if (parts.length >= 2) {
+      document.getElementById('gen-city').value = parts.slice(-2).join(',').trim();
+    }
+
+    // Flash the URL field
+    const urlField = document.getElementById('gen-video-url');
+    urlField.style.borderColor = 'var(--accent)';
+    urlField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => { urlField.style.borderColor = ''; }, 2000);
+
+    wLog('portal_deeplink', listing.listing_address, listing.video_url);
+  }
+
+  // Load listings on page init
+  refreshListingPicker();
 
   // ── Workshop Activity Logger ──────────────────────────────────────────────
   function wLog(event_type, listing_address, video_url, preset, error_message) {
