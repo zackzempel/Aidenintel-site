@@ -1986,6 +1986,16 @@ footer a { color: var(--accent2); text-decoration: none; }
 
   async function generateRequest() {
     const btn = document.getElementById('generateBtn');
+
+    // Guard: need at least one user message
+    const userMsgs = chatHistory.filter(m => m.role === 'user');
+    if (!userMsgs.length) {
+      appendChatMsg('aiden', "It looks like our conversation wasn't saved — this can happen if the page was refreshed. No worries! Just type a quick summary of your idea below and hit Send, then click Generate Request again.");
+      btn.textContent = '✨ Looks good — Generate Request →';
+      btn.style.pointerEvents = '';
+      return;
+    }
+
     btn.textContent = '⏳ Generating…';
     btn.style.pointerEvents = 'none';
 
@@ -1993,10 +2003,12 @@ footer a { color: var(--accent2); text-decoration: none; }
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chatHistory, mode: 'summarize' })
+        body: JSON.stringify({ messages: chatHistory, mode: 'summarize', clientId: 'jon' })
       });
+      if (!res.ok) throw new Error(`API error ${res.status}`);
       const data = await res.json();
       const summary = data.text || '';
+      if (!summary) throw new Error('Empty response');
 
       // Close chat, scroll to submit form, pre-fill
       toggleChat();
@@ -2005,10 +2017,11 @@ footer a { color: var(--accent2); text-decoration: none; }
         document.getElementById('reqMessage').value = summary;
         document.getElementById('reqMessage').style.borderColor = 'rgba(99,102,241,0.5)';
         setTimeout(() => document.getElementById('reqMessage').style.borderColor = '', 2000);
-        // Auto-select "New feature idea" as default for chat-generated requests
         document.getElementById('reqType').value = 'New feature idea';
       }, 600);
     } catch(e) {
+      appendChatMsg('aiden', `Something went wrong generating the request (${e.message}). Try typing a quick summary of your idea directly in the Submit a Request section below — I'll get it.`);
+      scrollToSection('submit-request');
       btn.textContent = '✨ Looks good — Generate Request →';
       btn.style.pointerEvents = '';
     }
