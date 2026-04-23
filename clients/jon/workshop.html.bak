@@ -650,7 +650,7 @@
   migrateLibraryUrls();
   renderLibrary();
   fillCrocus();
-  // DISABLED: loadAidensPick(); // Token bleed - re-enable when Jon ready
+  loadAidensPick();
   initWChat();
 
   // ── Aiden Creative Chat ────────────────────────────────────────────────────
