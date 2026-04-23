@@ -78,8 +78,8 @@ Return ONLY valid JSON:
 }
 
 export default async function handler(req, res) {
-  // Cache for 6 hours
-  res.setHeader('Cache-Control', 's-maxage=21600, stale-while-revalidate');
+  // Cache for 24 hours (was 6) to prevent repeated API calls
+  res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=3600');
 
   try {
     const reels = await fetchReels();
@@ -110,6 +110,8 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error('aidens-pick error:', err.message);
+    // Return error but still cache it for 1 hour to prevent hammering on failures
+    res.setHeader('Cache-Control', 's-maxage=3600');
     return res.status(500).json({ error: err.message });
   }
 }
