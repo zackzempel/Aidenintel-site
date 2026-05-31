@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome — Laura | Aiden Intel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface2: #f2f2f7;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.12);
+  --accent: #0071e3;
+  --green: #34c759;
+  --yellow: #ff9f0a;
+  --red: #ff3b30;
+  --text: #1d1d1f;
+  --text2: #6e6e73;
+  --text3: #aeaeb2;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LOCK SCREEN ── */
+#lockscreen {
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 999; display: flex; align-items: center;
+  justify-content: center; padding: 24px;
+}
+.lock-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 48px 40px; width: 100%;
+  max-width: 400px; text-align: center;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+}
+.lock-logo { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+.lock-subtitle { font-size: 0.85rem; color: var(--text3); margin-bottom: 32px; }
+.lock-icon { font-size: 2.5rem; margin-bottom: 20px; }
+.lock-card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+.lock-card p { font-size: 0.875rem; color: var(--text2); margin-bottom: 28px; }
+.lock-input {
+  width: 100%; background: #f2f2f7; border: 1.5px solid transparent;
+  border-radius: 10px; padding: 13px 16px; color: var(--text);
+  font-size: 1rem; font-family: 'Inter', sans-serif; outline: none;
+  text-align: center; letter-spacing: 4px; margin-bottom: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.lock-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
+.lock-btn {
+  width: 100%; background: var(--accent); color: #fff;
+  border: none; border-radius: 10px; padding: 13px;
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: background 0.2s;
+}
+.lock-btn:hover { background: #0077ed; }
+.lock-error { color: var(--red); font-size: 0.82rem; margin-top: 10px; display: none; }
+
+/* ── MAIN ── */
+#main { display: none; }
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 60px; display: flex; align-items: center;
+  justify-content: space-between; position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { font-size: 1rem; font-weight: 800; color: var(--accent); }
+.topbar-name { font-size: 0.85rem; color: var(--text2); }
+
+.hero {
+  background: linear-gradient(135deg, #0071e3 0%, #0055b3 100%);
+  color: white; padding: 48px 32px; text-align: center;
+}
+.hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+.hero p { font-size: 1rem; opacity: 0.85; max-width: 520px; margin: 0 auto; }
+
+.container { max-width: 780px; margin: 0 auto; padding: 40px 24px 80px; }
+
+/* ── INTRO CARD ── */
+.intro-card {
+  background: var(--surface); border-radius: 16px;
+  border: 1px solid var(--border); padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+}
+.intro-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+.intro-card p { font-size: 0.9rem; color: var(--text2); line-height: 1.7; margin-bottom: 12px; }
+.intro-card p:last-child { margin-bottom: 0; }
+
+/* ── CHAT ── */
+.chat-card {
+  background: var(--surface); border-radius: 16px;
+  border: 1px solid var(--border); overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+}
+.chat-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 14px;
+}
+.chat-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #0071e3, #0055b3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; flex-shrink: 0;
+}
+.chat-header-info h3 { font-size: 0.95rem; font-weight: 700; }
+.chat-header-info p { font-size: 0.78rem; color: var(--green); font-weight: 500; }
+
+.chat-messages {
+  padding: 24px; min-height: 320px; max-height: 520px;
+  overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
+}
+.msg { display: flex; gap: 10px; align-items: flex-start; }
+.msg.user { flex-direction: row-reverse; }
+.msg-avatar {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+}
+.msg.aiden .msg-avatar { background: linear-gradient(135deg, #0071e3, #0055b3); }
+.msg.user .msg-avatar { background: var(--surface2); border: 1px solid var(--border); }
+.msg-bubble {
+  max-width: 75%; padding: 12px 16px; border-radius: 16px;
+  font-size: 0.88rem; line-height: 1.6;
+}
+.msg.aiden .msg-bubble {
+  background: var(--surface2); color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+.msg.user .msg-bubble {
+  background: var(--accent); color: white;
+  border-bottom-right-radius: 4px;
+}
+.msg-bubble p { margin-bottom: 6px; }
+.msg-bubble p:last-child { margin-bottom: 0; }
+
+.typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+.typing-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text3); animation: typingBounce 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+.chat-input-area {
+  padding: 16px 20px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; align-items: flex-end;
+}
+.chat-input {
+  flex: 1; background: var(--surface2); border: 1.5px solid transparent;
+  border-radius: 12px; padding: 12px 16px; color: var(--text);
+  font-size: 0.9rem; font-family: 'Inter', sans-serif;
+  outline: none; resize: none; max-height: 120px; line-height: 1.5;
+  transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: var(--accent); }
+.send-btn {
+  background: var(--accent); color: white; border: none;
+  border-radius: 10px; width: 42px; height: 42px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; transition: background 0.2s; flex-shrink: 0;
+}
+.send-btn:hover { background: #0077ed; }
+.send-btn:disabled { background: var(--text3); cursor: not-allowed; }
+
+.chat-footer {
+  padding: 10px 20px 14px; text-align: center;
+  font-size: 0.75rem; color: var(--text3);
+}
+
+@media (max-width: 600px) {
+  .hero { padding: 36px 20px; }
+  .hero h1 { font-size: 1.5rem; }
+  .container { padding: 24px 16px 60px; }
+  .intro-card { padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lockscreen">
+  <div class="lock-card">
+    <div class="lock-logo">Aiden Intel</div>
+    <div class="lock-subtitle">Intelligent Agentic Solutions</div>
+    <div class="lock-icon">🔐</div>
+    <h2>Welcome, Laura</h2>
+    <p>Enter the access code Zack gave you to get started.</p>
+    <input type="password" class="lock-input" id="lockInput" placeholder="••••••••" maxlength="20" />
+    <button class="lock-btn" onclick="unlock()">Enter →</button>
+    <div class="lock-error" id="lockError">Incorrect code. Try again.</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-logo">Aiden Intel</div>
+    <div class="topbar-name">Laura's Portal</div>
+  </div>
+
+  <div class="hero">
+    <h1>Hey Laura, I'm Aiden 👋</h1>
+    <p>I'm an AI built by Aiden Intel. I'm here to learn about you and your businesses so we can build something that actually helps you.</p>
+  </div>
+
+  <div class="container">
+
+    <div class="intro-card">
+      <h2>Before we get started</h2>
+      <p>Zack told me a little about you — you're running a few ventures (a rental home, a renovation project, and a van lease) and keeping track of everything is a lot. I get it.</p>
+      <p>This conversation is just for me to understand your world better. There are no wrong answers. Just talk to me like you'd talk to a friend who happens to know a lot about business and technology.</p>
+      <p>We'll go at your pace. When we're done, I'll have everything I need to start building tools that work for you. 🙂</p>
+    </div>
+
+    <div class="chat-card">
+      <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-header-info">
+          <h3>Aiden</h3>
+          <p>● Online — here for you</p>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <!-- Messages appear here -->
+      </div>
+
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chatInput" placeholder="Type your message here..." rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="chat-footer">Your conversation is private and secure.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── AUTH ──
+const SESSION_KEY = 'laura_portal_auth';
+const PASSWORD_HASH = '4c415552412032303236'; // hex for LAURA2026
+
+function hexEncode(str) {
+  return Array.from(str).map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
+}
+
+function unlock() {
+  const val = document.getElementById('lockInput').value.trim().toUpperCase();
+  if (hexEncode(val) === PASSWORD_HASH) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('lockscreen').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+    startInterview();
+  } else {
+    document.getElementById('lockError').style.display = 'block';
+    document.getElementById('lockInput').value = '';
+  }
+}
+
+document.getElementById('lockInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') unlock();
+});
+
+if (sessionStorage.getItem(SESSION_KEY)) {
+  document.getElementById('lockscreen').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  startInterview();
+}
+
+// ── CHAT ──
+const ANTHROPIC_KEY_URL = 'https://aidenintel.com/api/chat';
+
+const SYSTEM_PROMPT = `You are Aiden, a friendly and patient AI assistant built by Aiden Intel. You are conducting a discovery interview with Laura, a client who runs several small ventures: a rental home, a home she's renovating with contractors to eventually put on Airbnb, and a van she retrofitted to lease out for vacations.
+
+Your goal: understand Laura's businesses, her pain points, how she currently tracks money, what tools she uses, and what her biggest frustrations are. She is not a business person — she's entrepreneurial but lacks formal business training. Be warm, conversational, and encouraging. Never use jargon.
+
+Interview flow:
+1. Start with a warm welcome and ask her to tell you about herself and how she got into these ventures.
+2. Go through each venture one by one — understand income, expenses, how she tracks them today.
+3. Ask about her biggest headaches (invoices, contractors, taxes, tracking cash, etc.)
+4. Understand her tech comfort level — what apps does she use, what does she avoid?
+5. End by asking what one thing she wishes just "handled itself" so she didn't have to think about it.
+
+Keep responses concise and warm. Ask one or two questions at a time, not a list. This should feel like a friendly conversation, not a questionnaire. When you have enough info on a topic, move naturally to the next.
+
+Important: You are gathering information to eventually build AI agents and a simple financial tracking app for her. Do not promise specific features yet — just listen and learn.`;
+
+let conversationHistory = [];
+let isTyping = false;
+
+function addMessage(role, text) {
+  const el = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${role === 'assistant' ? 'aiden' : 'user'}`;
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = role === 'assistant' ? '🤖' : '👤';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = text.replace(/\n/g, '<br>');
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function showTyping() {
+  const el = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg aiden';
+  div.id = 'typingIndicator';
+  div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typingIndicator');
+  if (t) t.remove();
+}
+
+async function startInterview() {
+  if (conversationHistory.length > 0) return;
+  await callAI("Hello! Start the interview with a warm, brief welcome. Introduce yourself as Aiden, acknowledge that Zack set this up, and ask Laura to start by telling you a little about herself — who she is and how she got into running these ventures. Keep it to 3-4 sentences max.");
+}
+
+async function callAI(userMessage) {
+  if (isTyping) return;
+  isTyping = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  conversationHistory.push({ role: 'user', content: userMessage });
+  showTyping();
+
+  try {
+    const res = await fetch('https://aidenintel.com/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory,
+        model: 'claude-haiku-4-5',
+        max_tokens: 400
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || data.reply || "Sorry, I had trouble responding. Please try again.";
+    hideTyping();
+    conversationHistory.push({ role: 'assistant', content: reply });
+    addMessage('assistant', reply);
+  } catch(e) {
+    hideTyping();
+    addMessage('assistant', "I had a little trouble connecting. Could you try sending your message again?");
+    conversationHistory.pop();
+  }
+
+  isTyping = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || isTyping) return;
+  input.value = '';
+  input.style.height = 'auto';
+  addMessage('user', text);
+  await callAI(text);
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+</script>
+</body>
+</html>
