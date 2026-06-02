@@ -350,14 +350,13 @@ async function callAI(userMessage) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        system: SYSTEM_PROMPT,
         messages: conversationHistory,
-        model: 'claude-haiku-4-5',
-        max_tokens: 400
+        mode: 'chat',
+        clientId: 'laura'
       })
     });
     const data = await res.json();
-    const reply = data.content?.[0]?.text || data.reply || "Sorry, I had trouble responding. Please try again.";
+    const reply = data.text || "Sorry, I had trouble responding. Please try again.";
     hideTyping();
     conversationHistory.push({ role: 'assistant', content: reply });
     addMessage('assistant', reply);

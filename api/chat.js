@@ -87,6 +87,18 @@ About this client — GiGi:
 - Warm, thoughtful person. Treat her with extra care and patience. This project is personal and meaningful.`;
     }
 
+    if (clientId === 'laura') {
+      return base + `
+
+About this client — Laura:
+- Entrepreneur with multiple small ventures: rental home, home renovation project (Airbnb flip), and retrofitted van lease
+- Not formally business-trained but entrepreneurial and practical
+- Current challenges: tracking income/expenses across ventures, managing contractors, tax prep, cash flow visibility
+- Tech comfort: varies — wants simple tools, no jargon
+- Discovery goal: understand each venture, pain points, current systems, what she wishes "just handled itself"
+- Be warm, conversational, encouraging. Ask one or two questions at a time, not lists. Avoid jargon.`;
+    }
+
     // Default: Jon Severson
     return base + `
 
