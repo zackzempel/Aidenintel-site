@@ -95,6 +95,11 @@ body {
 .intro-card p { font-size: 0.9rem; color: var(--text2); line-height: 1.7; margin-bottom: 12px; }
 .intro-card p:last-child { margin-bottom: 0; }
 
+.info-card {
+  border-radius: 16px; padding: 20px;
+  margin-bottom: 24px; box-shadow: 0 1px 8px rgba(52, 199, 89, 0.08);
+}
+
 /* ── CHAT ── */
 .chat-card {
   background: var(--surface); border-radius: 16px;
@@ -222,6 +227,21 @@ body {
       <p>Zack told me a little about you — you're running a few ventures (a rental home, a renovation project, and a van lease) and keeping track of everything is a lot. I get it.</p>
       <p>This conversation is just for me to understand your world better. There are no wrong answers. Just talk to me like you'd talk to a friend who happens to know a lot about business and technology.</p>
       <p>We'll go at your pace. When we're done, I'll have everything I need to start building tools that work for you. 🙂</p>
+    </div>
+
+    <div class="info-card" style="background: linear-gradient(135deg, rgba(52, 199, 89, 0.1) 0%, rgba(52, 199, 89, 0.05) 100%); border: 1px solid rgba(52, 199, 89, 0.3); border-left: 4px solid var(--green);">
+      <div style="display: flex; gap: 12px; align-items: flex-start;">
+        <div style="font-size: 1.4rem; flex-shrink: 0;">🔐</div>
+        <div>
+          <h3 style="margin: 0 0 8px 0; font-size: 0.95rem; font-weight: 600; color: var(--text);">Your conversation is safe</h3>
+          <p style="margin: 0 0 6px 0; font-size: 0.85rem; color: var(--text2); line-height: 1.5;"><strong>We're backing up everything automatically:</strong></p>
+          <ul style="margin: 4px 0; padding-left: 16px; font-size: 0.85rem; color: var(--text2);">
+            <li>Saved in your browser (instantly)</li>
+            <li>Saved to our secure cloud (in the background)</li>
+          </ul>
+          <p style="margin: 8px 0 0 0; font-size: 0.85rem; color: var(--text2);"><strong>📥 Download anytime:</strong> Click the download button in the chat to export your full transcript as a text file.</p>
+        </div>
+      </div>
     </div>
 
     <div class="chat-card">
