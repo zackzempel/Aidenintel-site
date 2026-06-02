@@ -281,7 +281,7 @@ if (sessionStorage.getItem(SESSION_KEY)) {
 }
 
 // ── CHAT ──
-const ANTHROPIC_KEY_URL = 'https://aidenintel.com/api/chat';
+const ANTHROPIC_KEY_URL = 'https://www.aidenintel.com/api/chat';
 
 const SYSTEM_PROMPT = `You are Aiden, a friendly and patient AI assistant built by Aiden Intel. You are conducting a discovery interview with Laura, a client who runs several small ventures: a rental home, a home she's renovating with contractors to eventually put on Airbnb, and a van she retrofitted to lease out for vacations.
 
@@ -346,7 +346,7 @@ async function callAI(userMessage) {
   showTyping();
 
   try {
-    const res = await fetch('https://aidenintel.com/api/chat', {
+    const res = await fetch('https://www.aidenintel.com/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
