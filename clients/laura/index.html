@@ -240,9 +240,10 @@ body {
       <div class="chat-input-area">
         <textarea class="chat-input" id="chatInput" placeholder="Type your message here..." rows="1"
           onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="exportBtn" onclick="exportTranscript()" title="Download transcript">📥</button>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
       </div>
-      <div class="chat-footer">Your conversation is private and secure.</div>
+      <div class="chat-footer">Your conversation is private and secure. • <a href="#" onclick="exportTranscript(); return false;" style="color: var(--accent); text-decoration: none;">Download</a></div>
     </div>
 
   </div>
@@ -311,15 +312,44 @@ Important: You are gathering information to eventually build AI agents and a sim
 
 let conversationHistory = [];
 let isTyping = false;
+const SUPABASE_URL = 'https://oftrlapeiqvokgnsscxa.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5Yb-xvGR2Wbng3dK5gSODg_Dl5v_mtB';
 
 function saveConversation() {
+  // Save to localStorage (instant, always works)
   localStorage.setItem('laura_conversation', JSON.stringify(conversationHistory));
+  
+  // Auto-save to Supabase (fire and forget, gracefully fails if DNS down)
+  saveToSupabase();
+}
+
+async function saveToSupabase() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/laura_interviews`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      },
+      body: JSON.stringify({
+        client_id: 'laura',
+        conversation: conversationHistory
+      })
+    });
+    // Silent success — don't clutter Laura's experience
+  } catch(e) {
+    // Silent fail — localStorage is the safety net
+  }
 }
 
 function resumeInterview() {
   // Only start new interview if no history exists
   if (conversationHistory.length === 0) {
     startInterview();
+  } else {
+    // Silent save to Supabase on page load (in case table is now available)
+    saveToSupabase();
   }
 }
 
@@ -414,6 +444,34 @@ function handleKey(e) {
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function exportTranscript() {
+  if (conversationHistory.length === 0) {
+    alert('No conversation to export yet.');
+    return;
+  }
+  
+  // Format as readable text
+  let transcript = 'Laura Discovery Interview\n';
+  transcript += `Exported: ${new Date().toLocaleString()}\n`;
+  transcript += '='.repeat(60) + '\n\n';
+  
+  conversationHistory.forEach((msg, i) => {
+    const speaker = msg.role === 'assistant' ? 'Aiden' : 'Laura';
+    transcript += `${speaker}:\n${msg.content}\n\n`;
+  });
+  
+  // Create download
+  const blob = new Blob([transcript], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Laura_Interview_${new Date().toISOString().split('T')[0]}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 </script>
 </body>
