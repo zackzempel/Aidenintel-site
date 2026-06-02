@@ -260,10 +260,10 @@ function hexEncode(str) {
 function unlock() {
   const val = document.getElementById('lockInput').value.trim().toUpperCase();
   if (hexEncode(val) === PASSWORD_HASH) {
-    sessionStorage.setItem(SESSION_KEY, '1');
+    localStorage.setItem(SESSION_KEY, '1');
     document.getElementById('lockscreen').style.display = 'none';
     document.getElementById('main').style.display = 'block';
-    startInterview();
+    resumeInterview();
   } else {
     document.getElementById('lockError').style.display = 'block';
     document.getElementById('lockInput').value = '';
@@ -274,10 +274,21 @@ document.getElementById('lockInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') unlock();
 });
 
-if (sessionStorage.getItem(SESSION_KEY)) {
+if (localStorage.getItem(SESSION_KEY)) {
   document.getElementById('lockscreen').style.display = 'none';
   document.getElementById('main').style.display = 'block';
-  startInterview();
+  const saved = localStorage.getItem('laura_conversation');
+  if (saved) {
+    conversationHistory = JSON.parse(saved);
+    // Restore messages to UI
+    const messages = JSON.parse(saved);
+    const el = document.getElementById('chatMessages');
+    el.innerHTML = '';
+    messages.forEach(msg => {
+      addMessage(msg.role === 'assistant' ? 'assistant' : 'user', msg.content);
+    });
+  }
+  resumeInterview();
 }
 
 // ── CHAT ──
@@ -300,6 +311,17 @@ Important: You are gathering information to eventually build AI agents and a sim
 
 let conversationHistory = [];
 let isTyping = false;
+
+function saveConversation() {
+  localStorage.setItem('laura_conversation', JSON.stringify(conversationHistory));
+}
+
+function resumeInterview() {
+  // Only start new interview if no history exists
+  if (conversationHistory.length === 0) {
+    startInterview();
+  }
+}
 
 function addMessage(role, text) {
   const el = document.getElementById('chatMessages');
@@ -343,6 +365,7 @@ async function callAI(userMessage) {
   document.getElementById('sendBtn').disabled = true;
 
   conversationHistory.push({ role: 'user', content: userMessage });
+  saveConversation();
   showTyping();
 
   try {
@@ -359,6 +382,7 @@ async function callAI(userMessage) {
     const reply = data.text || "Sorry, I had trouble responding. Please try again.";
     hideTyping();
     conversationHistory.push({ role: 'assistant', content: reply });
+    saveConversation();
     addMessage('assistant', reply);
   } catch(e) {
     hideTyping();
